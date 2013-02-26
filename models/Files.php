@@ -18,7 +18,20 @@ class Files extends \lithium\data\Model {
 	);
  */
 	public static function bindTo($model) {
+/*
+	public function files($entity) {
+		if (!$entity->files) {
+			return array();
+		}
+		$files = array_filter($entity->files->data());
 
+		return Files::all(array(
+			'conditions' => array(
+				'_id' => array('$in' => $files)
+			)
+		));
+	}
+ */
 	}
 
 	public function url($entity) {
