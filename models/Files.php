@@ -100,12 +100,19 @@ Files::finder('listOriginal', function($self, $params, $chain) {
 Files::applyFilter('create', function($self, $params, $chain) {
 	$data =& $params['data'];
 
-	// From form upload.
-	if (!empty($data['file']['name'])) {
+	if (isset($data['file'])) {
+		$data['mime_type'] = Mime_Type::guessType(
+			$data['file']
+		);
 		$data['extension'] = Mime_Type::guessExtension(
-			$data['file']['name']
+			$data['file']
 		);
 	}
+
+	// stream -> bytes, lihtium interpreting strings as bytes
+	rewind($data['file']);
+	$data['file'] = stream_get_contents($data['file']);
+
 	return $chain->next($self, $params, $chain);
 });
 
@@ -125,7 +132,7 @@ Files::applyFilter('save', function($self, $params, $chain) {
 	$entity = Files::first((string) $params['entity']->_id); // refresh
 
 	$version = FileVersions::create(array(
-		'file' => $entity->file->getBytes(),
+		'file' => $entity->file->getResource(),
 		'filename' => $entity->filename
 	));
 	if ($version->save()) { // may skip on invalid input

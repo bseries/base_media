@@ -3,10 +3,14 @@
 
 	<h2>Upload</h2>
 	<?= $this->form->create(null, array('type' => 'file')) ?>
-		<?=  $this->form->field('transfer', array(
+		<?=  $this->form->field('transfer.form', array(
 			'type' => 'file',
-			'label' => 'File',
+			'label' => '(a) File (from computer)',
 			'value' => false
+		)) ?>
+		<?= $this->form->field('transfer.url', array(
+			'type' => 'text',
+			'label' => '(b) File (URL)'
 		)) ?>
 	<?= $this->form->submit('Upload') ?>
 	<?= $this->form->end() ?>

@@ -12,11 +12,11 @@ class FileVersions extends \cms_media\models\Files {}
 
 FileVersions::applyFilter('save', function($self, $params, $chain) {
 	$source = fopen('php://temp', 'wb');
-	fwrite($source, $params['entity']->file); // bytes
+
+	stream_copy_to_stream($params['entity']->file, $source); // resource
 	rewind($source);
 
 	Logger::debug("Saving file version for file.");
-
 	try {
 		$media = Media_Process::factory(compact('source'));
 	} catch (\ImagickException $e) {

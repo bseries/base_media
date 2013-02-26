@@ -4,17 +4,34 @@ namespace cms_media\controllers;
 
 use cms_media\models\Files;
 use lithium\core\Libraries;
+use temporary\Manager as Temporary;
 
 class FilesController extends \lithium\action\Controller {
 
 	public function admin_index() {
 		if ($this->request->data) {
-			$source = $this->request->data['transfer'];
+			if ($this->request->data['transfer']['url']) {
+				$source = $this->request->data['transfer']['url'];
+				$filename = basename($source);
+
+				$handle = fopen($source, 'rb');
+				$temporary = Temporary::file();
+
+				file_put_contents($temporary, $handle);
+				fclose($handle);
+				$source = $temporary;
+
+			} else {
+				$source = $this->request->data['transfer']['form']['tmp_name'];
+				$filename = $this->request->data['transfer']['form']['name'];
+			}
 
 			$file = Files::create(array(
-				'file' => $source
+				'file' => $handle = fopen($source, 'rb'),
+				'filename' => $filename,
 			));
 			$file->save();
+			fclose($handle);
 		}
 
 		$data = Files::original();
