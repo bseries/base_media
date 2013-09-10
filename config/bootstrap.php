@@ -25,6 +25,6 @@ Media::applyFilter('view', function($self, $params, $chain) {
 	}
 	return $chain->next($self, $params, $chain);
 });
- */
+*/
 
 ?>

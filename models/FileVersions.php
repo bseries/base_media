@@ -8,7 +8,12 @@ use cms_media\models\Files;
 use lithium\analysis\Logger;
 use temporary\Manager as Temporary;
 
-class FileVersions extends \cms_media\models\Files {}
+class FileVersions extends \cms_media\models\Files {
+
+	protected $_meta = array(
+		'source' => 'media_file_versions'
+	);
+}
 
 FileVersions::applyFilter('save', function($self, $params, $chain) {
 	$source = fopen('php://temp', 'wb');

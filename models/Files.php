@@ -8,34 +8,12 @@ use cms_media\models\FileVersions;
 
 class Files extends \lithium\data\Model {
 
-	protected $_meta = array('source' => 'fs.files');
-/*
-	protected $_schema = array(
-		'_id'  => array('type' => 'id'),
-		'filename' => array('type' => 'string', 'null' => false),
-		'extension' => array('type' => 'string', 'null' => false),
-		'versions' => array('type' => null, 'null' => true)
+	protected $_meta = array(
+		'source' => 'media_files'
 	);
- */
-	public static function bindTo($model) {
-/*
-	public function files($entity) {
-		if (!$entity->files) {
-			return array();
-		}
-		$files = array_filter($entity->files->data());
-
-		return Files::all(array(
-			'conditions' => array(
-				'_id' => array('$in' => $files)
-			)
-		));
-	}
- */
-	}
 
 	public function url($entity) {
-		return '/files/' . $entity->_id . '.' . $entity->extension;
+		return '/media/' . $entity->_id . '.' . $entity->extension;
 	}
 
 	public function mimeType($entity) {
