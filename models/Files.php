@@ -5,6 +5,7 @@ namespace cms_media\models;
 use \Mime_Type;
 use \Media_Process;
 use cms_media\models\FileVersions;
+use lithium\core\Environment;
 
 class Files extends \lithium\data\Model {
 
@@ -13,7 +14,11 @@ class Files extends \lithium\data\Model {
 	);
 
 	public function url($entity) {
-		return '/media/' . $entity->_id . '.' . $entity->extension;
+		if ($entity->scheme == 'file') {
+			$base = Environment::get('media.url');
+			return $base . '/' . $entity->path;
+		}
+		return $entity->path;
 	}
 
 	public function mimeType($entity) {
