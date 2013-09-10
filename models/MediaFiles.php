@@ -4,14 +4,10 @@ namespace cms_media\models;
 
 use \Mime_Type;
 use \Media_Process;
-use cms_media\models\FileVersions;
+use cms_media\models\MediaFileVersions;
 use lithium\core\Environment;
 
-class Files extends \lithium\data\Model {
-
-	protected $_meta = array(
-		'source' => 'media_files'
-	);
+class MediaFiles extends \lithium\data\Model {
 
 	public function url($entity) {
 		if ($entity->scheme == 'file') {
@@ -30,7 +26,7 @@ class Files extends \lithium\data\Model {
 			return array();
 		}
 		$files = array_filter($entity->versions->data());
-		$docs = FileVersions::all(array(
+		$docs = MediaFileVersions::all(array(
 			'conditions' => array(
 				'_id' => array('$in' => array_values($files))
 			)
@@ -73,13 +69,13 @@ class Files extends \lithium\data\Model {
 	}
 }
 
-Files::finder('original', function($self, $params, $chain) {
+MediaFiles::finder('original', function($self, $params, $chain) {
 	$params['options']['conditions'] = array(
 		'versions' => array('$exists' => true),
 	);
 	return $chain->next($self, $params, $chain);
 });
-Files::finder('listOriginal', function($self, $params, $chain) {
+MediaFiles::finder('listOriginal', function($self, $params, $chain) {
 	$params['options']['conditions'] = array(
 		'versions' => array('$exists' => true),
 	);
@@ -93,7 +89,7 @@ Files::finder('listOriginal', function($self, $params, $chain) {
 });
 
 
-Files::applyFilter('create', function($self, $params, $chain) {
+MediaFiles::applyFilter('create', function($self, $params, $chain) {
 	$data =& $params['data'];
 
 	if (isset($data['file'])) {
@@ -113,7 +109,7 @@ Files::applyFilter('create', function($self, $params, $chain) {
 });
 
 // Also delete versions.
-Files::applyFilter('delete', function($self, $params, $chain) {
+MediaFiles::applyFilter('delete', function($self, $params, $chain) {
 	$data =& $params['data'];
 	$versions = $params['entity']->versions();
 
@@ -123,11 +119,11 @@ Files::applyFilter('delete', function($self, $params, $chain) {
 	return $chain->next($self, $params, $chain);
 });
 
-Files::applyFilter('save', function($self, $params, $chain) {
+MediaFiles::applyFilter('save', function($self, $params, $chain) {
 	$result = $chain->next($self, $params, $chain);
-	$entity = Files::first((string) $params['entity']->_id); // refresh
+	$entity = MediaFiles::first((string) $params['entity']->_id); // refresh
 
-	$version = FileVersions::create(array(
+	$version = MediaFileVersions::create(array(
 		'file' => $entity->file->getResource(),
 		'filename' => $entity->filename
 	));

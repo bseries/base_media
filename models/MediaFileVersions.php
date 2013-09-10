@@ -4,18 +4,15 @@ namespace cms_media\models;
 
 use \Mime_Type;
 use \Media_Process;
-use cms_media\models\Files;
+use cms_media\models\MediaFiles;
 use lithium\analysis\Logger;
 use temporary\Manager as Temporary;
 
-class FileVersions extends \cms_media\models\Files {
+class MediaFileVersions extends \cms_media\models\MediaFiles {
 
-	protected $_meta = array(
-		'source' => 'media_file_versions'
-	);
 }
 
-FileVersions::applyFilter('save', function($self, $params, $chain) {
+MediaFileVersions::applyFilter('save', function($self, $params, $chain) {
 	$source = fopen('php://temp', 'wb');
 
 	stream_copy_to_stream($params['entity']->file, $source); // resource
