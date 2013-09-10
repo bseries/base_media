@@ -1,0 +1,35 @@
+BUREAU Media
+-- Media Functionality for Bureau.
+
+Synopsis
+--------
+n/a
+
+Authors
+-------
+David Persson for Atelier Disko (david@atelierdisko.de).
+
+Copyright & License
+-------------------
+Bureau is Copyright (c) 2013 and beyond Atelier Disko. All rights reserved.
+
+-- This software is proprietary and confidential. Redistributions  --
+-- not permitted. No warranty, explicit or implicit provided.      --
+
+Copyright and license information for contained 3rd party libraries can
+be found in (a) the `vendors/licenses` directory, (b) the header of the files
+contained in the library or (c) the directory of the library.
+
+Versions & Requirements
+-----------------------
+Bureau follows the rolling release development model. Code in the master
+branch should always considered to be stable. While code in the dev branch
+should be considered unstable or sometimes even expiremental.
+
+There are no versions as in the standard release development model but
+snapshots. The master branch may be tagged ("snapshotted") at any point in
+time when a significant point of development has been reached.
+
+Snapshots are schemed as follows:
+[current year, two digit].[index, zero based]
+
