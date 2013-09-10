@@ -6,7 +6,7 @@ use cms_media\models\MediaFiles;
 use lithium\core\Libraries;
 use temporary\Manager as Temporary;
 
-class MediaFilesController extends \lithium\action\Controller {
+class FilesController extends \lithium\action\Controller {
 
 	public function admin_index() {
 		if ($this->request->data) {
