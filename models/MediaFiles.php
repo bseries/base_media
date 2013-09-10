@@ -21,13 +21,14 @@ class MediaFiles extends \lithium\data\Model {
 	}
 
 	public function file($entity) {
-		if (isset($entity->file)) {
-			return $entity->file;
-		}
 		if ($entity->scheme == 'file') {
 			$base = Environment::get('transfers.path');
 			return $base . '/' . $entity->path;
 		}
+	}
+
+	public function isConsistent($entity) {
+		return hash_file('md5', $entity->file) === $entity->checksum;
 	}
 
 	public function version($entity, $version) {
@@ -58,13 +59,15 @@ class MediaFiles extends \lithium\data\Model {
 		return $this->_cachedVersions = $results;
 	}
 
-	public static function generateTargetPath($via, $from) {
-		extract(is_file($from['file']) ? $from : $via);
+	public static function generateTargetPath($source) {
+		$base = Environment::get('transfers.path');
+		$extension = Mime_Type::guessExtension($source);
 
-		if (!empty($mimeType)) {
-			$extension = Mime_Type::guessExtension($mimeType);
-		}
+		return static::_generatePath($base, $extension);
+	}
 
+	// @fixme Re-factor this into Media_Util::generatePath()
+	protected static function _generatePath($base, $extension) {
 		$chars = 'abcdef0123456789';
 		$length = 8;
 
@@ -81,12 +84,73 @@ class MediaFiles extends \lithium\data\Model {
 			if (!empty($extension)) {
 				$path .= '.' . strtolower($extension);
 			}
-		} while (file_exists(TRANSFERS . $path));
+		} while (file_exists($base . '/' . $path));
 
-		return $path;
+		return $base . '/' . $path;
 	}
 }
 
+// Filter running before saving.
+MediaFiles::applyFilter('save', function($self, $params, $chain) {
+	$entity = $params['entity'];
+
+	if (!$entity->source) {
+		return $chain->next($self, $params, $chain);
+	}
+	$source = parse_url($entity->source);
+
+	if ($source['scheme'] === 'file') {
+		$target = MediaFiles::generateTargetPath($source['path']);
+
+		Logger::debug("Copying local (tranferred) file from `{$source['path']}` to `{$target}`.");
+		if (!copy($source['path'], $target)) {
+			return false;
+		}
+	}
+	$entity->scheme    = $source['scheme'];
+	$entity->path      = $source['path'];
+
+	// Get and save meta data once.
+	$entity->type      = Mime_Type::guessName($source['path']);
+	$entity->mime_type = Mime_Type::guessType($source['path']);
+	$entity->checksum  = hash_file('md5', $source['path']);
+
+	return $chain->next($self, $params, $chain);
+});
+
+// Filter running after save.
+// Make versions that dependent on the saved file.
+// @fixme Make multiple versions by configuration.
+MediaFiles::applyFilter('save', function($self, $params, $chain) {
+	$entity = $params['entity'];
+
+	// Check if we already failed earlier.
+	if (!$result = $chain->next($self, $params, $chain)) {
+		return $result;
+	}
+	if (!$entity->source) {
+		return $result;
+	}
+	$version = MediaFileVersions::create([
+		'source' => $entity->source,
+		'version' => 'fix0',
+		'media_file_id' => $entity->id
+	]);
+	return $version->save();
+});
+
+// Also delete dependent versions.
+MediaFiles::applyFilter('delete', function($self, $params, $chain) {
+	$data =& $params['data'];
+	$versions = $params['entity']->versions();
+
+	foreach ($versions as $version) {
+		$version->delete();
+	}
+	return $chain->next($self, $params, $chain);
+});
+
+/*
 MediaFiles::finder('original', function($self, $params, $chain) {
 	$params['options']['conditions'] = array(
 		'versions' => array('$exists' => true),
@@ -105,42 +169,8 @@ MediaFiles::finder('listOriginal', function($self, $params, $chain) {
 	}
 	return $data;
 });
+ */
 
 
-MediaFiles::applyFilter('create', function($self, $params, $chain) {
-	$data =& $params['data'];
 
-	if (isset($data['file'])) {
-		$data['type'] = Mime_Type::guessName($data['file']);
-		$data['mime_type'] = Mime_Type::guessType($data['file']);
-		$data['checksum'] = hash_file('md5', $data['file']);
-	}
-	return $chain->next($self, $params, $chain);
-});
-
-// Also delete versions.
-MediaFiles::applyFilter('delete', function($self, $params, $chain) {
-	$data =& $params['data'];
-	$versions = $params['entity']->versions();
-
-	foreach ($versions as $version) {
-		$version->delete();
-	}
-	return $chain->next($self, $params, $chain);
-});
-
-MediaFiles::applyFilter('save', function($self, $params, $chain) {
-	// Check if we already failed earlier.
-	if (!$result = $chain->next($self, $params, $chain)) {
-		return $result;
-	}
-
-	// $entity = MediaFiles::first((string) $params['entity']->id); // refresh?
-	$version = MediaFileVersions::create([
-		'file' => $entity->file(), // The original "from" file.
-		'version' => 'fix0',
-		'media_file_id' => $entity->id
-	]);
-	return $version->save();
-});
 ?>

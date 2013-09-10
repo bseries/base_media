@@ -9,32 +9,36 @@ use temporary\Manager as Temporary;
 class FilesController extends \lithium\action\Controller {
 
 	public function admin_index() {
+		// Handle transfer via URL or form uplaod.
 		if ($this->request->data) {
 			if ($this->request->data['transfer']['url']) {
 				$source = $this->request->data['transfer']['url'];
-				$filename = basename($source);
+				$sourceHandle = fopen($source, 'rb');
 
-				$handle = fopen($source, 'rb');
 				$temporary = Temporary::file();
+				$temporaryHandle = fopen($temporary, 'wb');
 
-				file_put_contents($temporary, $handle);
-				fclose($handle);
+				stream_copy_to_stream($sourceHandle, $temporaryHandle);
+
+				fclose($sourceHandle);
+				fclose($temporaryHandle);
+
+				$filename = basename($source); // Must come first.
 				$source = $temporary;
-
 			} else {
 				$source = $this->request->data['transfer']['form']['tmp_name'];
 				$filename = $this->request->data['transfer']['form']['name'];
 			}
-
 			$file = MediaFiles::create(array(
-				'file' => $handle = fopen($source, 'rb'),
-				'filename' => $filename,
+				'source' => 'file://' . $source,
+				'title' => $filename
+				// deliberately not passing extension as a hint as we want to
+				// rely on detecting the MIME type by contents of the file
+				// only.
 			));
 			$file->save();
-			fclose($handle);
 		}
-
-		$data = MediaFiles::original();
+		$data = MediaFiles::all();
 		return compact('data');
 	}
 
