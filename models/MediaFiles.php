@@ -9,63 +9,81 @@ use lithium\core\Environment;
 
 class MediaFiles extends \lithium\data\Model {
 
+	protected $_cachedVersions = [];
+
+	// @fixme Transfers do not have an URL, yet.
 	public function url($entity) {
 		if ($entity->scheme == 'file') {
-			$base = Environment::get('media.url');
+			$base = Environment::get('transfers.url');
 			return $base . '/' . $entity->path;
 		}
 		return $entity->path;
 	}
 
-	public function mimeType($entity) {
-		return static::_detectMimeType($entity->file->getBytes());
+	public function file($entity) {
+		if (isset($entity->file)) {
+			return $entity->file;
+		}
+		if ($entity->scheme == 'file') {
+			$base = Environment::get('transfers.path');
+			return $base . '/' . $entity->path;
+		}
 	}
 
-	public function versions($entity, $name = null) {
-		if (!$entity->versions) {
-			return array();
+	public function version($entity, $version) {
+		if (isset($this->_cachedVersions[$type])) {
+			return $this->_cachedVersions[$type];
 		}
-		$files = array_filter($entity->versions->data());
-		$docs = MediaFileVersions::all(array(
-			'conditions' => array(
-				'_id' => array('$in' => array_values($files))
-			)
-		));
-
-		$values = array();
-		foreach ($docs as $doc) {
-			$values[] = $doc;
-		}
-
-		if (!$values) {
-			// trigger_error("No file versions found for keys " . implode($files) . '.', E_USER_NOTICE);
-			return array();
-		}
-		$result = array_combine(array_keys($files), $values);
-
-		if ($name) {
-			return $result[$name];
-		}
-		return $result;
+		return $this->_cachedVersions[$type] = MediaFileVersions::first([
+			'conditions' => [
+				'media_file_id' => $entity->id,
+				'version' => $name
+			]
+		]);
 	}
 
-	public static function _detectMimeType($data) {
-		$context = finfo_open(FILEINFO_MIME);
-
-		if (is_resource($data)) {
-			rewind($data);
-			$peekBytes = 1000000;
-			$result = finfo_buffer($context, fread($data, $peekBytes));
-		} else {
-			$result = finfo_buffer($context, $data);
+	public function versions($entity) {
+		if ($this->_cachedVersions) {
+			return $this->_cachedVersions;
 		}
-		list($type, $attributes) = explode(';', $result, 2) + array(null, null);
-
-		finfo_close($context);
-
-		if ($type != 'application/x-empty') {
-			return $type;
+		$data = MediaFileVersions::all([
+			'conditions' => [
+				'media_file_id' => $entity->id
+			]
+		]);
+		$results = [];
+		foreach ($data as $item) {
+			$results[$item->version] = $item;
 		}
+		return $this->_cachedVersions = $results;
+	}
+
+	public static function generateTargetPath($via, $from) {
+		extract(is_file($from['file']) ? $from : $via);
+
+		if (!empty($mimeType)) {
+			$extension = Mime_Type::guessExtension($mimeType);
+		}
+
+		$chars = 'abcdef0123456789';
+		$length = 8;
+
+		// Birthday problem: Likelihood of collision with 1M strings is 0.18%.
+		// Prevent collisions. If this happens too "often" expand charset first.
+		do {
+			// Generate a random string for each round.
+			$random = '';
+			while (strlen($random) < $length) {
+				$random .= substr($chars, mt_rand(0, strlen($chars) - 1), 1);
+			}
+			$path = substr($random, 0, 2) . '/' . substr($random, 2);
+
+			if (!empty($extension)) {
+				$path .= '.' . strtolower($extension);
+			}
+		} while (file_exists(TRANSFERS . $path));
+
+		return $path;
 	}
 }
 
@@ -93,18 +111,10 @@ MediaFiles::applyFilter('create', function($self, $params, $chain) {
 	$data =& $params['data'];
 
 	if (isset($data['file'])) {
-		$data['mime_type'] = Mime_Type::guessType(
-			$data['file']
-		);
-		$data['extension'] = Mime_Type::guessExtension(
-			$data['file']
-		);
+		$data['type'] = Mime_Type::guessName($data['file']);
+		$data['mime_type'] = Mime_Type::guessType($data['file']);
+		$data['checksum'] = hash_file('md5', $data['file']);
 	}
-
-	// stream -> bytes, lihtium interpreting strings as bytes
-	rewind($data['file']);
-	$data['file'] = stream_get_contents($data['file']);
-
 	return $chain->next($self, $params, $chain);
 });
 
@@ -120,21 +130,17 @@ MediaFiles::applyFilter('delete', function($self, $params, $chain) {
 });
 
 MediaFiles::applyFilter('save', function($self, $params, $chain) {
-	$result = $chain->next($self, $params, $chain);
-	$entity = MediaFiles::first((string) $params['entity']->_id); // refresh
-
-	$version = MediaFileVersions::create(array(
-		'file' => $entity->file->getResource(),
-		'filename' => $entity->filename
-	));
-	if ($version->save()) { // may skip on invalid input
-		if (!$entity->versions) {
-			$entity->versions = array();
-		}
-		// @fixme If we directly assign we loose keys.
-		$entity->versions = array('fix0' => $version->_id);
-		$entity->save(null, array('callbacks' => false)); // prevent recursion
+	// Check if we already failed earlier.
+	if (!$result = $chain->next($self, $params, $chain)) {
+		return $result;
 	}
-	return $result;
+
+	// $entity = MediaFiles::first((string) $params['entity']->id); // refresh?
+	$version = MediaFileVersions::create([
+		'file' => $entity->file(), // The original "from" file.
+		'version' => 'fix0',
+		'media_file_id' => $entity->id
+	]);
+	return $version->save();
 });
 ?>

@@ -8,14 +8,38 @@ use cms_media\models\MediaFiles;
 use lithium\analysis\Logger;
 use temporary\Manager as Temporary;
 
-class MediaFileVersions extends \cms_media\models\MediaFiles {
+class MediaFileVersions extends \lithium\data\Model {
 
+	public function url($entity) {
+		if ($entity->scheme == 'file') {
+			$base = Environment::get('media.url');
+			return $base . '/' . $entity->path;
+		}
+		return $entity->path;
+	}
+
+	public function file($entity) {
+		if (isset($entity->file)) {
+			return $entity->file;
+		}
+		if ($entity->scheme == 'file') {
+			$base = Environment::get('media.path');
+			return $base . '/' . $entity->path;
+		}
+	}
+
+	public static function generateTargetPath() {
+
+	}
 }
 
 MediaFileVersions::applyFilter('save', function($self, $params, $chain) {
+	$entity = $params['entity'];
 	$source = fopen('php://temp', 'wb');
+	$target = fopen(, 'wb');
 
-	stream_copy_to_stream($params['entity']->file, $source); // resource
+	// Turn original file into source.
+	stream_copy_to_stream($entity->file(), $source);
 	rewind($source);
 
 	Logger::debug("Saving file version for file.");
@@ -24,14 +48,13 @@ MediaFileVersions::applyFilter('save', function($self, $params, $chain) {
 	} catch (\ImagickException $e) {
 		Logger::debug('Make failed with: ' . $e->getMessage());
 
-		rewind($source);
-		file_put_contents($p = Temporary::file(array('preserve' => true)), $source);
-		Logger::debug('Source file saved to: ' . $p);
+//		rewind($source);
+//		file_put_contents($p = Temporary::file(array('preserve' => true)), $source);
+//		Logger::debug('Source file saved to: ' . $p);
 		throw $e;
 	}
-	if ($media->name() == 'image') {
-		$target = fopen('php://temp', 'wb');
 
+	if ($media->name() == 'image') {
 		$media->convert('image/png');
 		$media->fit(200, 600);
 		$media->strip('8bim', 'app1', 'app12');
