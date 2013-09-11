@@ -136,7 +136,7 @@ Media::applyFilter('save', function($self, $params, $chain) {
 			continue;
 		}
 		$version = MediaVersions::create([
-			'media_file_id' => $entity->id,
+			'media_id' => $entity->id,
 			'source' => $entity->url,
 			'version' => $version
 			// Versions don't have an user id as their records are already

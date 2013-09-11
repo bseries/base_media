@@ -2,7 +2,7 @@
 
 namespace cms_media\controllers;
 
-use cms_media\models\MediaFiles;
+use cms_media\models\Media;
 use lithium\core\Libraries;
 use temporary\Manager as Temporary;
 
@@ -13,16 +13,14 @@ class FilesController extends \lithium\action\Controller {
 		if ($this->request->data) {
 			if ($this->request->data['transfer']['url']) {
 				$source = $this->request->data['transfer']['url'];
-
-				$filename = basename($source); // Must come first.
-				$source = $temporary;
-				$transfer = false;
+				$title = basename($source);
+				$transfer = true;
 			} else {
 				$source = 'file://' . $this->request->data['transfer']['form']['tmp_name'];
 				$title = $this->request->data['transfer']['form']['name'];
 				$transfer = true;
 			}
-			$file = MediaFiles::create([
+			$file = Media::create([
 				'source' => $source,
 				'title' => $title
 				// deliberately not passing extension as a hint as we want to
@@ -31,17 +29,17 @@ class FilesController extends \lithium\action\Controller {
 			]);
 			$file->save();
 		}
-		$data = MediaFiles::all();
+		$data = Media::all();
 		return compact('data');
 	}
 
 	public function admin_delete() {
-		MediaFiles::find($this->request->id)->delete();
+		Media::find($this->request->id)->delete();
 		$this->redirect(['action' => 'index', 'library' => 'cms_media']);
 	}
 
 	public function admin_edit() {
-		$item = MediaFiles::find($this->request->id);
+		$item = Media::find($this->request->id);
 
 		if (!$item) {
 			$this->redirect(['action' => 'index', 'library' => 'cms_media']);
@@ -69,7 +67,7 @@ class FilesController extends \lithium\action\Controller {
 
 		$transfer->run();
 
-		MediaFiles::create($transfer->result);
+		Media::create($transfer->result);
 	}
 
 	public function import() {
