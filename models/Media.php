@@ -97,6 +97,8 @@ Media::applyFilter('save', function($self, $params, $chain) {
 	}
 	// Make source local if transfer is true-ish.
 	if ($entity->transfer) {
+		Logger::debug('Saw request for transfer.');
+
 		if (!$target = Media::transfer($entity->source)) {
 			return false;
 		}
