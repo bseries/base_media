@@ -4,12 +4,11 @@ namespace cms_media\models;
 
 use \Mime_Type;
 use \Media_Process;
-use cms_media\models\MediaFiles;
 use lithium\analysis\Logger;
 use temporary\Manager as Temporary;
 use lithium\core\Libraries;
 
-class MediaFileVersions extends \lithium\data\Model {
+class MediaVersions extends \lithium\data\Model {
 
 	use \cms_media\models\ChecksumTrait;
 	use \cms_media\models\UrlTrait;
@@ -198,7 +197,7 @@ class MediaFileVersions extends \lithium\data\Model {
 	}
 }
 
-MediaFileVersions::applyFilter('save', function($self, $params, $chain) {
+MediaVersions::applyFilter('save', function($self, $params, $chain) {
 	$entity = $params['entity'];
 
 	if (!$entity->source || !$entity->version) {
@@ -209,10 +208,10 @@ MediaFileVersions::applyFilter('save', function($self, $params, $chain) {
 
 	if ($source['scheme'] == 'file') {
 		// We can only "make" local file versions.
-		if (!$target = MediaFileVersions::make($entity->source, $entity->version)) {
+		if (!$target = MediaVersions::make($entity->source, $entity->version)) {
 			return false;
 		}
-		$entity->url = MediaFileVersions::relativeUrl($target);
+		$entity->url = MediaVersions::relativeUrl($target);
 		$entity->checksum = $entity->calculateChecksum();
 	} else {
 		// Save all other source as-is.

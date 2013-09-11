@@ -2,11 +2,11 @@
 
 namespace cms_media\models;
 
-use cms_media\models\MediaFileVersions;
+use cms_media\models\MediaVersions;
 use lithium\core\Environment;
 use lithium\analysis\Logger;
 
-class MediaFiles extends \lithium\data\Model {
+class Media extends \lithium\data\Model {
 
 	use \cms_media\models\ChecksumTrait;
 	use \cms_media\models\UrlTrait;
@@ -21,7 +21,7 @@ class MediaFiles extends \lithium\data\Model {
 		if (isset($this->_cachedVersions[$type])) {
 			return $this->_cachedVersions[$type];
 		}
-		return $this->_cachedVersions[$type] = MediaFileVersions::first([
+		return $this->_cachedVersions[$type] = MediaVersions::first([
 			'conditions' => [
 				'media_file_id' => $entity->id,
 				'version' => $name
@@ -33,7 +33,7 @@ class MediaFiles extends \lithium\data\Model {
 		if ($this->_cachedVersions) {
 			return $this->_cachedVersions;
 		}
-		$data = MediaFileVersions::all([
+		$data = MediaVersions::all([
 			'conditions' => [
 				'media_file_id' => $entity->id
 			]
@@ -88,7 +88,7 @@ class MediaFiles extends \lithium\data\Model {
 }
 
 // Filter running before saving.
-MediaFiles::applyFilter('save', function($self, $params, $chain) {
+Media::applyFilter('save', function($self, $params, $chain) {
 	$entity = $params['entity'];
 
 	if (!$entity->source) {
@@ -96,7 +96,7 @@ MediaFiles::applyFilter('save', function($self, $params, $chain) {
 	}
 	// Make source local if transfer is true-ish.
 	if ($entity->transfer) {
-		if (!$target = MediaFiles::transfer($entity->source)) {
+		if (!$target = Media::transfer($entity->source)) {
 			return false;
 		}
 		// Target of the transfer becomes the new source. We're not cleaning up
@@ -106,7 +106,7 @@ MediaFiles::applyFilter('save', function($self, $params, $chain) {
 	$source = parse_url($entity->source);
 
 	if ($source['scheme'] == 'file') {
-		$entity->url = MediaFiles::relativeUrl($target);
+		$entity->url = Media::relativeUrl($target);
 		$entity->checksum = $entity->calculateChecksum();
 	} else {
 		// Save all other source as-is.
@@ -122,7 +122,7 @@ MediaFiles::applyFilter('save', function($self, $params, $chain) {
 // Filter running after save.
 // Make versions that dependent on the saved file.
 // @fixme Make multiple versions by configuration.
-MediaFiles::applyFilter('save', function($self, $params, $chain) {
+Media::applyFilter('save', function($self, $params, $chain) {
 	$entity = $params['entity'];
 
 	if (!$result = $chain->next($self, $params, $chain)) {
@@ -131,11 +131,11 @@ MediaFiles::applyFilter('save', function($self, $params, $chain) {
 	$versions = array('fix0', 'fix1', 'fix2', 'flux0', 'flux1');
 
 	foreach ($versions as $version) {
-		$has = MediaFileVersions::hasInstructions($entity->type, $version);
+		$has = MediaVersions::hasInstructions($entity->type, $version);
 		if (!$has) {
 			continue;
 		}
-		$version = MediaFileVersions::create([
+		$version = MediaVersions::create([
 			'media_file_id' => $entity->id,
 			'source' => $entity->url,
 			'version' => $version
@@ -152,7 +152,7 @@ MediaFiles::applyFilter('save', function($self, $params, $chain) {
 });
 
 // Also delete dependent versions.
-MediaFiles::applyFilter('delete', function($self, $params, $chain) {
+Media::applyFilter('delete', function($self, $params, $chain) {
 	$data =& $params['data'];
 	$versions = $params['entity']->versions();
 
@@ -163,13 +163,13 @@ MediaFiles::applyFilter('delete', function($self, $params, $chain) {
 });
 
 /*
-MediaFiles::finder('original', function($self, $params, $chain) {
+Media::finder('original', function($self, $params, $chain) {
 	$params['options']['conditions'] = array(
 		'versions' => array('$exists' => true),
 	);
 	return $chain->next($self, $params, $chain);
 });
-MediaFiles::finder('listOriginal', function($self, $params, $chain) {
+Media::finder('listOriginal', function($self, $params, $chain) {
 	$params['options']['conditions'] = array(
 		'versions' => array('$exists' => true),
 	);
