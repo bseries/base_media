@@ -7,22 +7,87 @@ use \Media_Process;
 use cms_media\models\MediaFiles;
 use lithium\analysis\Logger;
 use temporary\Manager as Temporary;
+use lithium\core\Libraries;
 
 class MediaFileVersions extends \lithium\data\Model {
 
-	// Returns the assembly instructions for a specific version.
-	protected static function _instructions($version) {
-		$sRGB = APP . 'plugins/media/libs/mm/data/sRGB_IEC61966-2-1_black_scaled.icc';
+	public function url($entity) {
+		if ($entity->scheme == 'file') {
+			$base = Environment::get('media.url');
+			return $base . '/' . $entity->path;
+		}
+		return $entity->path;
+	}
 
-		/* Base static versions. */
+	public function file($entity) {
+		if ($entity->scheme == 'file') {
+			$base = Environment::get('media.path');
+			return $base . '/' . $entity->path;
+		}
+	}
+
+	public function isConsistent($entity) {
+		return hash_file('md5', $entity->file) === $entity->checksum;
+	}
+
+	public static function generateTargetPath($source, $version) {
+		$instructions = static::_instructions(Mime_Type::guessName($source), $version);
+
+		$path  = Environment::get('media.path') . '/' . $version;
+		$path .= '/' . pathinfo($source, PATHINFO_DIRNAME);
+		$path .= '/' . pathinfo($source, PATHINFO_FILENAME);
+
+		// Instead of re-using the extension from source we have to take the
+		// target extension into account as the target maybe converted.
+		$extension = Mime_Type::guessExtension($instructions['convert']);
+
+		if ($extension) {
+			$path .= '.' . $extension;
+		}
+		return $path;
+	}
+
+	public static function make($source, $target, $version) {
+		$media = Media_Process::factory(compact('source'));
+
+		if ($media->name() == 'image') {
+			$media->convert('image/png');
+			$media->fit(200, 600);
+			$media->strip('8bim', 'app1', 'app12');
+			$media->compress(5.5);
+			$media->colorDepth(0);
+
+			$media->store($target);
+
+			$params['entity']->file = stream_get_contents($target);
+
+			$params['entity']->filename = pathinfo($params['entity']->filename, PATHINFO_FILENAME) . '.png';
+			$params['entity']->extension = 'png';
+
+			fclose($source);
+			fclose($target);
+		} else {
+			unset($params['entity']->file);
+			unset($params['entity']->filename);
+
+			fclose($source);
+			return false;
+		}
+	}
+
+	// Returns the assembly instructions for a specific media type and version.
+	protected static function _instructions($type, $version) {
+		$sRGB = Libraries::get('mm', 'path') . '/data/sRGB_IEC61966-2-1_black_scaled.icc';
+
+		// Base static versions.
 
 		$fix = [
 			'convert' => 'image/png',
 			'compress' => 5.5,
 			'colorProfile' => $sRGB,
 			'colorDepth' => 8,
-			/* @see MediaFile::_crush() */
-			'crush' => true
+			// @see MediaFile::_crush()
+			// 'crush' => true
 		];
 		$fix0 = [
 			'strip' => ['8bim', 'app1', 'app12'],
@@ -41,8 +106,8 @@ class MediaFileVersions extends \lithium\data\Model {
 			'fit' => [100, 52]
 		];
 
-		/* Base timebased versions.
-		   flux0 is always closed, flux1 is open format. */
+		// Base timebased versions.
+		// flux0 is always closed, flux1 is open format.
 
 		$fluxAudio = [
 			'sampleRate' => 48000,
@@ -52,15 +117,15 @@ class MediaFileVersions extends \lithium\data\Model {
 			'fit' => [680, 470], // 1280x720 hd, 640x480, 680x470
 			'threads' => 2, // 0 to auto-select number of threads
 			'ar' => 48000,
-			/* @see MediaFile::_faststart() */
-			'faststart' => true
+			// @see MediaFile::_faststart()
+			// 'faststart' => true
 		];
 
-		/* Filter and version definitions. */
+		// Filter and version definitions.
 
-		Configure::write('Media.filter', [
+		$instructions = [
 			'audio' => [
-				/* @see MediaFile::_waveform() */
+				// @see MediaFile::_waveform()
 				'fix0' => ['waveform' => [180, 75]],
 				'fix1' => ['waveform' => [180, 75]],
 				'fix2' => ['waveform' => [180, 75]],
@@ -112,72 +177,8 @@ class MediaFileVersions extends \lithium\data\Model {
 					'qscale' => 8 // Theora quality, higher is better.
 				]
 			]
-		]);
-
-	}
-
-	public function url($entity) {
-		if ($entity->scheme == 'file') {
-			$base = Environment::get('media.url');
-			return $base . '/' . $entity->path;
-		}
-		return $entity->path;
-	}
-
-	public function file($entity) {
-		if ($entity->scheme == 'file') {
-			$base = Environment::get('media.path');
-			return $base . '/' . $entity->path;
-		}
-	}
-
-	public function isConsistent($entity) {
-		return hash_file('md5', $entity->file) === $entity->checksum;
-	}
-
-	public static function generateTargetPath($source, $version) {
-		$base = Environment::get('media.path') . '/' . $version;
-
-		$path  = $base;
-		$path .= '/' . pathinfo($source, PATHINFO_DIRNAME);
-		$path .= '/' . pathinfo($source, PATHINFO_FILENAME);
-
-		// Instead of re-using the extension from source we have to take the
-		// target extension into account as the target maybe converted.
-		$extension = Mime_Type::guessExtension($version['convert']);
-
-		if ($extension) {
-			$path .= '.' . $extension;
-		}
-		return $path;
-	}
-
-	public static function make($source, $target, $version) {
-		$media = Media_Process::factory(compact('source'));
-
-		if ($media->name() == 'image') {
-			$media->convert('image/png');
-			$media->fit(200, 600);
-			$media->strip('8bim', 'app1', 'app12');
-			$media->compress(5.5);
-			$media->colorDepth(0);
-
-			$media->store($target);
-
-			$params['entity']->file = stream_get_contents($target);
-
-			$params['entity']->filename = pathinfo($params['entity']->filename, PATHINFO_FILENAME) . '.png';
-			$params['entity']->extension = 'png';
-
-			fclose($source);
-			fclose($target);
-		} else {
-			unset($params['entity']->file);
-			unset($params['entity']->filename);
-
-			fclose($source);
-			return false;
-		}
+		];
+		return $instructions[$version];
 	}
 }
 

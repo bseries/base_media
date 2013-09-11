@@ -18,7 +18,6 @@ Environment::set(true, [
 		]
 	]
 ]);
-
 Media_Process::config([
 	// 'audio' => 'SoxShell',
 	'document' => 'Imagick',
