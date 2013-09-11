@@ -225,4 +225,17 @@ MediaVersions::applyFilter('save', function($self, $params, $chain) {
 	return $chain->next($self, $params, $chain);
 });
 
+MediaVersions::applyFilter('delete', function($self, $params, $chain) {
+	$url = $params['entity']->url;
+
+	if (!$chain->next($self, $params, $chain)) {
+		return false;
+	}
+	// Delete only files that are local and within base.
+	if (strpos($url, static::_base('file')) !== false) {
+		return unlink($url);
+	}
+	return true;
+});
+
 ?>

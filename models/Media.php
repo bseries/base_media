@@ -152,22 +152,32 @@ Media::applyFilter('save', function($self, $params, $chain) {
 			// id.
 		]);
 		if (!$version->save()) {
-			Logger::debug("Failed to save media file version `{$version}`.");
+			Logger::debug("Failed to save media version `{$version}`.");
 			return false;
 		}
 	}
 	return true;
 });
 
-// Also delete dependent versions.
-Media::applyFilter('delete', function($self, $params, $chain) {
-	$data =& $params['data'];
-	$versions = $params['entity']->versions();
+MediaVersions::applyFilter('delete', function($self, $params, $chain) {
+	$url = $params['entity']->url;
 
-	foreach ($versions as $version) {
-		$version->delete();
+	if (!$chain->next($self, $params, $chain)) {
+		return false;
 	}
-	return $chain->next($self, $params, $chain);
+
+	// Delete only files that are local and within base.
+	if (strpos($url, static::_base('file')) !== false) {
+		return unlink($url);
+	}
+
+	// Also delete dependent versions.
+	foreach ($versions as $version) {
+		if (!$version->delete()) {
+			return false;
+		}
+	}
+	return true;
 });
 
 /*
