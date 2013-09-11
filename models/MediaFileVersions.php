@@ -11,68 +11,81 @@ use lithium\core\Libraries;
 
 class MediaFileVersions extends \lithium\data\Model {
 
-	public function url($entity) {
-		if ($entity->scheme == 'file') {
-			$base = Environment::get('media.url');
-			return $base . '/' . $entity->path;
-		}
-		return $entity->path;
+	use \cms_media\models\ChecksumTrait;
+	use \cms_media\models\UrlTrait;
+
+	protected static function _base($scheme) {
+		return Environment::get('mediaFileVersions.' . $scheme);
 	}
 
-	public function file($entity) {
-		if ($entity->scheme == 'file') {
-			$base = Environment::get('media.path');
-			return $base . '/' . $entity->path;
-		}
-	}
-
-	public function isConsistent($entity) {
-		return hash_file('md5', $entity->file) === $entity->checksum;
-	}
-
-	public static function generateTargetPath($source, $version) {
+	protected static function _generateTargetUrl($source, $version) {
+		$base = static::_base('file') . '/' . $version;
 		$instructions = static::_instructions(Mime_Type::guessName($source), $version);
 
-		$path  = Environment::get('media.path') . '/' . $version;
-		$path .= '/' . pathinfo($source, PATHINFO_DIRNAME);
-		$path .= '/' . pathinfo($source, PATHINFO_FILENAME);
-
-		// Instead of re-using the extension from source we have to take the
-		// target extension into account as the target maybe converted.
-		$extension = Mime_Type::guessExtension($instructions['convert']);
-
-		if ($extension) {
-			$path .= '.' . $extension;
+		if (isset($instructions['clone'])) {
+			// Guess from source filename or contents.
+			$extension = Mime_Type::guessExtension($source);
+		} else {
+			// Instead of re-using the extension from source we have to take
+			// the target extension into account as the target maybe converted;
+			// we guess from the MIME type as this is fastest.
+			$extension = Mime_Type::guessExtension($instructions['convert']);
 		}
-		return $path;
+		return static::_uniqueUrl($base, $extension, ['exists' => true]);
 	}
 
-	public static function make($source, $target, $version) {
-		$media = Media_Process::factory(compact('source'));
+	// Will (re-)generate version from source and return target path on success.
+	public static function make($sourcce, $version) {
+		if (parse_url($source, PHP_URL_SCHEME) != 'file') {
+			throw new Exception('Can only make from source with file scheme.');
+		}
 
-		if ($media->name() == 'image') {
-			$media->convert('image/png');
-			$media->fit(200, 600);
-			$media->strip('8bim', 'app1', 'app12');
-			$media->compress(5.5);
-			$media->colorDepth(0);
+		$media = Media_Process::factory(['source' => $source]);
+		$target = static::_generateTargetUrl($source, $version);
+		$instructions = static::_instructions($media->name(), $entity->version);
 
-			$media->store($target);
+		Logger::debug("Making version `{$version}` of `{$source}` to `{$target}`.");
 
-			$params['entity']->file = stream_get_contents($target);
+		// Process builtin instructions.
+		if (isset($instructions['clone'])) {
+			$action = $instructions['clone'];
 
-			$params['entity']->filename = pathinfo($params['entity']->filename, PATHINFO_FILENAME) . '.png';
-			$params['entity']->extension = 'png';
-
-			fclose($source);
-			fclose($target);
-		} else {
-			unset($params['entity']->file);
-			unset($params['entity']->filename);
-
-			fclose($source);
+			if (in_array($action, array('copy', 'link', 'symlink'))) {
+				if (call_user_func($action, $source, $target)) {
+					return true;
+				}
+			}
 			return false;
 		}
+		try {
+			// Process `Media_Process_*` instructions
+			foreach ($instructions as $method => $args) {
+				if (is_int($method)) {
+					$method = $args;
+					$args = null;
+				}
+				if (method_exists($media, $method)) {
+					$result = call_user_func_array(array($media, $method), (array) $args);
+				} else {
+					$result = $media->passthru($method, $args);
+				}
+				if ($result === false) {
+					return false;
+				} elseif (is_a($result, 'Media_Process_Generic')) {
+					$media = $result;
+				}
+			}
+			$target = $media->store($target);
+
+		} catch (\ImagickException $e) {
+			Logger::debug('Making entity failed with: ' . $e->getMessage());
+			return false;
+		}
+		return $target;
+	}
+
+	public static function hasInstructions($type, $version) {
+		return (boolean) static::_instructions($type, $version);
 	}
 
 	// Returns the assembly instructions for a specific media type and version.
@@ -178,28 +191,38 @@ class MediaFileVersions extends \lithium\data\Model {
 				]
 			]
 		];
-		return $instructions[$version];
+		if (isset($instructions[$type][$version])) {
+			return $instructions[$type][$version];
+		}
+		return false;
 	}
 }
 
 MediaFileVersions::applyFilter('save', function($self, $params, $chain) {
 	$entity = $params['entity'];
 
-	if (!$entity->source) {
+	if (!$entity->source || !$entity->version) {
+		// @fixme Consider failing here.
 		return $chain->next($self, $params, $chain);
 	}
-	$entity->path = MediaFileVersions::generateTargetPath($entity->source, $entity->version);
+	$source = parse_url($entity->source);
 
-	$source = fopen($entity->source, 'rb');
-	$target = fopen($entity->path, 'wb');
-
-	Logger::debug("Generating version `{$entity->version}` of `{$entity->source}` to `{$entity->path}`.");
-	try {
-		MediaFileVersions::make($source, $target, $entity->version);
-	} catch (\ImagickException $e) {
-		Logger::debug('Make failed with: ' . $e->getMessage());
-		return false;
+	if ($source['scheme'] == 'file') {
+		// We can only "make" local file versions.
+		if (!$target = MediaFileVersions::make($entity->source, $entity->version)) {
+			return false;
+		}
+		$entity->url = MediaFileVersions::relativeUrl($target);
+		$entity->checksum = $entity->calculateChecksum();
+	} else {
+		// Save all other source as-is.
+		$entity->url = $source;
+		$entity->checksum = null;
 	}
+	$entity->type      = Mime_Type::guessName($target);
+	$entity->mime_type = Mime_Type::guessType($target);
+
+	unset($entity->source);
 
 	return $chain->next($self, $params, $chain);
 });

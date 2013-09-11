@@ -13,25 +13,18 @@ class FilesController extends \lithium\action\Controller {
 		if ($this->request->data) {
 			if ($this->request->data['transfer']['url']) {
 				$source = $this->request->data['transfer']['url'];
-				$sourceHandle = fopen($source, 'rb');
-
-				$temporary = Temporary::file();
-				$temporaryHandle = fopen($temporary, 'wb');
-
-				stream_copy_to_stream($sourceHandle, $temporaryHandle);
-
-				fclose($sourceHandle);
-				fclose($temporaryHandle);
 
 				$filename = basename($source); // Must come first.
 				$source = $temporary;
+				$transfer = false;
 			} else {
-				$source = $this->request->data['transfer']['form']['tmp_name'];
-				$filename = $this->request->data['transfer']['form']['name'];
+				$source = 'file://' . $this->request->data['transfer']['form']['tmp_name'];
+				$title = $this->request->data['transfer']['form']['name'];
+				$transfer = true;
 			}
 			$file = MediaFiles::create([
-				'source' => 'file://' . $source,
-				'title' => $filename
+				'source' => $source,
+				'title' => $title
 				// deliberately not passing extension as a hint as we want to
 				// rely on detecting the MIME type by contents of the file
 				// only.

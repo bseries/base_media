@@ -2,33 +2,19 @@
 
 namespace cms_media\models;
 
-use \Mime_Type;
-use \Media_Process;
 use cms_media\models\MediaFileVersions;
 use lithium\core\Environment;
+use lithium\analysis\Logger;
 
 class MediaFiles extends \lithium\data\Model {
 
+	use \cms_media\models\ChecksumTrait;
+	use \cms_media\models\UrlTrait;
+
 	protected $_cachedVersions = [];
 
-	// @fixme Transfers do not have an URL, yet.
-	public function url($entity) {
-		if ($entity->scheme == 'file') {
-			$base = Environment::get('transfers.url');
-			return $base . '/' . $entity->path;
-		}
-		return $entity->path;
-	}
-
-	public function file($entity) {
-		if ($entity->scheme == 'file') {
-			$base = Environment::get('transfers.path');
-			return $base . '/' . $entity->path;
-		}
-	}
-
-	public function isConsistent($entity) {
-		return hash_file('md5', $entity->file) === $entity->checksum;
+	protected static function _base($scheme) {
+		return Environment::get('mediaFiles.' . $scheme);
 	}
 
 	public function version($entity, $version) {
@@ -59,34 +45,45 @@ class MediaFiles extends \lithium\data\Model {
 		return $this->_cachedVersions = $results;
 	}
 
-	public static function generateTargetPath($source) {
-		$base = Environment::get('transfers.path');
-		$extension = Mime_Type::guessExtension($source);
+	// Tranfers a source to target - aka make the source local.
+	// May use streams where appropriate.
+	public static function transfer($source) {
+		Logger::debug("Transferring from source `{$source}`.");
 
-		return static::_generatePath($base, $extension);
+		// Transfer over local file to get access to contents for
+		// safe MIME type detection in a seekable stream.
+		if (parse_url($source, PHP_URL_SCHEMA) != 'file') {
+			Logger::debug('Transferring via temporary stream.');
+
+			$temporary = fopen('php://temp', 'wb');
+
+			if (!$result = copy($source, $temporary)) {
+				fclose($temporary);
+				throw new Exception('Could not copy from source to temporary stream.');
+			}
+			rewind($temporary);
+
+			// $source is now a stream and no URL anymore.
+			$source = $temporary;
+		}
+		$target = static::_generateTargetUrl($sourceStream);
+		$result = copy($source, $target);
+
+		if (is_resource($source)) {
+			fclose($source);
+		}
+		if (!$result) {
+			throw new Exception('Could not copy from source (stream) to target.');
+		}
+		Logger::debug("Transferred to target `{$target}`.");
+		return $target;
 	}
 
-	// @fixme Re-factor this into Media_Util::generatePath()
-	protected static function _generatePath($base, $extension) {
-		$chars = 'abcdef0123456789';
-		$length = 8;
+	protected static function _generateTargetUrl($source) {
+		$base      = static::_base('file');
+		$extension = Mime_Type::guessExtension($source);
 
-		// Birthday problem: Likelihood of collision with 1M strings is 0.18%.
-		// Prevent collisions. If this happens too "often" expand charset first.
-		do {
-			// Generate a random string for each round.
-			$random = '';
-			while (strlen($random) < $length) {
-				$random .= substr($chars, mt_rand(0, strlen($chars) - 1), 1);
-			}
-			$path = substr($random, 0, 2) . '/' . substr($random, 2);
-
-			if (!empty($extension)) {
-				$path .= '.' . strtolower($extension);
-			}
-		} while (file_exists($base . '/' . $path));
-
-		return $base . '/' . $path;
+		return static::_uniqueUrl($base, $extension, ['exists' => true]);
 	}
 }
 
@@ -97,23 +94,27 @@ MediaFiles::applyFilter('save', function($self, $params, $chain) {
 	if (!$entity->source) {
 		return $chain->next($self, $params, $chain);
 	}
-	$source = parse_url($entity->source);
-
-	if ($source['scheme'] === 'file') {
-		$target = MediaFiles::generateTargetPath($source['path']);
-
-		Logger::debug("Copying local (tranferred) file from `{$source['path']}` to `{$target}`.");
-		if (!copy($source['path'], $target)) {
+	// Make source local if transfer is true-ish.
+	if ($entity->transfer) {
+		if (!$target = MediaFiles::transfer($entity->source)) {
 			return false;
 		}
+		// Target of the transfer becomes the new source. We're not cleaning up
+		// the source as we cannot be sure about its origin.
+		$source = $target;
 	}
-	$entity->scheme    = $source['scheme'];
-	$entity->path      = $source['path'];
+	$source = parse_url($entity->source);
 
-	// Get and save meta data once.
-	$entity->type      = Mime_Type::guessName($source['path']);
-	$entity->mime_type = Mime_Type::guessType($source['path']);
-	$entity->checksum  = hash_file('md5', $source['path']);
+	if ($source['scheme'] == 'file') {
+		$entity->url = MediaFiles::relativeUrl($target);
+		$entity->checksum = $entity->calculateChecksum();
+	} else {
+		// Save all other source as-is.
+		$entity->url = $source;
+		$entity->checksum = null;
+	}
+	$entity->type      = Mime_Type::guessName($source);
+	$entity->mime_type = Mime_Type::guessType($source);
 
 	return $chain->next($self, $params, $chain);
 });
@@ -124,19 +125,30 @@ MediaFiles::applyFilter('save', function($self, $params, $chain) {
 MediaFiles::applyFilter('save', function($self, $params, $chain) {
 	$entity = $params['entity'];
 
-	// Check if we already failed earlier.
 	if (!$result = $chain->next($self, $params, $chain)) {
 		return $result;
 	}
-	if (!$entity->source) {
-		return $result;
+	$versions = array('fix0', 'fix1', 'fix2', 'flux0', 'flux1');
+
+	foreach ($versions as $version) {
+		$has = MediaFileVersions::hasInstructions($entity->type, $version);
+		if (!$has) {
+			continue;
+		}
+		$version = MediaFileVersions::create([
+			'media_file_id' => $entity->id,
+			'source' => $entity->url,
+			'version' => $version
+			// Versions don't have an user id as their records are already
+			// associated with a media_file record an thus indirectly carry an user
+			// id.
+		]);
+		if (!$version->save()) {
+			Logger::debug("Failed to save media file version `{$version}`.");
+			return false;
+		}
 	}
-	$version = MediaFileVersions::create([
-		'source' => $entity->source,
-		'version' => 'fix0',
-		'media_file_id' => $entity->id
-	]);
-	return $version->save();
+	return true;
 });
 
 // Also delete dependent versions.
