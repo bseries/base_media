@@ -4,7 +4,7 @@ namespace cms_media\models;
 
 use Exception;
 
-trait MediaFilesUrlTrait {
+trait UrlTrait {
 
 	// Assumes when requesting http, https would be ok, too.
 	// Always returns absolute URLs.

@@ -2,7 +2,7 @@
 
 namespace cms_media\models;
 
-trait MediaFilesChecksumTrait {
+trait ChecksumTrait {
 
 	// Will fail with absolute URLs and non-transitionable ones.
 	// @fixme support for http apis that respond with a md5 header field.
