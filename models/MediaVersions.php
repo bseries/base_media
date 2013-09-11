@@ -213,9 +213,9 @@ MediaVersions::applyFilter('save', function($self, $params, $chain) {
 		$entity->url = MediaVersions::relativeUrl($target);
 		$entity->checksum = $entity->calculateChecksum();
 	} else {
-		// Save all other source as-is.
-		$entity->url = $source;
-		$entity->checksum = null;
+		if (!$entity->url) {
+			throw new Exception('Cannot make local version of non-file scheme source and no URL was provided.');
+		}
 	}
 	$entity->type      = Mime_Type::guessName($target);
 	$entity->mime_type = Mime_Type::guessType($target);
