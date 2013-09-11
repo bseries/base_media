@@ -2,6 +2,7 @@
 
 namespace cms_media\models;
 
+use \Mime_Type;
 use cms_media\models\MediaVersions;
 use lithium\core\Environment;
 use lithium\analysis\Logger;
