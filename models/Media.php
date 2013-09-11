@@ -114,7 +114,6 @@ Media::applyFilter('save', function($self, $params, $chain) {
 	} else {
 		// Save all other source as-is.
 		$entity->url = $source;
-		$entity->checksum = null;
 	}
 	$entity->type      = Mime_Type::guessName($source);
 	$entity->mime_type = Mime_Type::guessType($source);
