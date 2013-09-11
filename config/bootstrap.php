@@ -17,6 +17,17 @@ Environment::set(true, array(
 	)
 ));
 
+Media_Process::config([
+	'audio' => 'SoxShell',
+	'document' => 'Imagick',
+	'image' => 'Imagick',
+	'video' => 'FfmpegShell'
+]);
+Media_Info::config([
+	'document' => ['Imagick'],
+	'image' => ['ImageBasic', 'Imagick']
+]);
+
 // Use app layout for this library.
 /*
 Media::applyFilter('view', function($self, $params, $chain) {
