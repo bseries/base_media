@@ -201,7 +201,6 @@ MediaVersions::applyFilter('save', function($self, $params, $chain) {
 	$entity = $params['entity'];
 
 	if (!$entity->source || !$entity->version) {
-		// @fixme Consider failing here.
 		return $chain->next($self, $params, $chain);
 	}
 	$source = parse_url($entity->source);

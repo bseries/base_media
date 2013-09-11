@@ -123,7 +123,6 @@ Media::applyFilter('save', function($self, $params, $chain) {
 
 // Filter running after save.
 // Make versions that dependent on the saved file.
-// @fixme Make multiple versions by configuration.
 Media::applyFilter('save', function($self, $params, $chain) {
 	$entity = $params['entity'];
 
