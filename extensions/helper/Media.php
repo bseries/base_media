@@ -6,25 +6,25 @@ use lithium\core\Environment;
 
 class Media extends \lithium\template\Helper {
 
-	protected $_strings = array(
+	protected $_strings = [
 		'image'            => '<img src="{:path}"{:options} />',
-	);
+	];
 
-	public $contentMap = array(
+	public $contentMap = [
 		'image' => 'image',
-	);
+	];
 
-	public function image($path, array $options = array()) {
+	public function image($path, array $options = []) {
 		$path = $this->url($path);
 
-		$defaults = array('alt' => '');
+		$defaults = ['alt' => ''];
 		$options += $defaults;
-		$path = $this->_context->url($path, array('absolute' => true));
+		$path = $this->_context->url($path, ['absolute' => true]);
 		$params = compact('path', 'options');
 		$method = __METHOD__;
 
 		return $this->_filter($method, $params, function($self, $params, $chain) use ($method) {
-			return $self->invokeMethod('_render', array($method, 'image', $params));
+			return $self->invokeMethod('_render', [$method, 'image', $params]);
 		});
 	}
 

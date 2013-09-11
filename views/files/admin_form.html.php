@@ -10,7 +10,7 @@
 		<img src="<?= $item->versions('fix0')->url() ?>" />
 
 		<?php if ($edit): ?>
-			<?=$this->form->field('_id', array('type' => 'hidden')) ?>
+			<?=$this->form->field('_id', ['type' => 'hidden']) ?>
 		<?php endif ?>
 		<?=$this->form->field('filename') ?>
 		<?=$this->form->submit('Save')  ?>

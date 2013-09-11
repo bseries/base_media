@@ -12,8 +12,8 @@ $edit = true;
 	<?php endforeach ?>
 </ul>
 <?php endif ?>
-<?=  $this->form->field('transfer', array(
+<?=  $this->form->field('transfer', [
 	'type' => 'file',
 	'label' => 'File',
 	'value' => false
-)); ?>
+]); ?>

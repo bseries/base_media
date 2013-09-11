@@ -7,13 +7,13 @@ Router::connect('/files/reserve', 'Files::reserve');
 Router::connect('/files/transfer', 'Files::transfer');
 Router::connect('/files/import', 'Files::import');
 
-Router::connect('/files', array('controller' => 'files', 'action' => 'index', 'library' => 'cms_media'));
+Router::connect('/files', ['controller' => 'files', 'action' => 'index', 'library' => 'cms_media']);
 
-Router::connect('/files/{:action}/{:id:[0-9a-f]{24}}', array(
+Router::connect('/files/{:action}/{:id:[0-9a-f]{24}}', [
 	'controller' => 'files', 'library' => 'cms_media'
-));
-Router::connect('/files/{:action}/{:args}', array(
+]);
+Router::connect('/files/{:action}/{:args}', [
 	'controller' => 'files', 'library' => 'cms_media'
-));
+]);
 
 ?>

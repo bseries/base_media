@@ -4,18 +4,18 @@ use lithium\core\Environment;
 use lithium\core\Libraries;
 use lithium\net\http\Media;
 
-Libraries::add('mm', array(
+Libraries::add('mm', [
 	'bootstrap' => 'bootstrap.php',
 	'path' => dirname(__DIR__) . '/libraries/mm'
-));
+]);
 
-Environment::set(true, array(
-	'modules' => array(
-		'files' => array(
+Environment::set(true, [
+	'modules' => [
+		'files' => [
 			'library' => 'cms_media', 'title' => 'Files', 'name' => 'files', 'slug' => 'files'
-		)
-	)
-));
+		]
+	]
+]);
 
 Media_Process::config([
 	'audio' => 'SoxShell',

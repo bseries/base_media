@@ -2,16 +2,16 @@
 	<h1>Files</h1>
 
 	<h2>Upload</h2>
-	<?= $this->form->create(null, array('type' => 'file')) ?>
-		<?=  $this->form->field('transfer.form', array(
+	<?= $this->form->create(null, ['type' => 'file']) ?>
+		<?=  $this->form->field('transfer.form', [
 			'type' => 'file',
 			'label' => '(a) File (from computer)',
 			'value' => false
-		)) ?>
-		<?= $this->form->field('transfer.url', array(
+		]) ?>
+		<?= $this->form->field('transfer.url', [
 			'type' => 'text',
 			'label' => '(b) File (URL)'
-		)) ?>
+		]) ?>
 	<?= $this->form->submit('Upload') ?>
 	<?= $this->form->end() ?>
 
@@ -30,8 +30,8 @@
 				<?= $item->filename ?>
 			<td>
 				<nav class="actions">
-					<?=$this->html->link('edit', array('action' => 'edit', 'id' => $item->_id, 'library' => 'cms_media')) ?>
-					<?=$this->html->link('delete', array('action' => 'delete', 'id' => $item->_id, 'library' => 'cms_media')) ?>
+					<?=$this->html->link('edit', ['action' => 'edit', 'id' => $item->_id, 'library' => 'cms_media']) ?>
+					<?=$this->html->link('delete', ['action' => 'delete', 'id' => $item->_id, 'library' => 'cms_media']) ?>
 				</nav>
 		<?php endforeach ?>
 		</table>

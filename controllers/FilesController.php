@@ -29,13 +29,13 @@ class FilesController extends \lithium\action\Controller {
 				$source = $this->request->data['transfer']['form']['tmp_name'];
 				$filename = $this->request->data['transfer']['form']['name'];
 			}
-			$file = MediaFiles::create(array(
+			$file = MediaFiles::create([
 				'source' => 'file://' . $source,
 				'title' => $filename
 				// deliberately not passing extension as a hint as we want to
 				// rely on detecting the MIME type by contents of the file
 				// only.
-			));
+			]);
 			$file->save();
 		}
 		$data = MediaFiles::all();
@@ -44,17 +44,17 @@ class FilesController extends \lithium\action\Controller {
 
 	public function admin_delete() {
 		MediaFiles::find($this->request->id)->delete();
-		$this->redirect(array('action' => 'index', 'library' => 'cms_media'));
+		$this->redirect(['action' => 'index', 'library' => 'cms_media']);
 	}
 
 	public function admin_edit() {
 		$item = MediaFiles::find($this->request->id);
 
 		if (!$item) {
-			$this->redirect(array('action' => 'index', 'library' => 'cms_media'));
+			$this->redirect(['action' => 'index', 'library' => 'cms_media']);
 		}
 		if (($this->request->data) && $item->save($this->request->data)) {
-			$this->redirect(array('action' => 'index', 'library' => 'cms_media'));
+			$this->redirect(['action' => 'index', 'library' => 'cms_media']);
 		}
 		$this->_render['template'] = 'admin_form';
 
@@ -94,16 +94,16 @@ class FilesController extends \lithium\action\Controller {
 		$this->RequestHandler->respondAs('json');
 
 		if (!$this->RequestHandler->isPost()) {
-			return $this->cakeError('error405', array('api' => true));
+			return $this->cakeError('error405', ['api' => true]);
 		}
 
 		if ($this->RequestHandler->requestedWith('application/octet-stream')) { // sendAsBinary
 			CakeLog::write('debug', 'Receiving/received file as binary stream.');
 
 			if (!$source = fopen('php://input', 'rb')) {
-				return $this->cakeError('error500', array('api'  => true));
+				return $this->cakeError('error500', ['api'  => true]);
 			}
-			$file = Temporary::file(array('context' => 'npiece'));
+			$file = Temporary::file(['context' => 'npiece']);
 
 			$target = fopen($file, 'wb');
 			stream_copy_to_stream($source, $target);
@@ -121,8 +121,8 @@ class FilesController extends \lithium\action\Controller {
 		// This relies on that we're being able to *always* retrieve a size.
 		$meta = $this->MediaFile->transferMeta($file);
 
-		$quota = $this->Quota->checkFiles($this->Gate->user(), array('buffer' => 1));
-		$quota = $quota && $this->Quota->checkSpace($this->Gate->user(), array('buffer' => $meta['size']));
+		$quota = $this->Quota->checkFiles($this->Gate->user(), ['buffer' => 1]);
+		$quota = $quota && $this->Quota->checkSpace($this->Gate->user(), ['buffer' => $meta['size']]);
 
 		$errorName = null;
 
@@ -133,10 +133,10 @@ class FilesController extends \lithium\action\Controller {
 			ignore_user_abort(true);
 
 			$this->MediaFile->create();
-			$this->data['MediaFile'] = array(
+			$this->data['MediaFile'] = [
 				'file' => $file,
 				'user_id' => $this->Gate->user('id')
-			);
+			];
 			if ($this->MediaFile->save($this->data)) {
 				$id = $this->MediaFile->getLastInsertID();
 				CakeLog::write('debug', "Transfer handled, file bound to `MediaFile@{$id}`.");
@@ -164,7 +164,7 @@ class FilesController extends \lithium\action\Controller {
 				CakeLog::write('debug', "Saved file involved in failed transfer to `{$sample}`.");
 			}
 
-			return $this->cakeError('transfer', array('api' => true, 'type' => $errorName));
+			return $this->cakeError('transfer', ['api' => true, 'type' => $errorName]);
 		}
 		$this->autoRender = false;
 	}
