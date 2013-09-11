@@ -3,6 +3,8 @@
 use lithium\core\Environment;
 use lithium\core\Libraries;
 use lithium\net\http\Media;
+use \Media_Process;
+use \Media_Info;
 
 Libraries::add('mm', [
 	'bootstrap' => 'bootstrap.php',
@@ -18,10 +20,10 @@ Environment::set(true, [
 ]);
 
 Media_Process::config([
-	'audio' => 'SoxShell',
+	// 'audio' => 'SoxShell',
 	'document' => 'Imagick',
 	'image' => 'Imagick',
-	'video' => 'FfmpegShell'
+	// 'video' => 'FfmpegShell'
 ]);
 Media_Info::config([
 	'document' => ['Imagick'],
