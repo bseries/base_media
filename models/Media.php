@@ -131,6 +131,13 @@ Media::applyFilter('save', function($self, $params, $chain) {
 	}
 	$versions = array('fix0', 'fix1', 'fix2', 'flux0', 'flux1');
 
+	if (parse_url($entity->url, PHP_URL_SCHEME) == 'file') {
+		// @fixme Implement versions for non-file schemes by trying to detect their versions
+		// and pass them via create url.
+		Logger::debug('Skipping making versions of non-file scheme source.');
+		return true;
+	}
+
 	foreach ($versions as $version) {
 		$has = MediaVersions::hasInstructions($entity->type, $version);
 		if (!$has) {
