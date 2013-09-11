@@ -137,9 +137,19 @@ class MediaFileVersions extends \lithium\data\Model {
 
 	public static function generateTargetPath($source, $version) {
 		$base = Environment::get('media.path') . '/' . $version;
-		$extension = Mime_Type::guessExtension($source);
 
-		return static::_generatePath($base, $extension);
+		$path  = $base;
+		$path .= '/' . pathinfo($source, PATHINFO_DIRNAME);
+		$path .= '/' . pathinfo($source, PATHINFO_FILENAME);
+
+		// Instead of re-using the extension from source we have to take the
+		// target extension into account as the target maybe converted.
+		$extension = Mime_Type::guessExtension($version['convert']);
+
+		if ($extension) {
+			$path .= '.' . $extension;
+		}
+		return $path;
 	}
 
 	public static function make($source, $target, $version) {
@@ -168,31 +178,6 @@ class MediaFileVersions extends \lithium\data\Model {
 			fclose($source);
 			return false;
 		}
-
-
-	}
-
-	// @fixme Re-factor this into Media_Util::generatePath()
-	protected static function _generatePath($base, $extension) {
-		$chars = 'abcdef0123456789';
-		$length = 8;
-
-		// Birthday problem: Likelihood of collision with 1M strings is 0.18%.
-		// Prevent collisions. If this happens too "often" expand charset first.
-		do {
-			// Generate a random string for each round.
-			$random = '';
-			while (strlen($random) < $length) {
-				$random .= substr($chars, mt_rand(0, strlen($chars) - 1), 1);
-			}
-			$path = substr($random, 0, 2) . '/' . substr($random, 2);
-
-			if (!empty($extension)) {
-				$path .= '.' . strtolower($extension);
-			}
-		} while (file_exists($base . '/' . $path));
-
-		return $base . '/' . $path;
 	}
 }
 
