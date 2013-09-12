@@ -216,7 +216,7 @@ MediaVersions::applyFilter('save', function($self, $params, $chain) {
 	$entity = $params['entity'];
 
 	if (!$entity->modified('url')) {
-		return true;
+		return $chain->next($self, $params, $chain);
 	}
 	if (parse_url($entity->url, PHP_URL_SCHEME) == 'file') {
 		$entity->checksum = $entity->calculateChecksum();
