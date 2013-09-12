@@ -68,7 +68,7 @@ class Media extends \lithium\data\Model {
 			Logger::debug('Skipping making versions of non-file scheme source.');
 			return true;
 		}
-		$versions = array('fix0', 'fix1', 'fix2', 'flux0', 'flux1');
+		$versions = array('fix0', 'fix1', 'fix2', 'fix3', 'flux0', 'flux1');
 
 		foreach ($versions as $version) {
 			$has = MediaVersions::hasInstructions($entity->type, $version);
