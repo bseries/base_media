@@ -106,8 +106,9 @@ class Media extends \lithium\data\Model {
 	}
 
 	public function download($entity) {
-		Logger::debug("Downloading into temporary `{$temporary}`.");
 		$temporary = Temporary::file(['context' => 'download']);
+
+		Logger::debug("Downloading into temporary `{$temporary}`.");
 
 		if (!$result = copy($entity->url, $temporary)) {
 			throw new Exception('Could not copy from source to temporary.');
