@@ -28,10 +28,10 @@ class Media extends \lithium\data\Model {
 	}
 
 	public function version($entity, $version) {
-		if (isset($this->_cachedVersions[$version])) {
-			return $this->_cachedVersions[$version];
+		if (isset($this->_cachedVersions[$entity->id][$version])) {
+			return $this->_cachedVersions[$entity->id][$version];
 		}
-		return $this->_cachedVersions[$version] = MediaVersions::first([
+		return $this->_cachedVersions[$entity->id][$version] = MediaVersions::first([
 			'conditions' => [
 				'media_id' => $entity->id,
 				'version' => $version
@@ -40,8 +40,8 @@ class Media extends \lithium\data\Model {
 	}
 
 	public function versions($entity) {
-		if ($this->_cachedVersions) {
-			return $this->_cachedVersions;
+		if (isset($this->_cachedVersions[$entity->id])) {
+			return $this->_cachedVersions[$entity->id];
 		}
 		$data = MediaVersions::all([
 			'conditions' => [
@@ -52,7 +52,7 @@ class Media extends \lithium\data\Model {
 		foreach ($data as $item) {
 			$results[$item->version] = $item;
 		}
-		return $this->_cachedVersions = $results;
+		return $this->_cachedVersions[$entity->id] = $results;
 	}
 
 	public function makeVersions($entity) {
