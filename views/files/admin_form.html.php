@@ -4,15 +4,15 @@
 
 ?>
 <article>
-	<h1><?=$this->title('File') ?></h1>
+	<h1><?=$this->title($t('File')) ?></h1>
 
 	<?=$this->form->create($item) ?>
-		<img src="<?= $item->versions('fix0')->url() ?>" />
+		<img src="<?= $item->version('fix0')->url() ?>" />
 
 		<?php if ($edit): ?>
-			<?=$this->form->field('_id', ['type' => 'hidden']) ?>
+			<?=$this->form->field('id', ['type' => 'hidden']) ?>
 		<?php endif ?>
-		<?=$this->form->field('filename') ?>
-		<?=$this->form->submit('Save')  ?>
+		<?=$this->form->field('title') ?>
+		<?=$this->form->submit($t('Save'))  ?>
 	<?=$this->form->end(); ?>
 </article>

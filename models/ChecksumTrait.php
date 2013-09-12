@@ -27,7 +27,7 @@ trait ChecksumTrait {
 	// @fixme make static
 	public function calculateChecksum($entity) {
 		$file = parse_url($entity->url('file'), PHP_URL_PATH);
-		return hash_file('md5', parse_url($file));
+		return hash_file('md5', $file);
 	}
 }
 

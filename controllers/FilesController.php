@@ -22,27 +22,36 @@ class FilesController extends \lithium\action\Controller {
 			if ($this->request->data['transfer']['url']) {
 				$source = $this->request->data['transfer']['url'];
 				$title = basename($source);
-				$transfer = true;
 			} else {
 				$source = 'file://' . $this->request->data['transfer']['form']['tmp_name'];
 				$title = $this->request->data['transfer']['form']['name'];
-				$transfer = true;
 			}
 			$file = Media::create([
-				'source' => $source,
-				'title' => $title
+				'url' => $source,
+				'title' => $title,
 				// deliberately not passing extension as a hint as we want to
 				// rely on detecting the MIME type by contents of the file
 				// only.
 			]);
+
+			if (parse_url($file->url, PHP_URL_SCHEME) != 'file') {
+				$file->url = $file->download();
+			}
+			$file->url = $file->transfer();
+
 			$file->save();
+			$file->makeVersions();
 		}
 		$data = Media::all();
 		return compact('data');
 	}
 
 	public function admin_delete() {
-		Media::find($this->request->id)->delete();
+		$item = Media::find($this->request->id);
+
+		$item->delete();
+		$item->deleteVersions();
+
 		$this->redirect(['action' => 'index', 'library' => 'cms_media']);
 	}
 

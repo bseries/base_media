@@ -15,6 +15,7 @@ use \Media_Process;
 use lithium\analysis\Logger;
 use temporary\Manager as Temporary;
 use lithium\core\Libraries;
+use lithium\core\Environment;
 
 class MediaVersions extends \lithium\data\Model {
 
@@ -22,7 +23,7 @@ class MediaVersions extends \lithium\data\Model {
 	use \cms_media\models\UrlTrait;
 
 	protected static function _base($scheme) {
-		return Environment::get('mediaFileVersions.' . $scheme);
+		return Environment::get('mediaVersions.' . $scheme);
 	}
 
 	protected static function _generateTargetUrl($source, $version) {
@@ -42,16 +43,20 @@ class MediaVersions extends \lithium\data\Model {
 	}
 
 	// Will (re-)generate version from source and return target path on success.
-	public static function make($sourcce, $version) {
-		if (parse_url($source, PHP_URL_SCHEME) != 'file') {
+	public function make($entity) {
+		if (parse_url($entity->url, PHP_URL_SCHEME) != 'file') {
 			throw new Exception('Can only make from source with file scheme.');
 		}
 
-		$media = Media_Process::factory(['source' => $source]);
-		$target = static::_generateTargetUrl($source, $version);
+		$media = Media_Process::factory(['source' => $entity->url]);
+		$target = static::_generateTargetUrl($entity->url, $entity->version);
 		$instructions = static::_instructions($media->name(), $entity->version);
 
-		Logger::debug("Making version `{$version}` of `{$source}` to `{$target}`.");
+		if (!is_dir(dirname($target))) {
+			mkdir(dirname($target), 0777, true);
+		}
+
+		Logger::debug("Making version `{$entity->version}` of `{$entity->url}`.");
 
 		// Process builtin instructions.
 		if (isset($instructions['clone'])) {
@@ -59,6 +64,7 @@ class MediaVersions extends \lithium\data\Model {
 
 			if (in_array($action, array('copy', 'link', 'symlink'))) {
 				if (call_user_func($action, $source, $target)) {
+					Logger::debug("Made (clone) version `{$entity->version}` to `{$target}`.");
 					return true;
 				}
 			}
@@ -88,6 +94,7 @@ class MediaVersions extends \lithium\data\Model {
 			Logger::debug('Making entity failed with: ' . $e->getMessage());
 			return false;
 		}
+		Logger::debug("Made (process) version `{$entity->version}` to `{$target}`.");
 		return $target;
 	}
 
@@ -208,42 +215,35 @@ class MediaVersions extends \lithium\data\Model {
 MediaVersions::applyFilter('save', function($self, $params, $chain) {
 	$entity = $params['entity'];
 
-	if (!$entity->source || !$entity->version) {
-		return $chain->next($self, $params, $chain);
+	if (!$entity->modified('url')) {
+		return true;
 	}
-	$source = parse_url($entity->source);
-
-	if ($source['scheme'] == 'file') {
-		// We can only "make" local file versions.
-		if (!$target = MediaVersions::make($entity->source, $entity->version)) {
-			return false;
-		}
-		$entity->url = MediaVersions::relativeUrl($target);
+	if (parse_url($entity->url, PHP_URL_SCHEME) == 'file') {
 		$entity->checksum = $entity->calculateChecksum();
-	} else {
-		if (!$entity->url) {
-			throw new Exception('Cannot make local version of non-file scheme source and no URL was provided.');
-		}
 	}
-	$entity->type      = Mime_Type::guessName($target);
-	$entity->mime_type = Mime_Type::guessType($target);
-
-	unset($entity->source);
+	$entity->type      = Mime_Type::guessName($entity->url);
+	$entity->mime_type = Mime_Type::guessType($entity->url);
 
 	return $chain->next($self, $params, $chain);
 });
 
-MediaVersions::applyFilter('delete', function($self, $params, $chain) {
-	$url = $params['entity']->url;
+// Filter running before saving; order matters.
+// Make URL relative before saving.
+MediaVersions::applyFilter('save', function($self, $params, $chain) {
+	$entity = $params['entity'];
 
-	if (!$chain->next($self, $params, $chain)) {
-		return false;
+	if ($entity->modified('url')) {
+		$entity->url = Media::relativeUrl($entity->url);
 	}
-	// Delete only files that are local and within base.
-	if (strpos($url, static::_base('file')) !== false) {
-		return unlink($url);
-	}
-	return true;
+	return $chain->next($self, $params, $chain);
+});
+
+MediaVersions::applyFilter('delete', function($self, $params, $chain) {
+	$entity = $params['entity'];
+
+	$entity->deleteUrl();
+
+	return $chain->next($self, $params, $chain);
 });
 
 ?>

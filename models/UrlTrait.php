@@ -21,10 +21,10 @@ trait UrlTrait {
 		$sourceUrl    = static::absoluteUrl($entity->url);
 
 		if ($targetScheme == $sourceScheme) {
-			return $url;
+			return $sourceUrl;
 		}
 		if ($targetScheme == 'http' && $sourceScheme == 'https') {
-			return $url;
+			return $sourceUrl;
 		}
 
 		// Fail when URL was originally absolute.
@@ -43,21 +43,21 @@ trait UrlTrait {
 			$message .= " no base found for scheme `{$targetScheme}`.";
 			throw new Exception($message);
 		}
-		return str_replace($sourceBase, $targeteBase, $sourceUrl);
+		return str_replace($sourceBase, $targetBase, $sourceUrl);
 	}
 
 	// Ensures an URL is absolute.
 	public static function absoluteUrl($url) {
 		$scheme = parse_url($url, PHP_URL_SCHEME);
-		$path   = parse_url($url, PHP_URL_PATH);
+		// Note: parse_url only partially works with relative URLs.
 
-		if ($path[0] == '/') {
+		if ($url[strlen($scheme . '://')] == '/') {
 			return $url; // already absolute
 		}
 		if (!$base = static::_base($scheme)) {
 			throw new Exception("Cannot make URL `{$url}` absolute; no base found for scheme `{$scheme}`.");
 		}
-		return $base . '/' . $path;
+		return str_replace($scheme . '://', $base . '/', $url);
 	}
 
 	// Ensures an URL is relative.
@@ -71,7 +71,7 @@ trait UrlTrait {
 		if (!$base = static::_base($scheme)) {
 			throw new Exception("Cannot make URL `{$url}` relative; no base found for scheme `{$scheme}`.");
 		}
-		return str_replace($base . '/', '', $url);
+		return str_replace($base . '/', $scheme . '://', $url);
 	}
 
 	// By default doesn't do file_exists checks.
@@ -99,6 +99,19 @@ trait UrlTrait {
 
 		return $base . '/' . $path;
 	}
+
+	// Delete only files that are local and within base.
+	public function deleteUrl($entity) {
+		if (strpos($entity->url, static::_base('file')) === false) {
+			return false;
+		}
+		if (!unlink($entity->url)) {
+			return false;
+		}
+		return true;
+	}
+
+
 }
 
 ?>
