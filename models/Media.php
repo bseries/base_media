@@ -45,7 +45,7 @@ class Media extends \lithium\data\Model {
 		}
 		$data = MediaVersions::all([
 			'conditions' => [
-				'media_file_id' => $entity->id
+				'media_id' => $entity->id
 			]
 		]);
 		$results = [];
