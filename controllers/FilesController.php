@@ -40,6 +40,8 @@ class FilesController extends \lithium\action\Controller {
 
 			$file->save();
 			$file->makeVersions();
+
+			return $this->redirect(['action' => 'index', 'library' => 'cms_media']);
 		}
 		$data = Media::all();
 		return compact('data');
