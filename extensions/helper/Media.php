@@ -33,7 +33,7 @@ class Media extends \lithium\template\Helper {
 	}
 
 	public function url($path) {
-		$base = Environment::get('media.url');
+		$base = Environment::get('media.http');
 		return $base . $path;
 	}
 }
