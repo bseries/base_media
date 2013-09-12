@@ -13,6 +13,9 @@ use lithium\core\Libraries;
 use lithium\net\http\Media;
 use \Media_Process;
 use \Media_Info;
+use lithium\g11n\Message;
+
+extract(Message::aliases());
 
 Libraries::add('mm', [
 	'bootstrap' => 'bootstrap.php',
@@ -22,7 +25,10 @@ Libraries::add('mm', [
 Environment::set(true, [
 	'modules' => [
 		'files' => [
-			'library' => 'cms_media', 'title' => 'Files', 'name' => 'files', 'slug' => 'files'
+			'library' => 'cms_media',
+			'title' => $t('Files'),
+			'name' => 'files',
+			'slug' => 'files'
 		]
 	]
 ]);
