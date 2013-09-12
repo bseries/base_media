@@ -3,6 +3,7 @@
 use lithium\core\Environment;
 use lithium\core\Libraries;
 use lithium\net\http\Media;
+use lithium\g11n\Catalog;
 use \Media_Process;
 use \Media_Info;
 
@@ -28,6 +29,13 @@ Media_Info::config([
 	'document' => ['Imagick'],
 	'image' => ['ImageBasic', 'Imagick']
 ]);
+
+Catalog::config([
+	'cms_media' => [
+	 	'adapter' => 'Gettext',
+	 	'path' => Libraries::get('cms_media', 'resources') . '/g11n/po'
+	 ]
+] + Catalog::config());
 
 // Use app layout for this library.
 /*
