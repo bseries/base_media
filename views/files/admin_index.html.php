@@ -25,7 +25,7 @@
 		<?php foreach ($data as $item): ?>
 		<tr>
 			<td>
-				<?php if ($version = $item->version('fix0')): ?>
+				<?php if ($version = $item->version('fix3')): ?>
 					<img src="<?= $version->url() ?>" />
 				<?php endif ?>
 			<td>
