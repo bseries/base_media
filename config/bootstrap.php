@@ -1,4 +1,12 @@
 <?php
+/**
+ * Bureau Media
+ *
+ * Copyright (c) 2013 Atelier Disko - All rights reserved
+ *
+ * This software is proprietary and confidential. Redistributions
+ * not permitted. No warranty, explicit or implicit provided.
+ */
 
 use lithium\core\Environment;
 use lithium\core\Libraries;
