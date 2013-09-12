@@ -12,7 +12,6 @@ namespace cms_media\controllers;
 
 use cms_media\models\Media;
 use lithium\core\Libraries;
-use temporary\Manager as Temporary;
 
 class FilesController extends \lithium\action\Controller {
 

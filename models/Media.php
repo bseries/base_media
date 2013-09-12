@@ -14,6 +14,7 @@ use \Mime_Type;
 use cms_media\models\MediaVersions;
 use lithium\core\Environment;
 use lithium\analysis\Logger;
+use temporary\Manager as Temporary;
 
 class Media extends \lithium\data\Model {
 
