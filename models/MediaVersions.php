@@ -233,7 +233,7 @@ MediaVersions::applyFilter('save', function($self, $params, $chain) {
 	$entity = $params['entity'];
 
 	if ($entity->modified('url')) {
-		$entity->url = Media::relativeUrl($entity->url);
+		$entity->url = MediaVersions::relativeUrl($entity->url);
 	}
 	return $chain->next($self, $params, $chain);
 });
