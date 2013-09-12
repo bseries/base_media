@@ -68,6 +68,16 @@ class FilesController extends \lithium\action\Controller {
 		return compact('item');
 	}
 
+	public function admin_regenerate_versions() {
+		$data = Media::all();
+
+		foreach ($data as $item) {
+			$item->deleteVersions();
+			$item->makeVersions();
+		}
+		$this->redirect(['action' => 'index', 'library' => 'cms_media']);
+	}
+
 	public function preflight() {
 	}
 

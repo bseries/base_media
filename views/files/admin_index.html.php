@@ -1,6 +1,10 @@
 <article class="files-index">
 	<h1><?= $t('Files') ?></h1>
 
+	<nav class="actions">
+		<?= $this->html->link($t('regenerate versions'), ['action' => 'regenerate_versions', 'library' => 'cms_media']) ?>
+	</nav>
+
 	<h2><?= $t('Upload') ?></h2>
 	<?= $this->form->create(null, ['type' => 'file']) ?>
 		<?=  $this->form->field('transfer.form', [
