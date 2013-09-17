@@ -26,7 +26,7 @@ class MediaVersions extends \lithium\data\Model {
 	use \li3_behaviors\data\model\Behaviors;
 
 	protected $_actsAs = [
-		'Timestamp'
+		'cms_core\extensions\data\behavior\Timestamp'
 	];
 
 	protected static function _base($scheme) {
