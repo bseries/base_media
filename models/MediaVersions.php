@@ -23,6 +23,11 @@ class MediaVersions extends \lithium\data\Model {
 
 	use \cms_media\models\ChecksumTrait;
 	use \cms_media\models\UrlTrait;
+	use \li3_behaviors\data\model\Behaviors;
+
+	protected $_actsAs = [
+		'Timestamp'
+	];
 
 	protected static function _base($scheme) {
 		return Environment::get('mediaVersions.' . $scheme);
