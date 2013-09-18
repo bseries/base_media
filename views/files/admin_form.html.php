@@ -4,7 +4,7 @@
 
 ?>
 <article>
-	<h1><?=$this->title($t('File')) ?></h1>
+	<h1 class="alpha"><?=$this->title($t('File')) ?></h1>
 
 	<?=$this->form->create($item) ?>
 		<img src="<?= $item->version('fix0')->url() ?>" />
