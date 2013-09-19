@@ -24,6 +24,8 @@ class Media extends \lithium\data\Model {
 	use \cms_media\models\UrlTrait;
 	use \li3_behaviors\data\model\Behaviors;
 
+	public $hasMany = ['MediaVersions'];
+
 	protected $_actsAs = [
 		'cms_core\extensions\data\behavior\Timestamp'
 	];
