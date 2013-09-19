@@ -1,0 +1,7 @@
+<section class="available">
+	{{#each file in controller}}
+		{{view ME.FileView contentBinding="file"}}
+	{{/each}}
+</section>
+<button {{action "confirmSelection"}}>confirm selection</button>
+
