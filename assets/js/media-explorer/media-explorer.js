@@ -10,91 +10,163 @@
  */
 
 define([
-  'jquery', 'modal',
-  'ember',
-  'ember-data',
-  'text!media/js/media-explorer/templates/file.hbs',
-  'text!media/js/media-explorer/templates/files.hbs',
-  'domready!'
+  'jquery',
+  'ember', 'ember-data',
+  'nprogress',
+  'text!media/js/media-explorer/templates/index.hbs',
+  'text!media/js/media-explorer/templates/available_file.hbs'
 ],
-function($, Modal, Em, DS, fileTemplate, filesTemplate) {
-  var ME;
+function(
+  $,
+  Em, DS,
+  Progress,
+  indexTemplate,
+  availableFileTemplate
+) {
 
-  Modal.init();
-
-  var make = function(element) {
-    $(element).find('.select').on('click', function(ev) {
-        ev.preventDefault();
-
-        Modal.loading();
-        boot(Model.element);
-        Modal.ready();
-    });
-  };
-
-  var boot = function(element) {
+  var init = function(element) {
     // application
-    ME = Em.Application.create({
-      rootElement: $('#media-explorer')
+    window.ME = Em.Application.create({
+      rootElement: $(element)
     });
 
-  };
-
-  // templates
-  Em.TEMPLATES.file = Em.Handlebars.compile(fileTemplate);
-  Em.TEMPLATES.files = Em.Handlebars.compile(filesTemplate);
-
-  // routes
-  ME.Router.map(function () {
-    this.resource('files', {path: '/media-explorer/files'});
-  });
-  ME.FilesRoute = Em.Route.extend({
-    model: function() {
-      return this.store.find('file');
-    }
-  });
-
-  // models
-  ME.File = DS.Model.extend({
-    title: DS.attr('string'),
-    url: DS.attr('string'),
-    isSelected: DS.attr('boolean', {defaultValue: false})
-  });
-
-  // controllers
-  // ME.FileController = Em.ObjectController.extend({
-  // });
-
-  ME.FilesController = Ember.ArrayController.extend({
-    selected: null,
-    actions: {
-      confirmSelection: function() {
-        $(document).trigger('media-explorer:selected', this.selected);
+    ME.ApplicationAdapter = DS.RESTAdapter.extend({});
+    ME.ApplicationAdapter.reopen({
+      createRecord: function() {
+        return new Em.RSVP.Promise(function(resolve, reject) {
+            resolve();
+        });
       }
-    }
-  });
+    });
 
-  // views
-  ME.FileView = Em.View.extend({
-    templateName: 'file',
-    classNameBindings: ['isSelected:selected'],
+    // templates
+    Em.TEMPLATES.index = Em.Handlebars.compile(indexTemplate);
+    Em.TEMPLATES.availableFile = Em.Handlebars.compile(availableFileTemplate);
 
-    isSelected: function() {
-      return this.get('content') === this.get('controller.selected');
-    }.property('file', 'controller.selected'),
+    // routes
+    ME.Router.map(function () {
+      this.resource('index', {path: '/media-explorer'});
+    });
+    ME.IndexRoute = Em.Route.extend({
+      renderTemplate: function() {
+        this.render('index');
+      },
+      model: function() {
+        return this.store.find('file');
+      }
+    });
 
-    click: function() {
-      this.get('controller').set('selected', this.get('content'));
-    }
-  });
+    ME.File = DS.Model.extend({
+      title: DS.attr('string'),
+      url: DS.attr('string'),
+      created: DS.attr('date')
+    });
 
-  ME.FilesView = Em.View.extend({
-    templateName: 'files'
-  });
+    // controllers
+    ME.IndexController = Ember.ArrayController.extend({
+      sortProperties: ['created'],
+      sortAscending: false,
 
-/*
-  return {
-    make: make
+      selected: null,
+      newFileTitle: null,
+
+      // newFile: null,
+      actions: {
+        confirmSelection: function() {
+          var result = this.store.find('file', this.selected.id);
+          result.then(function(item) {
+            $(document).trigger('media-explorer:selected', item);
+          });
+        },
+        selectNewFile: function() {
+          var action = this;
+
+          $('#new-file').click();
+          $('#new-file').on('change', function(ev) {
+              action.set('newFileTitle', this.files[0].name);
+          });
+        },
+        createFile: function() {
+          // Hack: we cannot set controller's newFile
+          // property from view on change.
+          var file = $('#new-file').get(0).files[0];
+
+          var reader = new FileReader();
+          var xhr = new XMLHttpRequest();
+
+          xhr.open('POST', '/files/transfer?title=' + file.name);
+          xhr.overrideMimeType('text/plain; charset=x-user-defined-binary');
+          Progress.start();
+
+          var action = this;
+          xhr.upload.addEventListener('progress', function(ev) {
+            if (ev.lengthComputable) {
+              Progress.set((ev.loaded * 100) / ev.total);
+            }
+          }, false);
+
+          xhr.onload = function(done) {
+            Progress.done();
+
+            var response = $.parseJSON(this.responseText);
+
+            var record = action.store.createRecord('file', {
+              id: response.file.id,
+              title: response.file.title,
+              url: response.file.url,
+              create: response.file.created
+            });
+            record.save();
+          };
+
+          reader.onload = function(ev) {
+            xhr.sendAsBinary(ev.target.result);
+          };
+          reader.readAsBinaryString(file);
+        }
+      }
+    });
+
+    ME.CreateFileView = Em.View.extend({
+      templateName: 'createFile'
+    });
+
+    // views
+    ME.CreateFileFileField = Em.TextField.extend(Em.ViewTargetActionSupport, {
+      action: 'createFile',
+      type: 'file',
+      elementId: 'new-file'
+      // change: function(ev) {
+      //   this.get('controller').set('newFile', 'XX');
+      // }
+    });
+
+    ME.AvailableFileView = Em.View.extend({
+      templateName: 'availableFile',
+      classNameBindings: ['isSelected:selected'],
+
+      isSelected: function() {
+        return this.get('content') === this.get('controller.selected');
+      }.property('availableFile', 'controller.selected'),
+
+      click: function() {
+        this.get('controller').set('selected', this.get('content'));
+      }
+    });
+
+    ME.AvailableFilesView = Em.View.extend({
+      templateName: 'availableFiles'
+    });
   };
-  */
+
+  var destroy = function() {
+    if (window.ME !== undefined) { // make idempotent
+      window.ME.destroy();
+    }
+  };
+
+  return {
+    init: init,
+    destroy: destroy
+  };
 });

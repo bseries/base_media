@@ -17,6 +17,7 @@ Router::connect('/files/reserve', 'Files::reserve');
 Router::connect('/files/transfer', 'Files::transfer');
 Router::connect('/files/import', 'Files::import');
 
+Router::connect('/files/transfer', ['controller' => 'files', 'action' => 'transfer', 'library' => 'cms_media']);
 Router::connect('/files', ['controller' => 'files', 'action' => 'index', 'library' => 'cms_media']);
 
 Router::connect('/files/{:action}/{:id:[0-9a-f]+}', [

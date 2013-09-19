@@ -1,0 +1,16 @@
+<section class="available">
+	{{#each file in controller}}
+		{{view ME.AvailableFileView contentBinding="file"}}
+	{{/each}}
+</section>
+<footer>
+	<button class="confirm-selection" {{action "confirmSelection"}}>confirm selection</button>
+	<div class="create">
+		<input type="file" id="new-file" accept="image/*" style="display: none;">
+		<button id="select-new-file" {{action "selectNewFile"}}>select file</button>
+		<button {{action "createFile"}}>start transfer</button>
+		<span class="title">{{newFileTitle}}</span>
+	</div>
+</footer>
+
+

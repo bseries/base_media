@@ -14,8 +14,62 @@ namespace cms_media\controllers;
 
 use cms_media\models\Media;
 use lithium\core\Libraries;
+use temporary\Manager as Temporary;
+use lithium\analysis\Logger;
 
 class FilesController extends \lithium\action\Controller {
+
+	public function transfer() {
+		// $this->response->headers('Access-Control-Allow-Origin', '*');
+sleep(2);
+		if (!$source = fopen('php://input', 'rb')) {
+			throw new InternalServerError();
+		}
+		$temporary = 'file://' . Temporary::file(['context' => 'upload']);
+
+		file_put_contents($temporary, $source);
+		fclose($source);
+
+		$file = Media::create([
+			'url' => $temporary,
+			'title' => $this->request->query['title']
+		]);
+
+		if (parse_url($file->url, PHP_URL_SCHEME) != 'file') {
+			$file->url = $file->download();
+		}
+		$file->url = $file->transfer();
+
+		$file->save();
+		$file->makeVersions();
+
+		$exporter = function($item) {
+			$result = $item->data();
+			$result['url'] = $item->version('fix1')->url('http');
+			return $result;
+		};
+		$file = $exporter($file);
+		$this->render(array('type' => 'json' /* $this->request->accepts()*/, 'data' => compact('file')));
+	}
+
+	public function index() {
+
+		$exporter = function($data) {
+			$results = [];
+			foreach ($data as &$item) {
+				$result = $item->data();
+				$result['url'] = $item->version('fix1')->url('http');
+				$results[] = $result;
+			}
+			return $results;
+		};
+		$files = Media::find('all', [
+			// 'order' => ['created' => 'DESC']
+//			'with' => 'MediaVersions'
+		]);
+		$files = $files->to($exporter, ['indexed' => false]);
+		$this->render(array('type' => $this->request->accepts(), 'data' => compact('files')));
+	}
 
 	public function admin_index() {
 		// Handle transfer via URL or form uplaod.
@@ -89,105 +143,8 @@ class FilesController extends \lithium\action\Controller {
 		// Return status, long-polling
 	}
 
-	public function transfer() {
-		// Translate received data into a to-be-saved item.
-		$transfer = new Transfer();
-		$transfer->source = $this->request->data;
-		$transfer->target = '/tmp';
-
-		$transfer->run();
-
-		Media::create($transfer->result);
-	}
-
 	public function import() {
 
-	}
-
-	public function Xtransfer() {
-
-
-		CakeLog::write('debug', 'Transfer handler initiated.');
-
-		$this->Gate->requireMagicPower();
-		// @fixme Sets content-type to 'json'?
-		$this->RequestHandler->setContent('json');
-		$this->RequestHandler->respondAs('json');
-
-		if (!$this->RequestHandler->isPost()) {
-			return $this->cakeError('error405', ['api' => true]);
-		}
-
-		if ($this->RequestHandler->requestedWith('application/octet-stream')) { // sendAsBinary
-			CakeLog::write('debug', 'Receiving/received file as binary stream.');
-
-			if (!$source = fopen('php://input', 'rb')) {
-				return $this->cakeError('error500', ['api'  => true]);
-			}
-			$file = Temporary::file(['context' => 'npiece']);
-
-			$target = fopen($file, 'wb');
-			stream_copy_to_stream($source, $target);
-			fclose($source);
-			fclose($target);
-		} else { // multipart
-			CakeLog::write('debug', 'Received file via multipart/form:');
-			CakeLog::write('debug', var_export($this->params['form'], true));
-			$file = $this->params['form']['file']; // non-cake structure
-		}
-		// Note that $file is reused latern when saving a sample.
-
-		CakeLog::write('debug', "Transferring from file `{$file}`.");
-
-		// This relies on that we're being able to *always* retrieve a size.
-		$meta = $this->MediaFile->transferMeta($file);
-
-		$quota = $this->Quota->checkFiles($this->Gate->user(), ['buffer' => 1]);
-		$quota = $quota && $this->Quota->checkSpace($this->Gate->user(), ['buffer' => $meta['size']]);
-
-		$errorName = null;
-
-		if (!$quota) {
-			$errorName = 'quota';
-		} else {
-			/* Transaction begin. */
-			ignore_user_abort(true);
-
-			$this->MediaFile->create();
-			$this->data['MediaFile'] = [
-				'file' => $file,
-				'user_id' => $this->Gate->user('id')
-			];
-			if ($this->MediaFile->save($this->data)) {
-				$id = $this->MediaFile->getLastInsertID();
-				CakeLog::write('debug', "Transfer handled, file bound to `MediaFile@{$id}`.");
-
-				if (connection_aborted()) {
-					CakeLog::write('debug', "Request aborted, cleaning up `MediaFile@{$id}`.");
-					$this->MediaFile->delete($id); // We want to delete the uploaded file, too.
-					exit(); // User doesn't need any output.
-				}
-			} else {
-				$invalidFields = $this->MediaFile->invalidFields();
-				$errorName = $invalidFields ? Inflector::underscore($invalidFields['file']) : 'unknown';
-			}
-
-			ignore_user_abort(false);
-			/* Transaction end. */
-		}
-		if ($errorName) {
-			$message  = "Transfer failed; reason is `{$errorName}`; meta was: \n";
-			$message .= var_export($meta, true);
-			CakeLog::write('debug', $message);
-
-			if (file_exists($file)) {
-				copy($file, $sample = ROOT . '/files/' . basename($file));
-				CakeLog::write('debug', "Saved file involved in failed transfer to `{$sample}`.");
-			}
-
-			return $this->cakeError('transfer', ['api' => true, 'type' => $errorName]);
-		}
-		$this->autoRender = false;
 	}
 }
 
