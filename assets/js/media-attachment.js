@@ -18,8 +18,6 @@ function($, MediaExplorerModal) {
       });
     });
 
-    elements.select.attr('href', '#/media-explorer');
-
     if (elements.idField.val()) {
       buildSelectedItemHtml({
         id: elements.idField.val()
@@ -29,6 +27,7 @@ function($, MediaExplorerModal) {
     }
 
     elements.select.on('click', function(ev) {
+      ev.preventDefault();
       MediaExplorerModal.open();
     });
     $(document).on('media-explorer:selected', function(ev, data) {

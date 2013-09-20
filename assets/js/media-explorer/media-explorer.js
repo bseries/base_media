@@ -43,7 +43,7 @@ function(
 
     // routes
     ME.Router.map(function () {
-      this.resource('index', {path: '/media-explorer'});
+      this.resource('index', {path: '/'});
     });
     ME.IndexRoute = Em.Route.extend({
       renderTemplate: function() {
