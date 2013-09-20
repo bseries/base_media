@@ -44,8 +44,9 @@ function($, MediaExplorerModal) {
     });
   };
 
-  var buildSelectedItemHtml = function(item, removeCallback) {
+  var buildSelectedItemHtml = function(item) {
     var df = $.Deferred();
+
     var build = function(item) {
       var wrap = $('<article class="file">');
       wrap.append($('<img>').attr('src', item.url));
