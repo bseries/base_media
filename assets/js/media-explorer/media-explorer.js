@@ -12,14 +12,12 @@
 define([
   'jquery',
   'ember', 'ember-data',
-  'nprogress',
   'text!media/js/media-explorer/templates/index.hbs',
   'text!media/js/media-explorer/templates/available_file.hbs'
 ],
 function(
   $,
   Em, DS,
-  Progress,
   indexTemplate,
   availableFileTemplate
 ) {
@@ -96,17 +94,17 @@ function(
 
           xhr.open('POST', '/files/transfer?title=' + file.name);
           xhr.overrideMimeType('text/plain; charset=x-user-defined-binary');
-          Progress.start();
+          $(document).trigger('transfer:start');
 
           var action = this;
           xhr.upload.addEventListener('progress', function(ev) {
             if (ev.lengthComputable) {
-              Progress.set((ev.loaded * 100) / ev.total);
+              $(document).trigger('transfer:progress', (ev.loaded * 100) / ev.total);
             }
           }, false);
 
           xhr.onload = function(done) {
-            Progress.done();
+            $(document).trigger('transfer:done');
 
             var response = $.parseJSON(this.responseText);
 
