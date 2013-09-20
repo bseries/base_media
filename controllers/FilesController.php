@@ -21,7 +21,7 @@ class FilesController extends \lithium\action\Controller {
 
 	public function transfer() {
 		// $this->response->headers('Access-Control-Allow-Origin', '*');
-sleep(2);
+
 		if (!$source = fopen('php://input', 'rb')) {
 			throw new InternalServerError();
 		}
@@ -43,12 +43,7 @@ sleep(2);
 		$file->save();
 		$file->makeVersions();
 
-		$exporter = function($item) {
-			$result = $item->data();
-			$result['url'] = $item->version('fix1')->url('http');
-			return $result;
-		};
-		$file = $exporter($file);
+		$file = $this->_export($file);
 		$this->render(array('type' => 'json' /* $this->request->accepts()*/, 'data' => compact('file')));
 	}
 
@@ -60,21 +55,11 @@ sleep(2);
 	}
 
 	public function index() {
+		$media = Media::find('all');
 
-		$exporter = function($data) {
-			$results = [];
-			foreach ($data as &$item) {
-				$result = $item->data();
-				$result['url'] = $item->version('fix1')->url('http');
-				$results[] = $result;
-			}
-			return $results;
-		};
-		$files = Media::find('all', [
-			// 'order' => ['created' => 'DESC']
-//			'with' => 'MediaVersions'
-		]);
-		$files = $files->to($exporter, ['indexed' => false]);
+		foreach ($media as $item) {
+			$files[] = $this->_export($item);
+		}
 		$this->render(array('type' => $this->request->accepts(), 'data' => compact('files')));
 	}
 
