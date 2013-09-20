@@ -52,6 +52,13 @@ sleep(2);
 		$this->render(array('type' => 'json' /* $this->request->accepts()*/, 'data' => compact('file')));
 	}
 
+	public function view() {
+		$item = Media::find('first', ['conditions' => ['id' => $this->request->id]]);
+		$file = $this->_export($item);
+
+		$this->render(array('type' => $this->request->accepts(), 'data' => compact('file')));
+	}
+
 	public function index() {
 
 		$exporter = function($data) {
@@ -69,6 +76,13 @@ sleep(2);
 		]);
 		$files = $files->to($exporter, ['indexed' => false]);
 		$this->render(array('type' => $this->request->accepts(), 'data' => compact('files')));
+	}
+
+	protected function _export($item) {
+		$result = $item->data();
+		$result['url'] = $item->version('fix1')->url('http');
+
+		return $result;
 	}
 
 	public function admin_index() {
