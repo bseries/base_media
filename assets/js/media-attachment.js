@@ -29,16 +29,17 @@ function($, MediaExplorerModal) {
     elements.select.on('click', function(ev) {
       ev.preventDefault();
       MediaExplorerModal.open();
-    });
-    $(document).on('media-explorer:selected', function(ev, data) {
-      // Implicitly updates the idField.
 
-      buildSelectedItemHtml({
-        id: data.get('id'),
-        url: data.get('url')
-      }).done(function(html) {
-        elements.selected.html(html);
-        MediaExplorerModal.close();
+      $(document).one('media-explorer:selected', function(ev, data) {
+        // Implicitly updates the idField.
+
+        buildSelectedItemHtml({
+          id: data.get('id'),
+          url: data.get('url')
+        }).done(function(html) {
+          elements.selected.html(html);
+          MediaExplorerModal.close();
+        });
       });
     });
   };
