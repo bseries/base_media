@@ -16,6 +16,7 @@ use cms_media\models\Media;
 use lithium\core\Libraries;
 use temporary\Manager as Temporary;
 use lithium\analysis\Logger;
+use li3_flash_message\extensions\storage\FlashMessage;
 
 class FilesController extends \lithium\action\Controller {
 
@@ -98,7 +99,7 @@ class FilesController extends \lithium\action\Controller {
 
 			return $this->redirect(['action' => 'index', 'library' => 'cms_media']);
 		}
-		$data = Media::all();
+		$data = Media::find('all', ['order' => ['modified']]);
 		return compact('data');
 	}
 
@@ -107,6 +108,8 @@ class FilesController extends \lithium\action\Controller {
 
 		$item->delete();
 		$item->deleteVersions();
+
+		FlashMessage::write('Successfully deleted.');
 
 		$this->redirect(['action' => 'index', 'library' => 'cms_media']);
 	}
