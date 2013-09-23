@@ -56,7 +56,10 @@ function(
 
     ME.File = DS.Model.extend({
       title: DS.attr('string'),
-      url: DS.attr('string'),
+      versions_fix0_url: DS.attr('string'),
+      versions_fix1_url: DS.attr('string'),
+      versions_fix2_url: DS.attr('string'),
+      versions_fix3_url: DS.attr('string'),
       created: DS.attr('date')
     });
 
@@ -111,7 +114,10 @@ function(
             var record = action.store.createRecord('file', {
               id: response.file.id,
               title: response.file.title,
-              url: response.file.url,
+              versions_fix0_url: response.file.versions_fix0_url,
+              versions_fix1_url: response.file.versions_fix1_url,
+              versions_fix2_url: response.file.versions_fix2_url,
+              versions_fix3_url: response.file.versions_fix3_url,
               create: response.file.created
             });
             record.save();

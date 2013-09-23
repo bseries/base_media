@@ -66,8 +66,12 @@ class FilesController extends \lithium\action\Controller {
 
 	protected function _export($item) {
 		$result = $item->data();
-		$result['url'] = $item->version('fix1')->url('http');
 
+		if ($versions = $item->versions()) {
+			foreach ($versions as $name => $version) {
+				$result["versions_{$name}_url"] = $version->url('http');
+			}
+		}
 		return $result;
 	}
 

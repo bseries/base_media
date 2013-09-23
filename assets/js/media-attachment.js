@@ -35,7 +35,7 @@ function($, MediaExplorerModal) {
 
         buildSelectedItemHtml({
           id: data.get('id'),
-          url: data.get('url')
+          versions_fix3_url: data.get('versions_fix3_url')
         }).done(function(html) {
           elements.selected.html(html);
           MediaExplorerModal.close();
@@ -49,7 +49,7 @@ function($, MediaExplorerModal) {
 
     var build = function(item) {
       var wrap = $('<article class="file">');
-      wrap.append($('<img>').attr('src', item.url));
+      wrap.append($('<img>').attr('src', item.versions_fix3_url));
 
       var button = $('<button class="remove">remove</button>');
       wrap.append(button);
@@ -62,7 +62,7 @@ function($, MediaExplorerModal) {
       return wrap;
     };
 
-    if (!item.url) {
+    if (!item.versions_fix3_url) {
       // Need more information; partial item given.
       $.getJSON('/files/' + item.id).done(function(data) {
         df.resolve([build(data.file)]);
