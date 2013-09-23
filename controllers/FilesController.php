@@ -99,7 +99,7 @@ class FilesController extends \lithium\action\Controller {
 
 			return $this->redirect(['action' => 'index', 'library' => 'cms_media']);
 		}
-		$data = Media::find('all', ['order' => ['modified']]);
+		$data = Media::find('all', ['order' => ['modified' => 'DESC']]);
 		return compact('data');
 	}
 
