@@ -12,23 +12,38 @@
 
 use lithium\net\http\Router;
 
-Router::connect('/files/preflight', 'Files::preflight');
-Router::connect('/files/reserve', 'Files::reserve');
-Router::connect('/files/transfer', 'Files::transfer');
-Router::connect('/files/import', 'Files::import');
+// Router::connect('/files/preflight', 'Files::preflight');
+// Router::connect('/files/reserve', 'Files::reserve');
+// Router::connect('/files/transfer', 'Files::transfer');
+// Router::connect('/files/import', 'Files::import');
 
-Router::connect('/files/transfer', ['controller' => 'files', 'action' => 'transfer', 'library' => 'cms_media']);
-Router::connect('/files', ['controller' => 'files', 'action' => 'index', 'library' => 'cms_media']);
+$persist = ['persist' => ['admin', 'controller']];
 
-Router::connect('/files/{:id:[0-9]+}', [
-	'controller' => 'files', 'library' => 'cms_media', 'action' => 'view'
-]);
+Router::connect(
+	'/files/transfer',
+	['controller' => 'files', 'action' => 'transfer', 'library' => 'cms_media']
+);
+Router::connect(
+	'/admin/files',
+	['controller' => 'files', 'action' => 'index', 'library' => 'cms_media', 'admin' => true],
+	$persist
+);
 
-Router::connect('/files/{:action}/{:id:[0-9]+}', [
-	'controller' => 'files', 'library' => 'cms_media'
-]);
-Router::connect('/files/{:action}/{:args}', [
-	'controller' => 'files', 'library' => 'cms_media'
-]);
+Router::connect(
+	'/admin/files/{:id:[0-9]+}',
+	['controller' => 'files', 'library' => 'cms_media', 'action' => 'view', 'admin' => true],
+	$persist
+);
+
+Router::connect(
+	'/admin/files/{:action}/{:id:[0-9]+}',
+	['controller' => 'files', 'library' => 'cms_media', 'admin' => true],
+	$persist
+);
+Router::connect(
+	'/admin/files/{:action}/{:args}',
+	['controller' => 'files', 'library' => 'cms_media', 'admin' => true],
+	$persist
+);
 
 ?>
