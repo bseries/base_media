@@ -133,6 +133,8 @@ class FilesController extends \lithium\action\Controller {
 	}
 
 	public function admin_regenerate_versions() {
+		set_time_limit(60 * 5);
+
 		$data = Media::all();
 
 		foreach ($data as $item) {
