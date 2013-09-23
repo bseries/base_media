@@ -20,9 +20,8 @@ use li3_flash_message\extensions\storage\FlashMessage;
 
 class FilesController extends \lithium\action\Controller {
 
-	public function transfer() {
-		// $this->response->headers('Access-Control-Allow-Origin', '*');
-
+	/*
+	public function admin_transfer() {
 		if (!$source = fopen('php://input', 'rb')) {
 			throw new InternalServerError();
 		}
@@ -45,17 +44,17 @@ class FilesController extends \lithium\action\Controller {
 		$file->makeVersions();
 
 		$file = $this->_export($file);
-		$this->render(array('type' => 'json' /* $this->request->accepts()*/, 'data' => compact('file')));
+		$this->render(array('type' => 'json', 'data' => compact('file')));
 	}
 
-	public function view() {
+	public function admin_view() {
 		$item = Media::find('first', ['conditions' => ['id' => $this->request->id]]);
 		$file = $this->_export($item);
 
 		$this->render(array('type' => $this->request->accepts(), 'data' => compact('file')));
 	}
 
-	public function index() {
+	public function admin_index() {
 		$media = Media::find('all');
 
 		foreach ($media as $item) {
@@ -63,6 +62,7 @@ class FilesController extends \lithium\action\Controller {
 		}
 		$this->render(array('type' => $this->request->accepts(), 'data' => compact('files')));
 	}
+	 */
 
 	protected function _export($item) {
 		$result = $item->data();
@@ -142,17 +142,6 @@ class FilesController extends \lithium\action\Controller {
 			$item->makeVersions();
 		}
 		$this->redirect(['action' => 'index', 'library' => 'cms_media']);
-	}
-
-	public function preflight() {
-	}
-
-	public function reserve() {
-		// Return status, long-polling
-	}
-
-	public function import() {
-
 	}
 }
 
