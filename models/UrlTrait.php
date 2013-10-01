@@ -13,6 +13,7 @@
 namespace cms_media\models;
 
 use Exception;
+use lithium\analysis\Logger;
 
 trait UrlTrait {
 
@@ -104,16 +105,17 @@ trait UrlTrait {
 
 	// Delete only files that are local and within base.
 	public function deleteUrl($entity) {
-		if (strpos($entity->url, static::_base('file')) === false) {
+		$url = static::absoluteUrl($entity->url);
+
+		if (strpos($url, static::_base('file')) === false) {
+			Logger::warning("Cannot delete URL `{$url}`; is not within base.");
 			return false;
 		}
-		if (!unlink($entity->url)) {
+		if (!unlink($url)) {
 			return false;
 		}
 		return true;
 	}
-
-
 }
 
 ?>

@@ -147,6 +147,7 @@ MediaVersions::applyFilter('save', function($self, $params, $chain) {
 MediaVersions::applyFilter('delete', function($self, $params, $chain) {
 	$entity = $params['entity'];
 
+	Logger::debug("Deleting corresponding URL `{$entity->url}` of media version.");
 	$entity->deleteUrl();
 
 	return $chain->next($self, $params, $chain);
