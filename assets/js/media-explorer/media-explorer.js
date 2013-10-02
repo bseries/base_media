@@ -99,6 +99,8 @@ function(
           });
         },
         createFile: function() {
+          $('.media-explorer .transfer-start').attr('disabled', 'disabled');
+
           // Hack: we cannot set controller's newFile
           // property from view on change.
           var file = $('#new-file').get(0).files[0];
@@ -119,6 +121,7 @@ function(
 
           xhr.onload = function(done) {
             $(document).trigger('transfer:done');
+            $('.media-explorer .transfer-start').removeAttr('disabled');
 
             var response = $.parseJSON(this.responseText);
 
