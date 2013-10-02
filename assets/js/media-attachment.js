@@ -13,9 +13,16 @@ function($, MediaExplorerModal) {
 
     // Sync with id.
     elements.selected.on('DOMSubtreeModified', function() {
-      $(this).find('.file').each(function(index, element) {
-          elements.idField.val($(element).data('id'));
-      });
+      var els = $(this).find('.file');
+
+      if (els.length) {
+        els.each(function(index, element) {
+            elements.idField.val($(element).data('id'));
+        });
+      } else {
+        // No file element found seems everything is removed.
+        elements.idField.val('');
+      }
     });
 
     if (elements.idField.val()) {
