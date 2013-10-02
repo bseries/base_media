@@ -21,8 +21,15 @@ function(
   indexTemplate,
   availableFileTemplate
 ) {
+  var self = this;
 
-  var init = function(element) {
+  var config = {
+      'showCancelSelection': false
+  };
+
+  var init = function(element, options) {
+    self.config= $.extend(self.config, options || {});
+
     // application
     window.ME = Em.Application.create({
       rootElement: $(element)
@@ -67,12 +74,16 @@ function(
     ME.IndexController = Ember.ArrayController.extend({
       sortProperties: ['created'],
       sortAscending: false,
+      showCancelSelection: self.config.showCancelSelection,
 
       selected: null,
       newFileTitle: null,
 
       // newFile: null,
       actions: {
+        cancelSelection: function() {
+            $(document).trigger('media-explorer:cancel');
+        },
         confirmSelection: function() {
           var result = this.store.find('file', this.selected.id);
           result.then(function(item) {

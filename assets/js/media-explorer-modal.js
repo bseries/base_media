@@ -7,10 +7,15 @@ function($, MediaExplorer, Modal) {
       Modal.loading();
       Modal.type('media-explorer');
 
-      MediaExplorer.init(Modal.elements.content);
+      MediaExplorer.init(Modal.elements.content, {
+        'showCancelSelection': true
+      });
 
       Modal.ready();
 
+      $(document).on('media-explorer:cancel', function() {
+        Modal.close();
+      });
       $(document).on('modal:isClosing', function() {
         MediaExplorer.destroy();
       });

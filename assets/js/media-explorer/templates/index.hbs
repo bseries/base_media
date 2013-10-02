@@ -4,13 +4,16 @@
 	{{/each}}
 </section>
 <footer>
-	<button class="confirm-selection" {{action "confirmSelection"}} type="submit">confirm selection</button>
 	<div class="create">
 		<input type="file" id="new-file" accept="image/*" style="display: none;">
 		<button id="select-new-file" {{action "selectNewFile"}}>select file</button>
 		<button {{action "createFile"}}>start transfer</button>
 		<span class="title">{{newFileTitle}}</span>
 	</div>
+	<button class="confirm-selection" {{action "confirmSelection"}} type="submit">confirm selection</button>
+	{{#if showCancelSelection}}
+		<button class="cancel-selection large" {{action "cancelSelection"}}>cancel</button>
+	{{/if}}
 </footer>
 
 
