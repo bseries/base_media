@@ -5,15 +5,19 @@
 </section>
 <footer>
 	<div class="create">
+		<label>Transfer</label>
 		<input type="file" id="new-file" accept="image/*" style="display: none;">
-		<button id="select-new-file" {{action "selectNewFile"}}>select file</button>
-		<button {{action "createFile"}}>start transfer</button>
-		<span class="title">{{newFileTitle}}</span>
+		<div class="title">{{newFileTitle}}</div>
+		<button class="transfer-select" id="select-new-file" {{action "selectNewFile"}}>select</button>
+		<button class="transfer-start" {{action "createFile"}}>transfer</button>
 	</div>
-	<button class="confirm-selection" {{action "confirmSelection"}} type="submit">confirm selection</button>
-	{{#if showCancelSelection}}
-		<button class="cancel-selection large" {{action "cancelSelection"}}>cancel</button>
-	{{/if}}
+	<div class="selection">
+		<label>Selection</label>
+		<button class="confirm large" {{action "confirmSelection"}} type="submit">confirm</button>
+		{{#if showCancelSelection}}
+			<button class="cancel large" {{action "cancelSelection"}}>cancel</button>
+		{{/if}}
+	</div>
 </footer>
 
 
