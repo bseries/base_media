@@ -4,6 +4,7 @@ requirejs.config({
     'media-attachment': 'media/js/media-attachment',
     'media-explorer': 'media/js/media-explorer/media-explorer',
     'media-lightbox': 'media/js/media-lightbox'
-  }
+  },
+  shim: {}
 });
 
