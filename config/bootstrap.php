@@ -25,6 +25,9 @@ Libraries::add('mm', [
 ]);
 
 Environment::set(true, [
+	'features' => [
+		// 'enableRegenerateVersions' => false
+	],
 	'modules' => [
 		'files' => [
 			'library' => 'cms_media',
