@@ -1,11 +1,9 @@
 <article class="files-index">
 	<h1 class="alpha"><?= $t('Files') ?></h1>
 
-	<!--
 	<nav class="actions">
 		<?= $this->html->link($t('regenerate versions'), ['action' => 'regenerate_versions', 'library' => 'cms_media'], ['class' => 'button']) ?>
 	</nav>
-	-->
 
 	<section>
 		<h2 class="beta"><?= $t('Upload') ?></h2>
