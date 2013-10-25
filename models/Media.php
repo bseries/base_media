@@ -36,6 +36,22 @@ class Media extends \lithium\data\Model {
 		return Environment::get('media.' . $scheme);
 	}
 
+	public function depend($entity) {
+		$depend = [];
+
+		if (class_exists($model = 'cms_event\models\Events')) {
+			$results = $model::find('all', [
+				'conditions' => [
+					'cover_media_id' => $entity->id
+				]
+			]);
+			foreach ($results as $result) {
+				$depend[] = $result;
+			}
+		}
+		return $depend;
+	}
+
 	public function version($entity, $version) {
 		if (isset($this->_cachedVersions[$entity->id][$version])) {
 			return $this->_cachedVersions[$entity->id][$version];

@@ -34,6 +34,12 @@ $features = Environment::get('features');
 		<h2 class="beta"><?= $t('Available Files') ?></h2>
 		<?php if ($data->count()): ?>
 			<table>
+			<thead>
+				<tr>
+					<td><?= $t('Preview') ?>
+					<td><?= $t('Title') ?>
+					<td><?= $t('# dependent') ?>
+					<td>
 			<tbody>
 			<?php foreach ($data as $item): ?>
 			<tr>
@@ -43,6 +49,8 @@ $features = Environment::get('features');
 					<?php endif ?>
 				<td>
 					<?= $item->title ?>
+				<td>
+					<?= count($item->depend()) ?: '–' ?>
 				<td>
 					<nav class="actions">
 						<?=$this->html->link($t('edit'), ['action' => 'edit', 'id' => $item->id, 'library' => 'cms_media'], ['class' => 'button']) ?>
