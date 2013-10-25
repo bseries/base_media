@@ -8,3 +8,8 @@ requirejs.config({
   shim: {}
 });
 
+require(['compat'], function(Compat) {
+  Compat.run([
+    'sendAsBinary'
+  ]);
+});
