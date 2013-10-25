@@ -20,8 +20,24 @@ use li3_flash_message\extensions\storage\FlashMessage;
 
 class FilesController extends \lithium\action\Controller {
 
-	/*
-	public function admin_transfer() {
+	public function admin_api_view() {
+		$item = Media::find('first', ['conditions' => ['id' => $this->request->id]]);
+		$file = $this->_export($item);
+
+		$this->render(array('type' => $this->request->accepts(), 'data' => compact('file')));
+	}
+
+	public function admin_api_index() {
+		$media = Media::find('all');
+
+		$files = [];
+		foreach ($media as $item) {
+			$files[] = $this->_export($item);
+		}
+		$this->render(array('type' => $this->request->accepts(), 'data' => compact('files')));
+	}
+
+	public function admin_api_transfer() {
 		if (!$source = fopen('php://input', 'rb')) {
 			throw new InternalServerError();
 		}
@@ -46,23 +62,6 @@ class FilesController extends \lithium\action\Controller {
 		$file = $this->_export($file);
 		$this->render(array('type' => 'json', 'data' => compact('file')));
 	}
-
-	public function admin_view() {
-		$item = Media::find('first', ['conditions' => ['id' => $this->request->id]]);
-		$file = $this->_export($item);
-
-		$this->render(array('type' => $this->request->accepts(), 'data' => compact('file')));
-	}
-
-	public function admin_index() {
-		$media = Media::find('all');
-
-		foreach ($media as $item) {
-			$files[] = $this->_export($item);
-		}
-		$this->render(array('type' => $this->request->accepts(), 'data' => compact('files')));
-	}
-	 */
 
 	protected function _export($item) {
 		$result = $item->data();

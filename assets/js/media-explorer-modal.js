@@ -1,15 +1,20 @@
 define(['jquery', 'media-explorer', 'modal'],
 function($, MediaExplorer, Modal) {
 
-  var open = function() {
-      Modal.init();
+  var mediaExplorerConfig = {
+      'showCancelSelection': true
+  };
 
+  var init = function(options) {
+      this.mediaExplorerConfig = $.extend(this.explorerConfig, options || {});
+      Modal.init();
+  };
+
+  var open = function() {
       Modal.loading();
       Modal.type('media-explorer');
 
-      MediaExplorer.init(Modal.elements.content, {
-        'showCancelSelection': true
-      });
+      MediaExplorer.init(Modal.elements.content, this.mediaExplorerConfig);
 
       Modal.ready();
 
@@ -27,6 +32,7 @@ function($, MediaExplorer, Modal) {
   };
 
   return {
+    init: init,
     open: open,
     close: close
   };

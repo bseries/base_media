@@ -14,6 +14,22 @@ use lithium\net\http\Router;
 
 $persist = ['persist' => ['admin', 'controller']];
 
+// Files
+Router::connect(
+	'/admin/api/files/{:id:([0-9]+|__ID__)}',
+	['controller' => 'files', 'action' => 'api_view', 'library' => 'cms_media', 'admin' => true],
+	$persist
+);
+Router::connect(
+	'/admin/api/files',
+	['controller' => 'files', 'action' => 'api_index', 'library' => 'cms_media', 'admin' => true],
+	$persist
+);
+Router::connect(
+	'/admin/api/files/transfer',
+	['controller' => 'files', 'action' => 'api_transfer', 'library' => 'cms_media', 'admin' => true]
+);
+
 Router::connect(
 	'/admin/files/transfer',
 	['controller' => 'files', 'action' => 'transfer', 'library' => 'cms_media', 'admin' => true],
@@ -34,23 +50,5 @@ Router::connect(
 	['controller' => 'files', 'library' => 'cms_media', 'admin' => true],
 	$persist
 );
-
-/*
-Router::connect(
-	'/files/{:id:[0-9]+}',
-	['controller' => 'files', 'action' => 'view', 'library' => 'cms_media'],
-	$persist
-);
-Router::connect(
-	'/files',
-	['controller' => 'files', 'action' => 'index', 'library' => 'cms_media'],
-	$persist
-);
-Router::connect(
-	'/files/transfer',
-	['controller' => 'files', 'action' => 'transfer', 'library' => 'cms_media'],
-	$persist
-);
-*/
 
 ?>

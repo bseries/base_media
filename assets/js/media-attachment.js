@@ -1,8 +1,9 @@
 define(['jquery', 'media-explorer-modal', 'domready!'],
 function($, MediaExplorerModal) {
 
-  var one = function(element) {
+  var one = function(element, options) {
     element = $(element);
+    var mediaExplorerModalConfig = options || {};
 
     var elements = {
       root: element,
@@ -17,7 +18,7 @@ function($, MediaExplorerModal) {
 
       if (els.length) {
         els.each(function(index, element) {
-            elements.idField.val($(element).data('id'));
+          elements.idField.val($(element).data('id'));
         });
       } else {
         // No file element found seems everything is removed.
@@ -35,6 +36,7 @@ function($, MediaExplorerModal) {
 
     elements.select.on('click', function(ev) {
       ev.preventDefault();
+      MediaExplorerModal.init(mediaExplorerModalConfig);
       MediaExplorerModal.open();
 
       $(document).one('media-explorer:selected', function(ev, data) {

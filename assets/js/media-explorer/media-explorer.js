@@ -24,7 +24,10 @@ function(
   var self = this;
 
   var config = {
-      'showCancelSelection': false
+      'showCancelSelection': false,
+      endpoints: {
+        namespace: ''
+      }
   };
 
   var init = function(element, options) {
@@ -37,6 +40,7 @@ function(
 
     ME.ApplicationAdapter = DS.RESTAdapter.extend({});
     ME.ApplicationAdapter.reopen({
+      namespace: self.config.endpoints.namespace,
       createRecord: function() {
         return new Em.RSVP.Promise(function(resolve, reject) {
             resolve();
@@ -108,7 +112,7 @@ function(
           var reader = new FileReader();
           var xhr = new XMLHttpRequest();
 
-          xhr.open('POST', '/files/transfer?title=' + file.name);
+          xhr.open('POST', '/' + self.config.endpoints.namespace + '/files/transfer?title=' + file.name);
           xhr.overrideMimeType('text/plain; charset=x-user-defined-binary');
           $(document).trigger('transfer:start');
 
