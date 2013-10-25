@@ -1,9 +1,20 @@
 define(['jquery', 'media-explorer-modal', 'domready!'],
 function($, MediaExplorerModal) {
 
-  var one = function(element, options) {
+  var self = this;
+
+  var config = {
+    endpoints: {
+      view: '/files/__ID__'
+    }
+  };
+
+  var init = function(options) {
+    config = $.extend(config, options || {});
+  };
+
+  var one = function(element) {
     element = $(element);
-    var mediaExplorerModalConfig = options || {};
 
     var elements = {
       root: element,
@@ -36,7 +47,7 @@ function($, MediaExplorerModal) {
 
     elements.select.on('click', function(ev) {
       ev.preventDefault();
-      MediaExplorerModal.init(mediaExplorerModalConfig);
+      MediaExplorerModal.init(this.config);
       MediaExplorerModal.open();
 
       $(document).one('media-explorer:selected', function(ev, data) {
@@ -73,7 +84,7 @@ function($, MediaExplorerModal) {
 
     if (!item.versions_fix3_url) {
       // Need more information; partial item given.
-      $.getJSON('/files/' + item.id).done(function(data) {
+      $.getJSON(config.endpoints.view.replace('__ID__', item.id)).done(function(data) {
         df.resolve([build(data.file)]);
       });
     } else {
@@ -83,6 +94,7 @@ function($, MediaExplorerModal) {
   };
 
   return {
+    init: init,
     one: one
   };
 });
