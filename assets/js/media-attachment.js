@@ -10,7 +10,7 @@ function($, MediaExplorerModal) {
   };
 
   var init = function(options) {
-    config = $.extend(config, options || {});
+    self.config = $.extend(config, options || {});
   };
 
   var one = function(element) {
@@ -47,7 +47,7 @@ function($, MediaExplorerModal) {
 
     elements.select.on('click', function(ev) {
       ev.preventDefault();
-      MediaExplorerModal.init(this.config);
+      MediaExplorerModal.init(self.config);
       MediaExplorerModal.open();
 
       $(document).one('media-explorer:selected', function(ev, data) {
