@@ -16,6 +16,8 @@ use lithium\net\http\Media;
 use \Media_Process;
 use \Media_Info;
 use lithium\g11n\Message;
+use cms_core\extensions\cms\Modules;
+use cms_core\extensions\cms\Features;
 
 extract(Message::aliases());
 
@@ -24,19 +26,10 @@ Libraries::add('mm', [
 	'path' => dirname(__DIR__) . '/libraries/mm'
 ]);
 
-Environment::set(true, [
-	'features' => [
-		// 'enableRegenerateVersions' => false
-	],
-	'modules' => [
-		'files' => [
-			'library' => 'cms_media',
-			'title' => $t('Files'),
-			'name' => 'files',
-			'slug' => 'files'
-		]
-	]
-]);
+
+Modules::register('cms_media', 'files', ['title' => $t('Files')]);
+Features::register('enableRegenerateVersions', false);
+
 Media_Process::config([
 	// 'audio' => 'SoxShell',
 	'document' => 'Imagick',
