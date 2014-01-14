@@ -26,7 +26,6 @@ Libraries::add('mm', [
 	'path' => dirname(__DIR__) . '/libraries/mm'
 ]);
 
-
 Modules::register('cms_media', 'files', ['title' => $t('Files')]);
 Features::register('enableRegenerateVersions', false);
 
