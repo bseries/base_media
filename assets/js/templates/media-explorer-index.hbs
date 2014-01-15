@@ -1,0 +1,21 @@
+<section class="available">
+	{{#each files}}
+		{{> item this}}
+	{{/each}}
+</section>
+<footer>
+	<div class="transfer">
+		<label>Transfer</label>
+		<input type="file" class="file" accept="image/*" style="display: none;">
+		<div class="title"></div>
+		<button class="select">select</button>
+		<button class="start"}>transfer</button>
+	</div>
+	<div class="selection hide">
+		<label>Selection</label>
+		<button class="confirm large">confirm</button>
+		<button class="cancel large">cancel</button>
+	</div>
+</footer>
+
+

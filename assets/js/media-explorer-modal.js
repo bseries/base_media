@@ -2,33 +2,33 @@ define(['jquery', 'media-explorer', 'modal'],
 function($, MediaExplorer, Modal) {
 
   var mediaExplorerConfig = {
-      'showCancelSelection': true
+      'selectable': false
   };
 
   var init = function(options) {
-      this.mediaExplorerConfig = $.extend(this.explorerConfig, options || {});
-      Modal.init();
+    this.mediaExplorerConfig = $.extend(this.mediaExplorerConfig, options || {});
+    Modal.init();
   };
 
   var open = function() {
-      Modal.loading();
-      Modal.type('media-explorer');
+    Modal.loading();
+    Modal.type('media-explorer');
 
-      MediaExplorer.init(Modal.elements.content, this.mediaExplorerConfig);
+    var ME = new MediaExplorer();
+    ME.init(Modal.elements.content, this.mediaExplorerConfig);
 
-      Modal.ready();
+    Modal.ready();
 
-      $(document).on('media-explorer:cancel', function() {
-        Modal.close();
-      });
-      $(document).on('modal:isClosing', function() {
-        MediaExplorer.destroy();
-      });
+    $(document).on('media-explorer:cancel', function() {
+      Modal.close();
+    });
+    $(document).on('modal:isClosing', function() {
+      MediaExplorer.destroy();
+    });
   };
 
   var close = function() {
     Modal.close();
-    MediaExplorer.destroy();
   };
 
   return {

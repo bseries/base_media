@@ -68,7 +68,7 @@ class FilesController extends \lithium\action\Controller {
 
 		if ($versions = $item->versions()) {
 			foreach ($versions as $name => $version) {
-				$result["versions_{$name}_url"] = $version->url('http');
+				$result['versions'][$name]['url'] = $version->url('http');
 			}
 		}
 		return $result;
