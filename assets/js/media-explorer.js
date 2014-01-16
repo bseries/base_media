@@ -45,7 +45,11 @@ function(
         start: null,
         select: null
       },
-      selection: null
+      selection: {
+        wrap: null,
+        confirm: null,
+        cancel: null
+      }
     };
 
     this.endpoints = {
@@ -74,10 +78,12 @@ function(
           _this.elements.transfer.start = _this.element.find('.transfer .start');
           _this.elements.transfer.select = _this.element.find('.transfer .select');
 
-          _this.elements.selection = _this.element.find('.selection');
+          _this.elements.selection.wrap = _this.element.find('.selection');
+          _this.elements.selection.confirm = _this.elements.selection.wrap.find('.confirm');
+          _this.elements.selection.cancel = _this.elements.selection.wrap.find('.cancel');
 
           if (_this.selectable) {
-            _this.elements.selection.removeClass('hide');
+            _this.elements.selection.wrap.removeClass('hide');
           }
 
           _this.bindEvents();
@@ -109,6 +115,9 @@ function(
           });
       });
       if (_this.selectable) {
+        _this.elements.selection.confirm.on('click', _this.confirmSelection);
+        _this.elements.selection.cancel.on('click', _this.cancelSelection);
+
         _this.elements.available.on('click', '.file', function() {
           $this = $(this);
 
@@ -176,10 +185,11 @@ function(
     this.confirmSelection = function() {
       var ids = [];
 
-      _this.elements.available.find('.selected').each(function(el) {
+      _this.elements.available.find('.selected').each(function(k, el) {
         ids.push($(el).data('id'));
       });
-      $(document).trigger('media-explorer:selected', ids);
+      console.debug(ids);
+      $(document).trigger('media-explorer:selected', [ids]);
     };
   };
 });

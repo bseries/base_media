@@ -22,9 +22,6 @@ function($, MediaExplorer, Modal) {
     $(document).on('media-explorer:cancel', function() {
       Modal.close();
     });
-    $(document).on('modal:isClosing', function() {
-      MediaExplorer.destroy();
-    });
   };
 
   var close = function() {

@@ -52,7 +52,7 @@ function($, MediaExplorerModal) {
 
     elements.select.on('click', function(ev) {
       ev.preventDefault();
-      interactWithMediaExplorer(1);
+      interactWithMediaExplorer(elements, 1);
     });
   };
 
@@ -83,6 +83,7 @@ function($, MediaExplorerModal) {
     });
 
     // Load current item.
+    /*
     if (elements.idField.val()) {
       buildSelectedItemHtml({
         id: elements.idField.val()
@@ -90,14 +91,15 @@ function($, MediaExplorerModal) {
         elements.selected.html(html);
       });
     }
+    */
 
     elements.select.on('click', function(ev) {
       ev.preventDefault();
-      interactWithMediaExplorer(1);
+      interactWithMediaExplorer(elements, true);
     });
   };
 
-  var interactWithMediaExplorer = function(selectable) {
+  var interactWithMediaExplorer = function(elements, selectable) {
     MediaExplorerModal.init($.extend(_this.config, {selectable: selectable}));
     MediaExplorerModal.open();
 
@@ -121,11 +123,9 @@ function($, MediaExplorerModal) {
   };
 
   var buildSelectedItemHtml = function(item) {
-    var df = $.Deferred();
-
     var build = function(item) {
       var wrap = $('<article class="file">');
-      wrap.append($('<img>').attr('src', item.versions_fix3_url));
+      wrap.append($('<img>').attr('src', item.versions.fix2.url));
 
       var button = $('<button class="remove">remove</button>');
       wrap.append(button);
@@ -138,19 +138,15 @@ function($, MediaExplorerModal) {
       return wrap;
     };
 
-    // if (!item.versions_fix3_url) {
-      // Need more information; partial item given.
-      $.getJSON(config.endpoints.view.replace('__ID__', item.id)).done(function(data) {
-        df.resolve([build(data.file)]);
-      });
-    // } else {
-    //  df.resolve([build(item)]);
-    // }
-    return df;
+    // Need more information; partial item given.
+    return $.getJSON(config.endpoints.view.replace('__ID__', item.id)).done(function(data) {
+      build(data.file);
+    });
   };
 
   return {
     init: init,
-    one: one
+    one: one,
+    multi: multi
   };
 });

@@ -18,6 +18,7 @@ use temporary\Manager as Temporary;
 use lithium\analysis\Logger;
 use li3_flash_message\extensions\storage\FlashMessage;
 
+// @todo Rename to media controller.
 class FilesController extends \lithium\action\Controller {
 
 	public function admin_api_view() {
