@@ -14,7 +14,7 @@ function($, MediaExplorerModal) {
     this.element = null;
     this.elements = {};
 
-    // Either one or multi.
+    // Either direct or joined.
     this.formBinding = null;
 
     // Can be used to specify how many items may
@@ -88,12 +88,11 @@ function($, MediaExplorerModal) {
       _this.elements.selected.on('DOMSubtreeModified', function() {
         var inputs = _this.inputs();
         var items = _this.items();
-
-        if (_this.formBinding === 'one') {
+        if (_this.formBinding === 'direct') {
           // Signaling the backend to attach, update or detach the item works
           // for single attachments by using a single hidde input. When this
           // input contains an empty value the item is detached upon form
-          // submit.
+          // submit. Name pattern i.e. 'cover_media_id'.
 
           if (items.length === 1) {
             $(inputs.get(0)).val(
@@ -106,7 +105,8 @@ function($, MediaExplorerModal) {
             // Multi attachments use different markup than single ones. The
             // backend will always detach any attachment first than attach
             // the ones provided by inputs. That's why we cannot use empty
-            // values but need to remove all inputs for detachment.
+            // values but need to remove all inputs for detachment. Name
+            // pattern i.e. 'media[1][id]'.
             //
             // FIXME Make first part of input name customizable.
 
@@ -202,18 +202,18 @@ function($, MediaExplorerModal) {
   }
 
   return {
-    one: function(element, options) {
+    direct: function(element, options) {
       var ma = new MediaAttachment();
 
-      options.formBinding = 'one';
+      options.formBinding = 'direct';
       options.selectable = 1;
 
       ma.init(element, options);
     },
-    multi: function(element, options) {
+    joined: function(element, options) {
       var ma = new MediaAttachment();
 
-      options.formBinding = 'multi';
+      options.formBinding = 'joined';
       options.selectable = true;
 
       ma.init(element, options);
