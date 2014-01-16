@@ -26,9 +26,11 @@ function($, MediaExplorerModal) {
     this.selectable = true;
 
     this.endpoints = {
-      // Not used here but passed through to ME.
-      index: '/files',
       view: '/files/__ID__'
+      // Not used here but passed through to ME.
+      // index: '/files',
+      // Not used here but passed through to ME.
+      // transfer: '/files/transfer'
     };
 
     this.init = function(element, options) {

@@ -41,9 +41,17 @@ function(
     this.elements = {
       available: null,
       transfer: {
-        file: null,
+        wrap: null,
         start: null,
-        select: null
+
+        upload: {
+          input: null,
+          title: null,
+          select: null
+        },
+        url: {
+          input: null
+        }
       },
       selection: {
         wrap: null,
@@ -53,7 +61,8 @@ function(
     };
 
     this.endpoints = {
-      index: '/files'
+      index: '/files',
+      transfer: '/files/transfer'
     };
 
     this.templates = {
@@ -75,9 +84,18 @@ function(
       _this.populate().done(function() {
           _this.elements.available = _this.element.find('.available');
 
-          _this.elements.transfer.file = _this.element.find('.transfer .file');
-          _this.elements.transfer.start = _this.element.find('.transfer .start');
-          _this.elements.transfer.select = _this.element.find('.transfer .select');
+          _this.elements.transfer.wrap = _this.element.find('.transfer');
+          _this.elements.transfer.start = _this.elements.transfer.wrap.find('.start');
+
+          _this.elements.transfer.upload = {
+            input: _this.elements.transfer.wrap.find('.upload input'),
+            title: _this.elements.transfer.wrap.find('.upload .title'),
+            select: _this.elements.transfer.wrap.find('.upload .select')
+          };
+
+          _this.elements.transfer.url = {
+            input: _this.elements.transfer.wrap.find('.url input')
+          };
 
           _this.elements.selection.wrap = _this.element.find('.selection');
           _this.elements.selection.confirm = _this.elements.selection.wrap.find('.confirm');
@@ -109,36 +127,39 @@ function(
     };
 
     this.bindEvents = function() {
-      _this.elements.transfer.select.on('click', function() {
-        _this.elements.transfer.file.trigger('click');
+      _this.elements.transfer.upload.select.on('click', function(ev) {
+        ev.preventDefault();
+        _this.elements.transfer.upload.input.trigger('click');
 
-        _this.elements.transfer.file.on('change', function(ev) {
-          $('.transfer .title').text(this.files[0].name);
+        _this.elements.transfer.upload.input.on('change', function(ev) {
+          $('.transfer .upload .title').text(this.files[0].name);
         });
       });
-      _this.elements.transfer.start.on('click', function() {
+      _this.elements.transfer.start.on('click', function(ev) {
+        ev.preventDefault();
         _this.elements.transfer.start.attr('disabled', 'disabled');
 
-        transfer($fileElement.get(0).files[0])
+        _this.transfer(_this.elements.transfer.upload.input.get(0).files[0])
           .done(function(data) {
             _this.insert(data.file);
             _this.elements.transfer.start.removeAttr('disabled');
+            _this.elements.transfer.wrap.slideUp(400);
           });
       });
       if (_this.selectable) {
         _this.elements.selection.confirm.on('click', _this.confirmSelection);
         _this.elements.selection.cancel.on('click', _this.cancelSelection);
 
-        _this.elements.available.on('click', '.file', function() {
+        _this.elements.available.on('click', '.item', function() {
           $this = $(this);
 
           if (_this.selectable === 1) {
-            _this.elements.available.find('.file').removeClass('selected');
+            _this.elements.available.find('.item').removeClass('selected');
             $this.addClass('selected');
           } else if (_this.selectable === true) {
             $this.toggleClass('selected');
           } else if (_this.selectable > 1) {
-            var current = _this.elements.available.find('.file.selected').length;
+            var current = _this.elements.available.find('.item.selected').length;
 
             if ($this.hasClass('selected') || current < _this.selectable) {
               $this.toggleClass('selected');
@@ -148,6 +169,14 @@ function(
           }
         });
       }
+
+      _this.element.find('.transfer-toggle').on('click', function() {
+        _this.elements.transfer.wrap.slideDown(300);
+      });
+      _this.element.find('.transfer .cancel').on('click', function(ev) {
+        ev.preventDefault();
+        _this.elements.transfer.wrap.slideUp(200);
+      });
     };
 
     this.insert = function(item) {
@@ -165,7 +194,7 @@ function(
         $(document).trigger('transfer:done');
       });
 
-      xhr.open('POST', '/' + _this.endpoints.namespace + '/files/transfer?title=' + file.name);
+      xhr.open('POST', _this.endpoint('transfer') + '?title=' + file.name);
       xhr.overrideMimeType('text/plain; charset=x-user-defined-binary');
       $(document).trigger('transfer:start');
 
