@@ -53,7 +53,7 @@ function(
     };
 
     this.endpoints = {
-      namespace: ''
+      index: '/files'
     };
 
     this.templates = {
@@ -65,6 +65,7 @@ function(
       _this.element = element;
 
       _this.endpoints = $.extend(_this.endpoints, options.endpoints || {});
+
       _this.selectable = options.selectable || false;
 
       _this.templates.index = Handlebars.compile(indexTemplate);
@@ -90,8 +91,18 @@ function(
       });
     };
 
+    // Returns endpoint string; may replace __ID__ placeholder.
+    this.endpoint = function(name, id) {
+      var item = _this.endpoints[name];
+
+      if (name == 'view') {
+        return item.replace('__ID__', id);
+      }
+      return item;
+    };
+
     this.populate = function() {
-      return $.getJSON('/' + _this.endpoints.namespace + '/files')
+      return $.getJSON(_this.endpoint('index'))
         .done(function(data) {
           _this.element.html(_this.templates.index(data));
         });
@@ -188,7 +199,6 @@ function(
       _this.elements.available.find('.selected').each(function(k, el) {
         ids.push($(el).data('id'));
       });
-      console.debug(ids);
       $(document).trigger('media-explorer:selected', [ids]);
     };
   };

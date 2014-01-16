@@ -1,130 +1,161 @@
-define(['jquery', 'media-explorer-modal', 'domready!'],
+define([
+  'jquery',
+  'media-explorer-modal',
+  'domready!'
+],
 function($, MediaExplorerModal) {
 
-  var _this = this;
+  // Uses input fields as a store for ids and thus references
+  // to full media items. Media items themselves always have
+  // a backreference to their id through their `data-id` property.
+  function MediaAttachment() {
+    var _this = this;
 
-  var config = {
-    endpoints: {
+    this.element = null;
+    this.elements = {};
+
+    // Either one or multi.
+    this.formBinding = null;
+
+    // Can be used to specify how many items may
+    // be selected. As an edge case: there can also
+    // be media attachment instances with form binding
+    // multi and selectable 1.
+    //
+    // Not used here directly but passed through to ME.
+    this.selectable = true;
+
+    this.endpoints = {
+      // Not used here but passed through to ME.
+      index: '/files',
       view: '/files/__ID__'
-    }
-  };
-
-  var init = function(options) {
-    _this.config = $.extend(config, options || {});
-  };
-
-  var bindSyncWithId = function() {
-
-  };
-
-  var one = function(element) {
-    element = $(element);
-
-    var elements = {
-      root: element,
-      select: element.find('.select'),
-      selected: element.find('.selected'),
-      idField: element.find('input[name*=_id]')
     };
 
-    // Sync with id.
-    elements.selected.on('DOMSubtreeModified', function() {
-      var els = $(this).find('.file');
+    this.init = function(element, options) {
+      options = $.extend({
+        formBinding: _this.formBinding,
+        endpoints: _this.endpoints,
+        selectable: _this.selectable
+      }, options);
 
-      if (els.length) {
-        els.each(function(index, element) {
-          elements.idField.val($(element).data('id'));
-        });
-      } else {
-        // No file element found seems everything is removed.
-        elements.idField.val('');
-      }
-    });
+      _this.formBinding = options.formBinding;
+      _this.selectable = options.selectable;
+      _this.endpoints = options.endpoints;
 
-    // Load current item.
-    if (elements.idField.val()) {
-      buildSelectedItemHtml({
-        id: elements.idField.val()
-      }).done(function(html) {
-        elements.selected.html(html);
+      _this.element = $(element);
+
+      _this.elements = {
+        select: _this.element.find('.select'),
+        selected: _this.element.find('.selected')
+        // Also see inputs() and items().
+      };
+
+      _this.elements.select.on('click', function(ev) {
+        ev.preventDefault();
+        _this.interactWithMediaExplorer();
       });
-    }
 
-    elements.select.on('click', function(ev) {
-      ev.preventDefault();
-      interactWithMediaExplorer(elements, 1);
-    });
-  };
-
-
-  // use multi select input element
-  var multi = function(element) {
-    element = $(element);
-
-    var elements = {
-      root: element,
-      select: element.find('.select'),
-      selected: element.find('.selected')
-//      idField: element.find('input[name*=_id]')
+      _this.populate();
+      _this.keepSynced();
     };
 
-    // Sync with id.
-    elements.selected.on('DOMSubtreeModified', function() {
-      var els = $(this).find('.file');
+    // Returns endpoint string; may replace __ID__ placeholder.
+    this.endpoint = function(name, id) {
+      var item = _this.endpoints[name];
 
-      if (els.length) {
-        els.each(function(index, element) {
-          elements.idField.val($(element).data('id'));
-        });
-      } else {
-        // No file element found seems everything is removed.
-        elements.idField.val('');
+      if (name == 'view') {
+        return item.replace('__ID__', id);
       }
-    });
+      return item;
+    };
 
-    // Load current item.
-    /*
-    if (elements.idField.val()) {
-      buildSelectedItemHtml({
-        id: elements.idField.val()
-      }).done(function(html) {
-        elements.selected.html(html);
+    // Returns a current live list of all inputs.
+    // Needed as that may change during runtime.
+    this.inputs = function() {
+        return _this.element.find('input[name*=id]');
+    };
+
+    // Returns a current live list of all items.
+    // Needed as that may change during runtime.
+    this.items = function() {
+      return _this.elements.selected.find('.media-item');
+    };
+
+    // Synchronizes input fields when an item is added or removed.
+    // It is assumed there is/was an initial state of inputs that didn't
+    // need any further adaption.
+    this.keepSynced = function() {
+      _this.elements.selected.on('DOMSubtreeModified', function() {
+        var inputs = _this.inputs();
+        var items = _this.items();
+
+        if (_this.formBinding === 'one') {
+          // Signaling the backend to attach, update or detach the item works
+          // for single attachments by using a single hidde input. When this
+          // input contains an empty value the item is detached upon form
+          // submit.
+
+          if (items.length === 1) {
+            $(inputs.get(0)).val(
+               $(items.get(0)).data('id')
+            );
+          } else {
+            $(inputs.get(0)).val('');
+          }
+        } else {
+            // Multi attachments use different markup than single ones. The
+            // backend will always detach any attachment first than attach
+            // the ones provided by inputs. That's why we cannot use empty
+            // values but need to remove all inputs for detachment.
+            //
+            // FIXME Make first part of input name customizable.
+
+            if (items.length) {
+              // Must rebuild array of inputs entirely.
+
+              inputs.remove();
+              items.each(function(index, el) {
+                var id = $(el).data('id');
+
+                var html = '<input type="hidden" name="media[' + id +  '][id]" value="' + id + '">';
+                _this.element.append(html);
+              });
+            } else {
+              inputs.remove();
+            }
+        }
       });
-    }
-    */
+    };
 
-    elements.select.on('click', function(ev) {
-      ev.preventDefault();
-      interactWithMediaExplorer(elements, true);
-    });
-  };
+    // Populates the select area with already selected
+    // items (with images and handles) when we just have the ids
+    // fromt the input fields..
+    this.populate = function() {
+      _this.inputs().each(function(k, el) {
+        var value = $(el).val();
 
-  var interactWithMediaExplorer = function(elements, selectable) {
-    MediaExplorerModal.init($.extend(_this.config, {selectable: selectable}));
-    MediaExplorerModal.open();
+        if (value) {
+          _this.append(value);
+        }
+      });
+    };
 
-    $(document).one('media-explorer:selected', function(ev, ids) {
-      // Implicitly updates the idField by modifying subtree.
+    // Builds and appends an item to the select area
+    // using just its id.
+    this.append = function(id) {
+      var req = $.getJSON(_this.endpoint('view', id));
 
-      var dfrs = [];
-      elements.selected.html('');
-
-      $.each(ids, function(k, id) {
-        var dfr = buildSelectedItemHtml({
-          id: id
-        }).done(function(html) {
-          elements.selected.append(html);
+      req.done(function(data) {
+          // Implicitly updates inputes as we add
+          // the item and modify the subtree. See keepSynced().
+          _this.elements.selected.append(
+            _this.buildSelectedItemHtml(data.file)
+          );
         });
-        dfrs.push(dfr);
-      });
+    };
 
-      $.when.apply($, dfrs).then(MediaExplorerModal.close);
-    });
-  };
-
-  var buildSelectedItemHtml = function(item) {
-    var build = function(item) {
-      var wrap = $('<article class="file">');
+    this.buildSelectedItemHtml = function(item) {
+      var wrap = $('<article class="media-item">');
       wrap.append($('<img>').attr('src', item.versions.fix2.url));
 
       var button = $('<button class="remove">remove</button>');
@@ -135,18 +166,57 @@ function($, MediaExplorerModal) {
         $(this).parent().remove();
       });
       wrap.data('id', item.id);
+
       return wrap;
     };
 
-    // Need more information; partial item given.
-    return $.getJSON(config.endpoints.view.replace('__ID__', item.id)).done(function(data) {
-      build(data.file);
-    });
-  };
+    this.interactWithMediaExplorer = function() {
+      MediaExplorerModal.init({
+        selectable: _this.selectable,
+        endpoints: _this.endpoints
+      });
+
+      MediaExplorerModal.open();
+
+      $(document).one('media-explorer:selected', function(ev, ids) {
+        // Pool deferreds.
+        var dfrs = [];
+
+        // We rebuilt selected items completely and replace
+        // the current selection with the one we get from ME.
+        // Removing all existing first wont be visible as it
+        // is assumed that the ME window overlays that area.
+        // Also this is a not too slow operation. If yes this
+        // part needs a better implementation.
+        _this.elements.selected.html('');
+
+        $.each(ids, function(k, id) {
+          dfrs.push(_this.append(id));
+
+        });
+
+        // Wait until all items are built and appended then close ME.
+        $.when.apply($, dfrs).then(MediaExplorerModal.close);
+      });
+    };
+  }
 
   return {
-    init: init,
-    one: one,
-    multi: multi
+    one: function(element, options) {
+      var ma = new MediaAttachment();
+
+      options.formBinding = 'one';
+      options.selectable = 1;
+
+      ma.init(element, options);
+    },
+    multi: function(element, options) {
+      var ma = new MediaAttachment();
+
+      options.formBinding = 'multi';
+      options.selectable = true;
+
+      ma.init(element, options);
+    }
   };
 });
