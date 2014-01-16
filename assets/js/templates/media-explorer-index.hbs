@@ -4,33 +4,26 @@
 	{{/each}}
 </section>
 <section class="transfer hide">
-	<!-- <nav>
-	Transfer: 
-	<a href="#transfer-upload">Lokal</a>
-	<a href="#transfer-url">Enfernt</a>
-	<a href="#transfer-vimeo">Vimeo</a>
-</nav>
--->
 	<h1 class="beta">Transfer</h1>
-	<form url="/" action="POST">
-		<div class="upload" id="transfer-upload">
+	<form url="#" action="POST">
+		<div class="upload">
 			<div class="input">
-				<label for="transfer-upload-file">Lokal (vom Computer)</label>
-				<input type="file" id="transfer-upload-file" accept="image/*" style="display: none;">
+				<label>Lokal (vom Computer)</label>
+				<input type="file" accept="image/*" style="display: none;">
 			</div>
 			<div class="title"></div>
 			<button class="select">Datei auswählen</button>
 		</div>
-		<div class="url" id="transfer-url">
+		<div class="url">
 			<div class="input">
-				<label for="transfer-url">Entfernt (Datei von einer Website)</label>
-				<input type="url" id="transfer-url">
+				<label>Entfernt (Datei von einer Website)</label>
+				<input type="url" name="url">
 			</div>
 		</div>
-		<div class="vimeo" id="transfer-vimeo">
+		<div class="vimeo">
 			<div class="input">
-				<label for="transfer-url">Vimeo (ID)</label>
-				<input type="text" id="transfer-vimeo-id">
+				<label>Vimeo (ID)</label>
+				<input type="text" name="vimeo_id">
 			</div>
 		</div>
 		<button class="cancel">Transfer abbrechen</button>

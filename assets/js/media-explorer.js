@@ -51,6 +51,9 @@ function(
         },
         url: {
           input: null
+        },
+        vimeo: {
+          input: null
         }
       },
       selection: {
@@ -88,20 +91,23 @@ function(
       Handlebars.registerPartial('item', _this.templates.item);
 
       _this.populate().done(function() {
-
           _this.elements.available = _this.element.find('.available');
 
-          _this.elements.transfer.wrap = _this.element.find('.transfer');
-          _this.elements.transfer.start = _this.elements.transfer.wrap.find('.start');
+          var wrap;
+
+          _this.elements.transfer.wrap = wrap = _this.element.find('.transfer');
+          _this.elements.transfer.start = wrap.find('.start');
 
           _this.elements.transfer.upload = {
-            input: _this.elements.transfer.wrap.find('.upload input'),
-            title: _this.elements.transfer.wrap.find('.upload .title'),
-            select: _this.elements.transfer.wrap.find('.upload .select')
+            input: wrap.find('.upload input'),
+            title: wrap.find('.upload .title'),
+            select: wrap.find('.upload .select')
           };
-
           _this.elements.transfer.url = {
-            input: _this.elements.transfer.wrap.find('.url input')
+            input: wrap.find('.url input')
+          };
+          _this.elements.transfer.vimeo = {
+            input: wrap.find('.vimeo input')
           };
 
           _this.elements.selection.wrap = _this.element.find('.selection');
@@ -121,6 +127,7 @@ function(
             }
           });
 
+          // DOM complete now ready to bind events.
           _this.bindEvents();
       });
     };
@@ -143,6 +150,7 @@ function(
     };
 
     this.bindEvents = function() {
+      // Pick a file to upload.
       _this.elements.transfer.upload.select.on('click', function(ev) {
         ev.preventDefault();
         _this.elements.transfer.upload.input.trigger('click');
@@ -151,17 +159,51 @@ function(
           $('.transfer .upload .title').text(this.files[0].name);
         });
       });
+
+      // Execute transfer.
       _this.elements.transfer.start.on('click', function(ev) {
         ev.preventDefault();
         _this.elements.transfer.start.attr('disabled', 'disabled');
 
-        _this.transfer(_this.elements.transfer.upload.input.get(0).files[0])
-          .done(function(data) {
-            _this.insert(data.file);
-            _this.elements.transfer.start.removeAttr('disabled');
-            _this.elements.transfer.wrap.slideUp(400);
-          });
+        var ready = _this.ready();
+        var req;
+
+        if (ready == 'upload') {
+          req = _this.upload(_this.elements.transfer.upload.input.get(0).files[0]);
+        } else {
+          if (ready == 'url') {
+            req = $.ajax({
+              type: 'POST',
+              url: _this.endpoint('transfer'),
+              data: _this.elements.transfer.url.input.serialize()
+            });
+          } else if (ready == 'vimeo') {
+            req = $.ajax({
+              type: 'POST',
+              url: _this.endpoint('transfer'),
+              data: _this.elements.transfer.vimeo.input.serialize()
+            });
+          } else {
+            // FIXME Notify user what went wrong.
+            return;
+          }
+        }
+
+        req.done(function(data) {
+          _this.insert(data.file);
+          _this.elements.transfer.start.removeAttr('disabled');
+          _this.elements.transfer.wrap.slideUp(400);
+
+          // Reset form entirely.
+          _this.elements.transfer.upload.input.replaceWith(
+            _this.elements.transfer.upload.input = _this.elements.transfer.upload.input.clone(true)
+          );
+          _this.elements.transfer.upload.title.text('');
+          _this.elements.transfer.url.input.val('');
+          _this.elements.transfer.vimeo.input.val('');
+        });
       });
+
       if (_this.selectable) {
         _this.elements.selection.confirm.on('click', _this.confirmSelection);
         _this.elements.selection.cancel.on('click', _this.cancelSelection);
@@ -180,7 +222,7 @@ function(
             if ($this.hasClass('selected') || current < _this.selectable) {
               $this.toggleClass('selected');
             } else if (current >= _this.selectable) {
-              // Notify user that items must be deselected first to select new ones.
+              // FIXME Notify user that items must be deselected first to select new ones.
             }
           }
         });
@@ -199,7 +241,20 @@ function(
       _this.elements.available.prepend(_this.templates.item(item));
     };
 
-    this.transfer = function(file) {
+    this.ready = function() {
+      if (_this.elements.transfer.upload.input.get(0).files.length) {
+        return 'upload';
+      }
+      if (_this.elements.transfer.url.input.val() !== '') {
+        return 'url';
+      }
+      if (_this.elements.transfer.vimeo.input.val() !== '') {
+        return 'vimeo';
+      }
+      return false;
+    };
+
+    this.upload = function(file) {
       $(document).trigger('transfer:start');
 
       var reader = new FileReader();

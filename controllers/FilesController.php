@@ -41,17 +41,25 @@ class FilesController extends \lithium\action\Controller {
 	}
 
 	public function admin_api_transfer() {
-		if (!$source = fopen('php://input', 'rb')) {
-			throw new InternalServerError();
-		}
-		$temporary = 'file://' . Temporary::file(['context' => 'upload']);
+		if (!empty($this->request->data['url'])) {
+			$source = $this->request->data['url'];
+			$title = basename($source);
+		} else {
+			if (!$source = fopen('php://input', 'rb')) {
+				throw new InternalServerError();
+			}
+			$temporary = 'file://' . Temporary::file(['context' => 'upload']);
 
-		file_put_contents($temporary, $source);
-		fclose($source);
+			file_put_contents($temporary, $source);
+			fclose($source);
+
+			$source = $temporary;
+			$title = $this->request->query['title'];
+		}
 
 		$file = Media::create([
-			'url' => $temporary,
-			'title' => $this->request->query['title']
+			'url' => $source,
+			'title' => $title
 		]);
 
 		if (parse_url($file->url, PHP_URL_SCHEME) != 'file') {
