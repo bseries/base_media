@@ -11,7 +11,7 @@ CREATE TABLE `media` (
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `user` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=126 DEFAULT CHARSET=utf8 COMMENT='Unique index set on user_id+checksum instead of user_id+dirn';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Unique index set on user_id+checksum instead of user_id+dirn';
 
 -- Create syntax for TABLE 'media_versions'
 CREATE TABLE `media_versions` (
@@ -26,4 +26,14 @@ CREATE TABLE `media_versions` (
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `user` (`media_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1076 DEFAULT CHARSET=utf8 COMMENT='Unique index set on user_id+checksum instead of user_id+dirn';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Unique index set on user_id+checksum instead of user_id+dirn';
+
+CREATE TABLE `media_attachments` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `media_id` int(11) unsigned NOT NULL,
+  `model` varchar(50) NOT NULL,
+  `foreign_key` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `poly` (`model`,`foreign_key`),
+  KEY `media_file` (`media_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
