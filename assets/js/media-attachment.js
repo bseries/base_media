@@ -161,7 +161,7 @@ function($, MediaExplorerModal) {
       var wrap = $('<article class="media-item">');
       wrap.append($('<img>').attr('src', item.versions.fix2.url));
 
-      var button = $('<button class="remove">remove</button>');
+      var button = $('<button class="remove">╳</button>');
       wrap.append(button);
 
       button.on('click', function(ev) {
