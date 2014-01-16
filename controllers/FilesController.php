@@ -29,7 +29,9 @@ class FilesController extends \lithium\action\Controller {
 	}
 
 	public function admin_api_index() {
-		$media = Media::find('all');
+		$media = Media::find('all', [
+			'order' => ['created' => 'DESC']
+		]);
 
 		$files = [];
 		foreach ($media as $item) {

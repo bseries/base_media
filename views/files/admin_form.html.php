@@ -13,6 +13,6 @@
 			<?=$this->form->field('id', ['type' => 'hidden']) ?>
 		<?php endif ?>
 		<?=$this->form->field('title') ?>
-		<?= $this->form->button($t('save'), ['type' => 'submit']) ?>
+		<?= $this->form->button($t('save'), ['type' => 'submit', 'class' => 'butto large']) ?>
 	<?=$this->form->end(); ?>
 </article>

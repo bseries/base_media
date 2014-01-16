@@ -158,10 +158,8 @@ function($, MediaExplorerModal) {
     };
 
     this.buildSelectedItemHtml = function(item) {
-      var wrap = $('<article class="media-item">');
-      wrap.append($('<img>').attr('src', item.versions.fix2.url));
-
-      var button = $('<button class="remove">╳</button>');
+      var wrap = $('<article class="media-item" style="background-image: url(' + item.versions.fix2.url + ');">');
+      var button = $('<a href="#" class="remove">╳</a>');
       wrap.append(button);
 
       button.on('click', function(ev) {

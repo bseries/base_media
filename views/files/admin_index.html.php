@@ -52,8 +52,8 @@ use cms_core\extensions\cms\Features;
 					<?= count($item->depend()) ?: '–' ?>
 				<td>
 					<nav class="actions">
-						<?=$this->html->link($t('edit'), ['action' => 'edit', 'id' => $item->id, 'library' => 'cms_media'], ['class' => 'button']) ?>
 						<?=$this->html->link($t('delete'), ['action' => 'delete', 'id' => $item->id, 'library' => 'cms_media'], ['class' => 'button']) ?>
+						<?=$this->html->link($t('edit'), ['action' => 'edit', 'id' => $item->id, 'library' => 'cms_media'], ['class' => 'button']) ?>
 					</nav>
 			<?php endforeach ?>
 			</tbody>
