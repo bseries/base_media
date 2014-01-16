@@ -52,13 +52,14 @@ function($, MediaExplorerModal) {
         // Also see inputs() and items().
       };
 
+      _this.populate();
+      _this.keepSynced();
+
       _this.elements.select.on('click', function(ev) {
         ev.preventDefault();
         _this.interactWithMediaExplorer();
       });
 
-      _this.populate();
-      _this.keepSynced();
     };
 
     // Returns endpoint string; may replace __ID__ placeholder.
@@ -173,7 +174,13 @@ function($, MediaExplorerModal) {
     };
 
     this.interactWithMediaExplorer = function() {
+      var ids = [];
+      $(_this.items()).each(function(k, el) {
+        ids.push(parseInt($(el).data('id'), 10));
+      });
+
       MediaExplorerModal.init({
+        selected: ids,
         selectable: _this.selectable,
         endpoints: _this.endpoints
       });
@@ -194,7 +201,6 @@ function($, MediaExplorerModal) {
 
         $.each(ids, function(k, id) {
           dfrs.push(_this.append(id));
-
         });
 
         // Wait until all items are built and appended then close ME.

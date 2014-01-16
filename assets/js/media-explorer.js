@@ -73,6 +73,12 @@ function(
     this.init = function(element, options) {
       _this.element = element;
 
+      options = $.extend({
+        endpoints: {},
+        selectable: null,
+        selected: []
+      }, options);
+
       _this.endpoints = $.extend(_this.endpoints, options.endpoints || {});
 
       _this.selectable = options.selectable || false;
@@ -82,6 +88,7 @@ function(
       Handlebars.registerPartial('item', _this.templates.item);
 
       _this.populate().done(function() {
+
           _this.elements.available = _this.element.find('.available');
 
           _this.elements.transfer.wrap = _this.element.find('.transfer');
@@ -104,6 +111,15 @@ function(
           if (_this.selectable) {
             _this.elements.selection.wrap.removeClass('hide');
           }
+
+          // Preset selected.
+          _this.elements.available.find('.item').each(function(k, el) {
+            var $el = $(el);
+
+            if ($.inArray($el.data('id'), options.selected) !== -1) {
+              $el.addClass('selected');
+            }
+          });
 
           _this.bindEvents();
       });
