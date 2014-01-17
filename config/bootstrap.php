@@ -18,6 +18,7 @@ use cms_core\extensions\cms\Modules;
 use cms_core\extensions\cms\Features;
 use cms_media\models\Media;
 use cms_media\models\MediaVersions;
+use lithium\analysis\Logger;
 
 extract(Message::aliases());
 
@@ -40,10 +41,11 @@ Media_Info::config([
 	'image' => ['ImageBasic', 'Imagick']
 ]);
 
-// Registers Media and MediaVersions schemes.
+// Registers Media and MediaVersions schemes. The `base` key of each
+// scheme is intentionally left unset. This must be added by the app
+// as we cannot provide sane defaults here.
 
 Media::registerScheme('file', [
-	'base' => 'file://' . PROJECT_PATH . '/media',
 	'relative' => true,
 	'checksum' => true,
 	'transfer' => true,
@@ -73,25 +75,20 @@ Media::registerScheme('https', [
 //
 // That's why linked versions must _not_ necessarily adhere to
 // the constraints specified in the instructions.
-MediaVersions::registerScheme('http', [
-	'base' => 'http://media.atelierdisko.de'
-]);
-MediaVersions::registerScheme('https', [
-	'base' => 'https://atelierdisko.de/media'
-]);
+MediaVersions::registerScheme('http');
+MediaVersions::registerScheme('https');
 
 // Processe a local file an generates versions according
 // to instructions. The resulting versions will adhere to
 // the constraints specified in the instructions.
 MediaVersions::registerScheme('file', [
-	'base' => 'file://' . PROJECT_PATH . '/media_versions',
 	'relative' => true,
 	'checksum' => true,
 	'delete' => true,
 	'make' => function($entity) {
 		$media = Media_Process::factory(['source' => $entity->url]);
-		$target = static::_generateTargetUrl($entity->url, $entity->version);
-		$instructions = static::_instructions($media->name(), $entity->version);
+		$target = static::generateTargetUrl($entity->url, $entity->version);
+		$instructions = static::assembly($media->name(), $entity->version);
 
 		if (!is_dir(dirname($target))) {
 			mkdir(dirname($target), 0777, true);
@@ -112,7 +109,7 @@ MediaVersions::registerScheme('file', [
 			return false;
 		}
 		try {
-			// Process `Media_Process_*` instructions
+			// Process `Media_Process_*` instructions.
 			foreach ($instructions as $method => $args) {
 				if (is_int($method)) {
 					$method = $args;

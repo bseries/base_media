@@ -15,28 +15,23 @@ namespace cms_media\models;
 use \Mime_Type;
 use \Media_Process;
 use lithium\analysis\Logger;
-use temporary\Manager as Temporary;
-use lithium\core\Libraries;
-use lithium\core\Environment;
 
-class MediaVersions extends \lithium\data\Model {
+class MediaVersions extends \cms_core\models\Base {
 
 	use \cms_media\models\ChecksumTrait;
 	use \cms_media\models\UrlTrait;
-	use \li3_behaviors\data\model\Behaviors;
+	use \cms_media\models\DownloadTrait;
+	use \cms_media\models\SchemeTrait;
 
 	public $belongsTo = ['Media'];
-
 
 	protected $_actsAs = [
 		'cms_core\extensions\data\behavior\Timestamp'
 	];
 
-	public static function base($scheme) {
-		return static::$_schemes[$scheme]['base'];
-	}
+	protected static $_instructions = [];
 
-	protected static function _generateTargetUrl($source, $version) {
+	public static function generateTargetUrl($source, $version) {
 		$base = static::base('file') . '/' . $version;
 		$instructions = static::_instructions(Mime_Type::guessName($source), $version);
 
@@ -52,20 +47,14 @@ class MediaVersions extends \lithium\data\Model {
 		return static::_uniqueUrl($base, $extension, ['exists' => true]);
 	}
 
-	protected static $_schemes = [];
-
-	public static function registerScheme($scheme, array $options = []) {
-		static::$_schemes[$scheme] = $options + [
-			'base' => false,
-			'make' => false,
-			'delete' => false,
-			'checksum' => false,
-			'relative' => false
-		];
+	// Registers the assembly instructions for a specific media type and version.
+	public static function registerAssembly($type, $versions, $instructions) {
+		static::$_instructions[$type][$version] = $instructions;
 	}
 
-	public function can($entity, $capability) {
-		return static::$_schemes[$entity->scheme()][$capability];
+	// Returns the assembly instructions for a specific media type and version.
+	public static function assembly($type, $version = null) {
+		return $version ? static::$_instructions[$type][$version] : static::$_instructions[$type];
 	}
 
 	// Will (re-)generate version from source and return target path on success.
@@ -73,20 +62,9 @@ class MediaVersions extends \lithium\data\Model {
 		$handler = static::$_schemes[$entity->scheme()];
 
 		if (!$handler) {
-			// Just pass through.
-			return $entity->url;
-			// throw new Exception('Unhandled make for entity with scheme `' . $entity->scheme() . '`');
+			throw new Exception('Unhandled make for entity with scheme `' . $entity->scheme() . '`');
 		}
 		return $handler($entity);
-	}
-
-	public static function hasInstructions($type, $version) {
-		return (boolean) static::_instructions($type, $version);
-	}
-
-	// Returns the assembly instructions for a specific media type and version.
-	protected static function _instructions($type, $version) {
-		return Environment::get("mediaVersions.instructions.{$type}.{$version}") ?: false;
 	}
 }
 
@@ -96,7 +74,7 @@ MediaVersions::applyFilter('save', function($self, $params, $chain) {
 	if (!$entity->modified('url')) {
 		return $chain->next($self, $params, $chain);
 	}
-	if (parse_url($entity->url, PHP_URL_SCHEME) == 'file') {
+	if ($entity->can('checksum')) {
 		$entity->checksum = $entity->calculateChecksum();
 	}
 	$entity->type      = Mime_Type::guessName($entity->url);

@@ -14,14 +14,14 @@ namespace cms_media\models;
 
 use \Mime_Type;
 use cms_media\models\MediaVersions;
-use lithium\core\Environment;
 use lithium\analysis\Logger;
-use temporary\Manager as Temporary;
 
 class Media extends \cms_core\models\Base {
 
 	use \cms_media\models\ChecksumTrait;
 	use \cms_media\models\UrlTrait;
+	use \cms_media\models\DownloadTrait;
+	use \cms_media\models\SchemeTrait;
 
 	public $hasMany = ['MediaVersions'];
 
@@ -31,38 +31,11 @@ class Media extends \cms_core\models\Base {
 
 	protected $_cachedVersions = [];
 
-	protected static $_schemes = [];
-
 	protected static $_dependent = [];
-
-	public static function base($scheme) {
-		return static::$_schemes[$scheme]['base'];
-	}
-
-	// @fixme Make this part of higher Media/settings abstratiction.
-	public static function registerScheme($scheme, array $options = []) {
-		// if (isset(static::$_schemes[$scheme])) {
-		//	$options += $static::$_schemes[$scheme];
-		//}
-		static::$_schemes[$scheme] = $options + [
-			'base' => false,
-			'relative' => false,
-			'delete' => false,
-			'download' => false,
-			'transfer' => false,
-			'checksum' => false,
-			'mime_type' => null,
-			'type' => null
-		];
-	}
 
 	// @fixme Make this part of higher Media/settings abstratiction.
 	public static function registerDependent($model, array $bindingAliases) {
 		static::$_dependent[$model] = $bindingAliases;
-	}
-
-	public function can($entity, $capability) {
-		return static::$_schemes[$entity->scheme()][$capability];
 	}
 
 	// Finds out which other records depend on a given media entity.
@@ -106,40 +79,16 @@ class Media extends \cms_core\models\Base {
 	}
 
 	public function makeVersions($entity) {
-		// @fixme Do not hardcode this.
-		$versions = array('fix0', 'fix1', 'fix2', 'fix3', 'flux0', 'flux1');
-
 		if (!$entity->type) {
 			throw new Exception('Entity has no type.');
 		}
 		if (!$entity->url) {
 			throw new Exception('Entity has no URL.');
 		}
-		if (is_callable($handler = $entiy->can('versions'))) {
-			$url = $handler($entity);
-			Media::_makeVersionsBuilitin('', $entity->id, $url);
-			Media::_makeVersionsBuilitin($type, $id, $url);
-		}
-
-		if ($entity->scheme() != 'file') {
-			// @fixme Implement versions for non-file schemes by trying to detect their versions
-			// and pass them via create url.
-			Logger::debug('Skipping making versions of non-file scheme source.');
-
-			return true;
-		}
+		// $versions = array('fix0', 'fix1', 'fix2', 'fix3', 'flux0', 'flux1');
+		$versions = array_keys(MediaVersions::assembly(Mime_Type::guessName($entity->url)));
 
 		foreach ($versions as $version) {
-			if (!MediaVersions::canMake($entity, $version)) {
-				continue;
-			}
-			/*
-			$has = MediaVersions::hasInstructions($entity->type, $version);
-			if (!$has) {
-				continue;
-			}
-			 */
-
 			$version = MediaVersions::create([
 				'media_id' => $entity->id,
 				'url' => $entity->url,
@@ -149,9 +98,15 @@ class Media extends \cms_core\models\Base {
 				// associated with a media_file record an thus indirectly carry an user
 				// id.
 			]);
-			if (!$target = $version->make()) {
+			$target = $version->make();
+
+			// @fixme Use exceptions inside make handlers?
+			if ($target === false) {
 				Logger::debug("Failed to make media version `{$version}`.");
 				return false;
+			} elseif ($target === null) {
+				// Skipped version.
+				continue;
 			}
 			$version->url = $target;
 
@@ -171,22 +126,11 @@ class Media extends \cms_core\models\Base {
 		return true;
 	}
 
-	public function download($entity) {
-		$temporary = Temporary::file(['context' => 'download']);
-
-		Logger::debug("Downloading into temporary `{$temporary}`.");
-
-		if (!$result = copy($entity->url, $temporary)) {
-			throw new Exception('Could not copy from source to temporary.');
-		}
-		return $temporary;
-	}
-
 	// Tranfers a source to target - aka make the source local and
 	// copy it into our "library" space. May use streams where appropriate.
 	public function transfer($entity) {
 		Logger::debug("Transferring from source `{$entity->url}`.");
-		$target = static::_generateTargetUrl($entity->url);
+		$target = static::generateTargetUrl($entity->url);
 
 		if (!is_dir(dirname($target))) {
 			mkdir(dirname($target), 0777, true);
@@ -201,7 +145,7 @@ class Media extends \cms_core\models\Base {
 	// Works with streams. Independently generates
 	// a target URL with `file://` base. Needs source just for
 	// determining the correct extension of the file.
-	protected static function _generateTargetUrl($source) {
+	public static function generateTargetUrl($source) {
 		$base      = static::base('file');
 		$extension = Mime_Type::guessExtension($source);
 
