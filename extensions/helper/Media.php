@@ -3,15 +3,18 @@
 namespace cms_media\extensions\helper;
 
 use lithium\core\Environment;
+use cms_media\models\MediaVersions;
 
+// This more of a MediaVersions helper than actually a Media helper.
+// The original media versions will never be embedded into markup.
 class Media extends \lithium\template\Helper {
 
 	protected $_strings = [
-		'image'            => '<img src="{:path}"{:options} />',
+		'image' => '<img src="{:path}"{:options} />',
 	];
 
 	public $contentMap = [
-		'image' => 'image',
+		'image' => 'image'
 	];
 
 	public function image($path, array $options = []) {
@@ -36,7 +39,7 @@ class Media extends \lithium\template\Helper {
 		if (strpos($path, '://') !== false) {
 			return $path;
 		}
-		$base = Environment::get('media.http');
+		$base = MediaVersions::base('http');
 		return $base . $path;
 	}
 }

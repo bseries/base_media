@@ -33,7 +33,7 @@ class MediaVersions extends \lithium\data\Model {
 	];
 
 	protected static function _base($scheme) {
-		return Environment::get('mediaVersions.' . $scheme);
+		return static::$_schemes[$scheme]['base'];
 	}
 
 	protected static function _generateTargetUrl($source, $version) {
@@ -52,60 +52,32 @@ class MediaVersions extends \lithium\data\Model {
 		return static::_uniqueUrl($base, $extension, ['exists' => true]);
 	}
 
+	protected static $_schemes = [];
+
+	public static function registerScheme($scheme, array $options = []) {
+		static::$_schemes[$scheme] = $options + [
+			'base' => false,
+			'make' => false,
+			'delete' => false,
+			'checksum' => false,
+			'relative' => false
+		];
+	}
+
+	public function can($entity, $capability) {
+		return static::$_schemes[$entity->scheme()][$capability];
+	}
+
 	// Will (re-)generate version from source and return target path on success.
 	public function make($entity) {
-		if (parse_url($entity->url, PHP_URL_SCHEME) != 'file') {
-			throw new Exception('Can only make from source with file scheme.');
+		$handler = static::$_schemes[$entity->scheme()];
+
+		if (!$handler) {
+			// Just pass through.
+			return $entity->url;
+			// throw new Exception('Unhandled make for entity with scheme `' . $entity->scheme() . '`');
 		}
-
-		$media = Media_Process::factory(['source' => $entity->url]);
-		$target = static::_generateTargetUrl($entity->url, $entity->version);
-		$instructions = static::_instructions($media->name(), $entity->version);
-
-		if (!is_dir(dirname($target))) {
-			mkdir(dirname($target), 0777, true);
-		}
-
-		Logger::debug("Making version `{$entity->version}` of `{$entity->url}`.");
-
-		// Process builtin instructions.
-		if (isset($instructions['clone'])) {
-			$action = $instructions['clone'];
-
-			if (in_array($action, array('copy', 'link', 'symlink'))) {
-				if (call_user_func($action, $source, $target)) {
-					Logger::debug("Made (clone) version `{$entity->version}` to `{$target}`.");
-					return true;
-				}
-			}
-			return false;
-		}
-		try {
-			// Process `Media_Process_*` instructions
-			foreach ($instructions as $method => $args) {
-				if (is_int($method)) {
-					$method = $args;
-					$args = null;
-				}
-				if (method_exists($media, $method)) {
-					$result = call_user_func_array(array($media, $method), (array) $args);
-				} else {
-					$result = $media->passthru($method, $args);
-				}
-				if ($result === false) {
-					return false;
-				} elseif (is_a($result, 'Media_Process_Generic')) {
-					$media = $result;
-				}
-			}
-			$target = $media->store($target);
-
-		} catch (\ImagickException $e) {
-			Logger::debug('Making entity failed with: ' . $e->getMessage());
-			return false;
-		}
-		Logger::debug("Made (process) version `{$entity->version}` to `{$target}`.");
-		return $target;
+		return $handler($entity);
 	}
 
 	public static function hasInstructions($type, $version) {
@@ -138,7 +110,7 @@ MediaVersions::applyFilter('save', function($self, $params, $chain) {
 MediaVersions::applyFilter('save', function($self, $params, $chain) {
 	$entity = $params['entity'];
 
-	if ($entity->modified('url')) {
+	if ($entity->modified('url') && $entity->can('relative')) {
 		$entity->url = MediaVersions::relativeUrl($entity->url);
 	}
 	return $chain->next($self, $params, $chain);
@@ -147,10 +119,12 @@ MediaVersions::applyFilter('save', function($self, $params, $chain) {
 MediaVersions::applyFilter('delete', function($self, $params, $chain) {
 	$entity = $params['entity'];
 
-	Logger::debug("Deleting corresponding URL `{$entity->url}` of media version.");
-	$entity->deleteUrl();
-
+	if ($entity->can('delete')) {
+		Logger::debug("Deleting corresponding URL `{$entity->url}` of media version.");
+		$entity->deleteUrl();
+	}
 	return $chain->next($self, $params, $chain);
 });
+
 
 ?>

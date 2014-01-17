@@ -13,6 +13,7 @@
 namespace cms_media\controllers;
 
 use cms_media\models\Media;
+use cms_social\models\Vimeo;
 use lithium\core\Libraries;
 use temporary\Manager as Temporary;
 use lithium\analysis\Logger;
@@ -44,6 +45,10 @@ class FilesController extends \lithium\action\Controller {
 		if (!empty($this->request->data['url'])) {
 			$source = $this->request->data['url'];
 			$title = basename($source);
+		} elseif (!empty($this->request->data['vimeo_id'])) {
+			// @todo Use Transfer handlers.
+			$source = 'vimeo://' . $this->request->data['vimeo_id'];
+			$title = Vimeo::first($this->request->data['vimeo_id'])->title;
 		} else {
 			if (!$source = fopen('php://input', 'rb')) {
 				throw new InternalServerError();
@@ -62,10 +67,12 @@ class FilesController extends \lithium\action\Controller {
 			'title' => $title
 		]);
 
-		if (parse_url($file->url, PHP_URL_SCHEME) != 'file') {
+		if ($entity->can('download')) {
 			$file->url = $file->download();
 		}
-		$file->url = $file->transfer();
+		if ($entity->can('transfer')) {
+			$file->url = $file->transfer();
+		}
 
 		$file->save();
 		$file->makeVersions();

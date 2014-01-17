@@ -10,14 +10,14 @@
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 
-use lithium\core\Environment;
 use lithium\core\Libraries;
-use lithium\net\http\Media;
 use \Media_Process;
 use \Media_Info;
 use lithium\g11n\Message;
 use cms_core\extensions\cms\Modules;
 use cms_core\extensions\cms\Features;
+use cms_media\models\Media;
+use cms_media\models\MediaVersions;
 
 extract(Message::aliases());
 
@@ -40,14 +40,104 @@ Media_Info::config([
 	'image' => ['ImageBasic', 'Imagick']
 ]);
 
-// Use app layout for this library.
-/*
-Media::applyFilter('view', function($self, $params, $chain) {
-	if ($params['options']['library'] == basename(dirname(__DIR__))) {
-		$params['handler']['paths']['layout'] = LITHIUM_APP_PATH . '/views/layouts/{:layout}.{:type}.php';
+// Registers Media and MediaVersions schemes.
+
+Media::registerScheme('file', [
+	'base' => 'file://' . PROJECT_PATH . '/media',
+	'relative' => true,
+	'checksum' => true,
+	'transfer' => true,
+	'delete' => true
+]);
+
+// Original media files are not accessible through the web
+// directly - security reasons. That's why we don't give
+// a `base` here.
+Media::registerScheme('http', [
+	'download' => true
+]);
+Media::registerScheme('https', [
+	'download' => true
+]);
+
+// When http/https URLs get here, the resources behind them
+// are not downloaded or processed in any way. They are
+// linked to.
+//
+// This is useful when you have a remote entity as the `Media`
+// i.e. (a vimeo video) that already comes with pregenerated
+// versions (posters, images) that are similar to the versions
+// that would normally be generated using the instructions and
+// you just want to use them by roughly mapping to their
+// instructed versions.
+//
+// That's why linked versions must _not_ necessarily adhere to
+// the constraints specified in the instructions.
+MediaVersions::registerScheme('http', [
+	'base' => 'http://media.atelierdisko.de'
+]);
+MediaVersions::registerScheme('https', [
+	'base' => 'https://atelierdisko.de/media'
+]);
+
+// Processe a local file an generates versions according
+// to instructions. The resulting versions will adhere to
+// the constraints specified in the instructions.
+MediaVersions::registerScheme('file', [
+	'base' => 'file://' . PROJECT_PATH . '/media_versions',
+	'relative' => true,
+	'checksum' => true,
+	'delete' => true,
+	'make' => function($entity) {
+		$media = Media_Process::factory(['source' => $entity->url]);
+		$target = static::_generateTargetUrl($entity->url, $entity->version);
+		$instructions = static::_instructions($media->name(), $entity->version);
+
+		if (!is_dir(dirname($target))) {
+			mkdir(dirname($target), 0777, true);
+		}
+
+		Logger::debug("Making version `{$entity->version}` of `{$entity->url}`.");
+
+		// Process builtin instructions.
+		if (isset($instructions['clone'])) {
+			$action = $instructions['clone'];
+
+			if (in_array($action, array('copy', 'link', 'symlink'))) {
+				if (call_user_func($action, $source, $target)) {
+					Logger::debug("Made (clone) version `{$entity->version}` to `{$target}`.");
+					return true;
+				}
+			}
+			return false;
+		}
+		try {
+			// Process `Media_Process_*` instructions
+			foreach ($instructions as $method => $args) {
+				if (is_int($method)) {
+					$method = $args;
+					$args = null;
+				}
+				if (method_exists($media, $method)) {
+					$result = call_user_func_array(array($media, $method), (array) $args);
+				} else {
+					$result = $media->passthru($method, $args);
+				}
+				if ($result === false) {
+					return false;
+				} elseif (is_a($result, 'Media_Process_Generic')) {
+					$media = $result;
+				}
+			}
+			$target = $media->store($target);
+
+		} catch (\ImagickException $e) {
+			Logger::debug('Making entity failed with: ' . $e->getMessage());
+			return false;
+		}
+		Logger::debug("Made (process) version `{$entity->version}` to `{$target}`.");
+		return $target;
 	}
-	return $chain->next($self, $params, $chain);
-});
-*/
+]);
 
 ?>

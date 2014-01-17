@@ -18,11 +18,10 @@ use lithium\core\Environment;
 use lithium\analysis\Logger;
 use temporary\Manager as Temporary;
 
-class Media extends \lithium\data\Model {
+class Media extends \cms_core\models\Base {
 
 	use \cms_media\models\ChecksumTrait;
 	use \cms_media\models\UrlTrait;
-	use \li3_behaviors\data\model\Behaviors;
 
 	public $hasMany = ['MediaVersions'];
 
@@ -32,21 +31,47 @@ class Media extends \lithium\data\Model {
 
 	protected $_cachedVersions = [];
 
+	protected static $_schemes = [];
+
+	protected static $_dependent = [];
+
 	protected static function _base($scheme) {
-		return Environment::get('media.' . $scheme);
+		return static::$_schemes[$scheme]['base'];
 	}
 
+	// @fixme Make this part of higher Media/settings abstratiction.
+	public static function registerScheme($scheme, array $options = []) {
+		// if (isset(static::$_schemes[$scheme])) {
+		//	$options += $static::$_schemes[$scheme];
+		//}
+		static::$_schemes[$scheme] = $options + [
+			'base' => false,
+			'relative' => false,
+			'delete' => false,
+			'download' => false,
+			'transfer' => false,
+			'checksum' => false,
+			'mime_type' => null,
+			'type' => null
+		];
+	}
+
+	// @fixme Make this part of higher Media/settings abstratiction.
+	public static function registerDependent($model, array $bindingAliases) {
+		static::$_dependent[$model] = $bindingAliases;
+	}
+
+	public function can($entity, $capability) {
+		return static::$_schemes[$entity->scheme()][$capability];
+	}
+
+	// Finds out which other records depend on a given media entity.
 	public function depend($entity) {
 		$depend = [];
 
-		if (class_exists($model = 'cms_event\models\Events')) {
-			$results = $model::find('all', [
-				'conditions' => [
-					'cover_media_id' => $entity->id
-				]
-			]);
-			foreach ($results as $result) {
-				$depend[] = $result;
+		foreach (static::$_dependent as $model => $aliases) {
+			foreach ($aliases as $alias) {
+				$depend = array_merge($depend, $model::{$alias}());
 			}
 		}
 		return $depend;
@@ -81,28 +106,44 @@ class Media extends \lithium\data\Model {
 	}
 
 	public function makeVersions($entity) {
+		// @fixme Do not hardcode this.
+		$versions = array('fix0', 'fix1', 'fix2', 'fix3', 'flux0', 'flux1');
+
 		if (!$entity->type) {
 			throw new Exception('Entity has no type.');
 		}
 		if (!$entity->url) {
 			throw new Exception('Entity has no URL.');
 		}
-		if (parse_url($entity->url, PHP_URL_SCHEME) != 'file') {
+		if (is_callable($handler = $entiy->can('versions'))) {
+			$url = $handler($entity);
+			Media::_makeVersionsBuilitin('', $entity->id, $url);
+			Media::_makeVersionsBuilitin($type, $id, $url);
+		}
+
+		if ($entity->scheme() != 'file') {
 			// @fixme Implement versions for non-file schemes by trying to detect their versions
 			// and pass them via create url.
 			Logger::debug('Skipping making versions of non-file scheme source.');
+
 			return true;
 		}
-		$versions = array('fix0', 'fix1', 'fix2', 'fix3', 'flux0', 'flux1');
 
 		foreach ($versions as $version) {
+			if (!MediaVersions::canMake($entity, $version)) {
+				continue;
+			}
+			/*
 			$has = MediaVersions::hasInstructions($entity->type, $version);
 			if (!$has) {
 				continue;
 			}
+			 */
+
 			$version = MediaVersions::create([
 				'media_id' => $entity->id,
-				'url' => static::absoluteUrl($entity->url), // just as a safeguard
+				'url' => $entity->url,
+				// 'url' => static::absoluteUrl($entity->url), // just as a safeguard
 				'version' => $version
 				// Versions don't have an user id as their records are already
 				// associated with a media_file record an thus indirectly carry an user
@@ -141,8 +182,8 @@ class Media extends \lithium\data\Model {
 		return $temporary;
 	}
 
-	// Tranfers a source to target - aka make the source local.
-	// May use streams where appropriate.
+	// Tranfers a source to target - aka make the source local and
+	// copy it into our "library" space. May use streams where appropriate.
 	public function transfer($entity) {
 		Logger::debug("Transferring from source `{$entity->url}`.");
 		$target = static::_generateTargetUrl($entity->url);
@@ -157,7 +198,9 @@ class Media extends \lithium\data\Model {
 		return $target;
 	}
 
-	// Works with streams.
+	// Works with streams. Independently generates
+	// a target URL with `file://` base. Needs source just for
+	// determining the correct extension of the file.
 	protected static function _generateTargetUrl($source) {
 		$base      = static::_base('file');
 		$extension = Mime_Type::guessExtension($source);
@@ -166,7 +209,6 @@ class Media extends \lithium\data\Model {
 	}
 }
 
-
 // Filter running before saving.
 Media::applyFilter('save', function($self, $params, $chain) {
 	$entity = $params['entity'];
@@ -174,11 +216,12 @@ Media::applyFilter('save', function($self, $params, $chain) {
 	if (!$entity->modified('url')) {
 		return $chain->next($self, $params, $chain);
 	}
-	if (parse_url($entity->url, PHP_URL_SCHEME) == 'file') {
+	if ($entity->can('checksum')) {
 		$entity->checksum = $entity->calculateChecksum();
 	}
-	$entity->type      = Mime_Type::guessName($entity->url);
-	$entity->mime_type = Mime_Type::guessType($entity->url);
+
+	$entity->type = $entity->can('type') ?: Mime_Type::guessName($entity->url);
+	$entity->mime_type = $entity->can('mime_type') ?: Mime_Type::guessType($entity->url);
 
 	return $chain->next($self, $params, $chain);
 });
@@ -186,8 +229,10 @@ Media::applyFilter('save', function($self, $params, $chain) {
 Media::applyFilter('delete', function($self, $params, $chain) {
 	$entity = $params['entity'];
 
-	Logger::debug("Deleting corresponding URL `{$entity->url}` of media.");
-	$entity->deleteUrl();
+	if ($entity->can('delete')) {
+		Logger::debug("Deleting corresponding URL `{$entity->url}` of media.");
+		$entity->deleteUrl();
+	}
 
 	return $chain->next($self, $params, $chain);
 });
@@ -197,10 +242,12 @@ Media::applyFilter('delete', function($self, $params, $chain) {
 Media::applyFilter('save', function($self, $params, $chain) {
 	$entity = $params['entity'];
 
-	if ($entity->modified('url')) {
+	if ($entity->modified('url') && $entity->can('relative')) {
 		$entity->url = Media::relativeUrl($entity->url);
 	}
 	return $chain->next($self, $params, $chain);
 });
+
+
 
 ?>

@@ -17,6 +17,10 @@ use lithium\analysis\Logger;
 
 trait UrlTrait {
 
+	public function scheme($entity) {
+		return parse_url($entity->url, PHP_URL_SCHEME);
+	}
+
 	// Assumes when requesting http, https would be ok, too.
 	// Always returns absolute URLs.
 	public function url($entity, $targetScheme = 'http') {
