@@ -32,12 +32,12 @@ class MediaVersions extends \lithium\data\Model {
 		'cms_core\extensions\data\behavior\Timestamp'
 	];
 
-	protected static function _base($scheme) {
+	public static function base($scheme) {
 		return static::$_schemes[$scheme]['base'];
 	}
 
 	protected static function _generateTargetUrl($source, $version) {
-		$base = static::_base('file') . '/' . $version;
+		$base = static::base('file') . '/' . $version;
 		$instructions = static::_instructions(Mime_Type::guessName($source), $version);
 
 		if (isset($instructions['clone'])) {

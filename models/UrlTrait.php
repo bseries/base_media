@@ -15,6 +15,7 @@ namespace cms_media\models;
 use Exception;
 use lithium\analysis\Logger;
 
+// Class where this trait is used must provide a static `base()` method.
 trait UrlTrait {
 
 	public function scheme($entity) {
@@ -40,12 +41,12 @@ trait UrlTrait {
 		}
 
 		// Transition to new scheme by exchanging base.
-		if (!$sourceBase = static::_base($sourceScheme)) {
+		if (!$sourceBase = static::base($sourceScheme)) {
 			$message  = "Cannot transition URL `{$sourceUrl}` from scheme `{$scheme}`;";
 			$message .= " no base found for scheme `{$sourceScheme}`.";
 			throw new Exception($message);
 		}
-		if (!$targetBase = static::_base($targetScheme)) {
+		if (!$targetBase = static::base($targetScheme)) {
 			$message  = "Cannot transition URL `{$sourceUrl}` to scheme `{$targetScheme}`;";
 			$message .= " no base found for scheme `{$targetScheme}`.";
 			throw new Exception($message);
@@ -61,7 +62,7 @@ trait UrlTrait {
 		if ($url[strlen($scheme . '://')] == '/') {
 			return $url; // already absolute
 		}
-		if (!$base = static::_base($scheme)) {
+		if (!$base = static::base($scheme)) {
 			throw new Exception("Cannot make URL `{$url}` absolute; no base found for scheme `{$scheme}`.");
 		}
 		return str_replace($scheme . '://', $base . '/', $url);
@@ -75,7 +76,7 @@ trait UrlTrait {
 		if ($path[0] != '/') {
 			return $url; // already relative
 		}
-		if (!$base = static::_base($scheme)) {
+		if (!$base = static::base($scheme)) {
 			throw new Exception("Cannot make URL `{$url}` relative; no base found for scheme `{$scheme}`.");
 		}
 		return str_replace($base . '/', $scheme . '://', $url);
@@ -111,7 +112,7 @@ trait UrlTrait {
 	public function deleteUrl($entity) {
 		$url = static::absoluteUrl($entity->url);
 
-		if (strpos($url, static::_base('file')) === false) {
+		if (strpos($url, static::base('file')) === false) {
 			Logger::warning("Cannot delete URL `{$url}`; is not within base.");
 			return false;
 		}

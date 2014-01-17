@@ -35,7 +35,7 @@ class Media extends \cms_core\models\Base {
 
 	protected static $_dependent = [];
 
-	protected static function _base($scheme) {
+	public static function base($scheme) {
 		return static::$_schemes[$scheme]['base'];
 	}
 
@@ -202,7 +202,7 @@ class Media extends \cms_core\models\Base {
 	// a target URL with `file://` base. Needs source just for
 	// determining the correct extension of the file.
 	protected static function _generateTargetUrl($source) {
-		$base      = static::_base('file');
+		$base      = static::base('file');
 		$extension = Mime_Type::guessExtension($source);
 
 		return static::_uniqueUrl($base, $extension, ['exists' => true]);
