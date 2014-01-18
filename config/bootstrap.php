@@ -27,7 +27,7 @@ Libraries::add('mm', [
 ]);
 
 Modules::register('cms_media', 'files', ['title' => $t('Files')]);
-Features::register('enableRegenerateVersions', false);
+Features::register('cms_media', 'enableRegenerateVersions', false);
 
 Media_Process::config([
 	// 'audio' => 'SoxShell',
