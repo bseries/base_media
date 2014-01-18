@@ -2,7 +2,7 @@
 /**
  * Bureau Media
  *
- * Copyright (c) 2013 Atelier Disko - All rights reserved.
+ * Copyright (c) 2013-2014 Atelier Disko - All rights reserved.
  *
  * This software is proprietary and confidential. Redistribution
  * not permitted. Unless required by applicable law or agreed to
