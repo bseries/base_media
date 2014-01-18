@@ -18,7 +18,6 @@ use cms_core\extensions\cms\Modules;
 use cms_core\extensions\cms\Features;
 use cms_media\models\Media;
 use cms_media\models\MediaVersions;
-use lithium\analysis\Logger;
 
 extract(Message::aliases());
 
@@ -75,8 +74,12 @@ Media::registerScheme('https', [
 //
 // That's why linked versions must _not_ necessarily adhere to
 // the constraints specified in the instructions.
-MediaVersions::registerScheme('http');
-MediaVersions::registerScheme('https');
+MediaVersions::registerScheme('http', [
+	'download' => true
+]);
+MediaVersions::registerScheme('https', [
+	'download' => true
+]);
 
 // Processe a local file an generates versions according
 // to instructions. The resulting versions will adhere to
@@ -87,14 +90,12 @@ MediaVersions::registerScheme('file', [
 	'delete' => true,
 	'make' => function($entity) {
 		$media = Media_Process::factory(['source' => $entity->url]);
-		$target = static::generateTargetUrl($entity->url, $entity->version);
-		$instructions = static::assembly($media->name(), $entity->version);
+		$target = MediaVersions::generateTargetUrl($entity->url, $entity->version);
+		$instructions = MediaVersions::assembly($media->name(), $entity->version);
 
 		if (!is_dir(dirname($target))) {
 			mkdir(dirname($target), 0777, true);
 		}
-
-		Logger::debug("Making version `{$entity->version}` of `{$entity->url}`.");
 
 		// Process builtin instructions.
 		if (isset($instructions['clone'])) {
@@ -102,38 +103,31 @@ MediaVersions::registerScheme('file', [
 
 			if (in_array($action, array('copy', 'link', 'symlink'))) {
 				if (call_user_func($action, $source, $target)) {
-					Logger::debug("Made (clone) version `{$entity->version}` to `{$target}`.");
-					return true;
+					return $target;
 				}
 			}
 			return false;
 		}
-		try {
-			// Process `Media_Process_*` instructions.
-			foreach ($instructions as $method => $args) {
-				if (is_int($method)) {
-					$method = $args;
-					$args = null;
-				}
-				if (method_exists($media, $method)) {
-					$result = call_user_func_array(array($media, $method), (array) $args);
-				} else {
-					$result = $media->passthru($method, $args);
-				}
-				if ($result === false) {
-					return false;
-				} elseif (is_a($result, 'Media_Process_Generic')) {
-					$media = $result;
-				}
-			}
-			$target = $media->store($target);
 
-		} catch (\ImagickException $e) {
-			Logger::debug('Making entity failed with: ' . $e->getMessage());
-			return false;
+		// Process `Media_Process_*` instructions.
+		// This part may throw exceptions which are catched by the callee.
+		foreach ($instructions as $method => $args) {
+			if (is_int($method)) {
+				$method = $args;
+				$args = null;
+			}
+			if (method_exists($media, $method)) {
+				$result = call_user_func_array(array($media, $method), (array) $args);
+			} else {
+				$result = $media->passthru($method, $args);
+			}
+			if ($result === false) {
+				return false;
+			} elseif (is_a($result, 'Media_Process_Generic')) {
+				$media = $result;
+			}
 		}
-		Logger::debug("Made (process) version `{$entity->version}` to `{$target}`.");
-		return $target;
+		return $media->store($target);
 	}
 ]);
 

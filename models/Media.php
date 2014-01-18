@@ -12,6 +12,7 @@
 
 namespace cms_media\models;
 
+use Exception;
 use \Mime_Type;
 use cms_media\models\MediaVersions;
 use lithium\analysis\Logger;
@@ -85,14 +86,18 @@ class Media extends \cms_core\models\Base {
 		if (!$entity->url) {
 			throw new Exception('Entity has no URL.');
 		}
-		// $versions = array('fix0', 'fix1', 'fix2', 'fix3', 'flux0', 'flux1');
-		$versions = array_keys(MediaVersions::assembly(Mime_Type::guessName($entity->url)));
+		$versions = array('fix0', 'fix1', 'fix2', 'fix3', 'flux0', 'flux1');
+//		$versions = array_keys(MediaVersions::assembly($entity->type));
+
+		// File URLs come in here in relative form.
+		if ($entity->can('relative')) {
+			$entity->url = static::absoluteUrl($entity->url);
+		}
 
 		foreach ($versions as $version) {
 			$version = MediaVersions::create([
 				'media_id' => $entity->id,
 				'url' => $entity->url,
-				// 'url' => static::absoluteUrl($entity->url), // just as a safeguard
 				'version' => $version
 				// Versions don't have an user id as their records are already
 				// associated with a media_file record an thus indirectly carry an user
@@ -157,7 +162,7 @@ class Media extends \cms_core\models\Base {
 Media::applyFilter('save', function($self, $params, $chain) {
 	$entity = $params['entity'];
 
-	if (!$entity->modified('url')) {
+	if (!$entity->modified('url') && $entity->exists()) {
 		return $chain->next($self, $params, $chain);
 	}
 	if ($entity->can('checksum')) {

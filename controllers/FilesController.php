@@ -67,10 +67,10 @@ class FilesController extends \lithium\action\Controller {
 			'title' => $title
 		]);
 
-		if ($entity->can('download')) {
+		if ($file->can('download')) {
 			$file->url = $file->download();
 		}
-		if ($entity->can('transfer')) {
+		if ($file->can('transfer')) {
 			$file->url = $file->transfer();
 		}
 

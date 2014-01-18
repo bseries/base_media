@@ -15,6 +15,7 @@ namespace cms_media\models;
 use \Mime_Type;
 use \Media_Process;
 use lithium\analysis\Logger;
+use OutOfBoundsException;
 
 class MediaVersions extends \cms_core\models\Base {
 
@@ -33,7 +34,7 @@ class MediaVersions extends \cms_core\models\Base {
 
 	public static function generateTargetUrl($source, $version) {
 		$base = static::base('file') . '/' . $version;
-		$instructions = static::_instructions(Mime_Type::guessName($source), $version);
+		$instructions = static::assembly(Mime_Type::guessName($source), $version);
 
 		if (isset($instructions['clone'])) {
 			// Guess from source filename or contents.
@@ -48,30 +49,49 @@ class MediaVersions extends \cms_core\models\Base {
 	}
 
 	// Registers the assembly instructions for a specific media type and version.
-	public static function registerAssembly($type, $versions, $instructions) {
+	public static function registerAssembly($type, $version, $instructions) {
 		static::$_instructions[$type][$version] = $instructions;
 	}
 
 	// Returns the assembly instructions for a specific media type and version.
 	public static function assembly($type, $version = null) {
+		if (!isset(static::$_instructions[$type])) {
+			throw new OutOfBoundsException("No assembly registered for type `{$type}`.");
+		}
 		return $version ? static::$_instructions[$type][$version] : static::$_instructions[$type];
 	}
 
 	// Will (re-)generate version from source and return target path on success.
 	public function make($entity) {
-		$handler = static::$_schemes[$entity->scheme()];
+		Logger::debug("Trying to make version `{$entity->version}` of `{$entity->url}`.");
+
+		$handler = static::$_schemes[$entity->scheme()]['make'];
 
 		if (!$handler) {
 			throw new Exception('Unhandled make for entity with scheme `' . $entity->scheme() . '`');
 		}
-		return $handler($entity);
+
+		try {
+			$result = $handler($entity);
+		} catch (\Exception $e) {
+			Logger::debug("Failed making version `{$entity->version}` of `{$entity->url}` with:" . $e->getMessage());
+			return false;
+		}
+		if ($result === false) {
+			Logger::debug("Failed making version `{$entity->version}` of `{$entity->url}`.");
+		} elseif ($result === null) {
+			Logger::debug("Skipped making version `{$entity->version}` of `{$entity->url}`.");
+		} else {
+			Logger::debug("Made version `{$entity->version}` of `{$entity->url}` target is `{$result}`.");
+		}
+		return $result;
 	}
 }
 
 MediaVersions::applyFilter('save', function($self, $params, $chain) {
 	$entity = $params['entity'];
 
-	if (!$entity->modified('url')) {
+	if (!$entity->modified('url') && $entity->exists()) {
 		return $chain->next($self, $params, $chain);
 	}
 	if ($entity->can('checksum')) {

@@ -254,6 +254,7 @@ function(
       return false;
     };
 
+    // Uploads a file using the file form upload method.
     this.upload = function(file) {
       $(document).trigger('transfer:start');
 
