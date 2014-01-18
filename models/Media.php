@@ -35,17 +35,21 @@ class Media extends \cms_core\models\Base {
 	protected static $_dependent = [];
 
 	// @fixme Make this part of higher Media/settings abstratiction.
-	public static function registerDependent($model, array $bindingAliases) {
-		static::$_dependent[$model] = $bindingAliases;
+	public static function registerDependent($model, array $bindings) {
+		static::$_dependent[$model] = $bindings;
 	}
 
 	// Finds out which other records depend on a given media entity.
+	// @todo Implement possibly using info from coupler behavior.
 	public function depend($entity) {
-		$depend = [];
+		return $depend = [];
 
-		foreach (static::$_dependent as $model => $aliases) {
-			foreach ($aliases as $alias) {
-				$depend = array_merge($depend, $model::{$alias}());
+		foreach (static::$_dependent as $model => $bindings) {
+			foreach ($bindings as $alias => $binding) {
+				if ($binding === 'direct') {
+
+				}
+				$depend = array_merge($depend, $entity->{$alias}());
 			}
 		}
 		return $depend;
