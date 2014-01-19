@@ -88,7 +88,7 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 		$model = $this->_model;
 
 		foreach ($this->_config['bindings'] as $alias => $options) {
-			if ($options == 'direct') {
+			if ($options['type'] == 'direct') {
 				$this->_methods[$alias] = function($entity) use ($options) {
 					// $to in this case is the field name i.e. cover_media_id.
 					$to = $options['to'];
