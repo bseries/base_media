@@ -91,7 +91,11 @@ MediaVersions::registerScheme('file', [
 	'make' => function($entity) {
 		$media = Media_Process::factory(['source' => $entity->url]);
 		$target = MediaVersions::generateTargetUrl($entity->url, $entity->version);
-		$instructions = MediaVersions::assembly($media->name(), $entity->version);
+
+		// There may not be a flux0 version for an image type.
+		if (!$instructions = MediaVersions::assembly($media->name(), $entity->version)) {
+			return null;
+		};
 
 		if (!is_dir(dirname($target))) {
 			mkdir(dirname($target), 0777, true);

@@ -58,7 +58,13 @@ class MediaVersions extends \cms_core\models\Base {
 		if (!isset(static::$_instructions[$type])) {
 			throw new OutOfBoundsException("No assembly registered for type `{$type}`.");
 		}
-		return $version ? static::$_instructions[$type][$version] : static::$_instructions[$type];
+		if (!$version) {
+			return static::$_instructions[$type];
+		}
+		if (!isset(static::$_instructions[$type][$version])) {
+			return false;
+		}
+		return static::$_instructions[$type][$version];
 	}
 
 	// Will (re-)generate version from source and return target path on success.
