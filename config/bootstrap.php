@@ -14,7 +14,7 @@ use lithium\core\Libraries;
 use \Media_Process;
 use \Media_Info;
 use lithium\g11n\Message;
-use cms_core\extensions\cms\Modules;
+use cms_core\extensions\cms\Panes;
 use cms_core\extensions\cms\Features;
 use cms_media\models\Media;
 use cms_media\models\MediaVersions;
@@ -26,7 +26,11 @@ Libraries::add('mm', [
 	'path' => dirname(__DIR__) . '/libraries/mm'
 ]);
 
-Modules::register('cms_media', 'files', ['title' => $t('Files')]);
+Panes::register('cms_media', 'files', [
+	'title' => $t('Files'),
+	'group' => Panes::GROUP_MANAGE,
+	'url' => ['controller' => 'files', 'library' => 'cms_media', 'admin' => true]
+]);
 Features::register('cms_media', 'enableRegenerateVersions', false);
 
 Media_Process::config([
