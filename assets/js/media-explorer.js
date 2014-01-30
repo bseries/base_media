@@ -12,9 +12,9 @@
 define([
   'jquery',
   'handlebars',
-  'compat!sendAsBinary',
   'text!media/js/templates/media-explorer-index.hbs',
-  'text!media/js/templates/media-explorer-item.hbs'
+  'text!media/js/templates/media-explorer-item.hbs',
+  'compat!sendAsBinary'
 ],
 function(
   $,
