@@ -12,21 +12,16 @@
 define([
   'jquery',
   'handlebars',
-  'compat',
+  'compat!sendAsBinary',
   'text!media/js/templates/media-explorer-index.hbs',
   'text!media/js/templates/media-explorer-item.hbs'
 ],
 function(
   $,
   Handlebars,
-  Compat,
   indexTemplate,
   itemTemplate
 ) {
-
-  Compat.run([
-    'sendAsBinary'
-  ]);
 
   return function MediaExplorer() {
     var _this = this;
