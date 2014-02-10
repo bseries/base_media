@@ -26,7 +26,7 @@ class Media extends \cms_core\models\Base {
 
 	public $hasMany = ['MediaVersions'];
 
-	protected $_actsAs = [
+	protected static $_actsAs = [
 		'cms_core\extensions\data\behavior\Timestamp'
 	];
 

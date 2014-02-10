@@ -6,20 +6,8 @@ use cms_media\models\Media;
 
 class Coupler extends \li3_behaviors\data\model\Behavior {
 
-	// Holds methods keyed by alias.
-	protected $_methods = [];
-
-	protected function _init() {
-		parent::_init();
-
-		$this->_initMethods();
-		$this->_initFilters();
-	}
-
-	protected function _initFilters() {
-		$behavior = $this;
-		$bindings = $this->_config['bindings'];
-		$model = $this->_model;
+	protected static function _filters($model, $behavior) {
+		$bindings = $behavior->config('bindings');
 
 		// Synchronizes join table with added or updated set of items.
 		$model::applyFilter('save', function($self, $params, $chain) use ($behavior, $bindings) {
@@ -84,19 +72,19 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 		});
 	}
 
-	protected function _initMethods() {
-		$model = $this->_model;
+	protected static function _methods($model, $behavior) {
+		$methods = [];
 
-		foreach ($this->_config['bindings'] as $alias => $options) {
+		foreach ($behavior->config('bindings') as $alias => $options) {
 			if ($options['type'] == 'direct') {
-				$this->_methods[$alias] = function($entity) use ($options) {
+				$methods[$alias] = function($entity) use ($options) {
 					// $to in this case is the field name i.e. cover_media_id.
 					$to = $options['to'];
 
 					return Media::findById($entity->{$to});
 				};
 			} else {
-				$this->_methods[$alias] = function($entity) use ($options, $model) {
+				$methods[$alias] = function($entity) use ($options, $model) {
 					// $to in this case is the model name i.e. cms_media\models\MediaAttachments.
 					$to = $options['to'];
 
@@ -116,20 +104,7 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 				};
 			}
 		}
-	}
-
-	public function respondsTo($method, $internal = false) {
-		if (isset($this->_methods[$method])) {
-			return true;
-		}
-		return parent::respondsTo($method, $internal);
-	}
-
-	public function __call($method, $params) {
-		if (isset($this->_methods[$method])) {
-			return $this->_methods[$method]($params[0]);
-		}
-		parent::__call($method, $params);
+		return $methods;
 	}
 }
 
