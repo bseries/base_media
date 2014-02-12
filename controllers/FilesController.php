@@ -20,7 +20,11 @@ use lithium\analysis\Logger;
 use li3_flash_message\extensions\storage\FlashMessage;
 
 // @todo Rename to media controller.
-class FilesController extends \lithium\action\Controller {
+class FilesController extends \cms_core\controllers\BaseController {
+
+	protected $_model = '\cms_media\models\Media';
+
+	use \cms_core\controllers\AdminEditTrait;
 
 	public function admin_api_view() {
 		$item = Media::find('first', ['conditions' => ['id' => $this->request->id]]);
@@ -133,20 +137,6 @@ class FilesController extends \lithium\action\Controller {
 		FlashMessage::write('Successfully deleted.');
 
 		$this->redirect(['action' => 'index', 'library' => 'cms_media']);
-	}
-
-	public function admin_edit() {
-		$item = Media::find($this->request->id);
-
-		if (!$item) {
-			$this->redirect(['action' => 'index', 'library' => 'cms_media']);
-		}
-		if (($this->request->data) && $item->save($this->request->data)) {
-			$this->redirect(['action' => 'index', 'library' => 'cms_media']);
-		}
-		$this->_render['template'] = 'admin_form';
-
-		return compact('item');
 	}
 
 	public function admin_regenerate_versions() {
