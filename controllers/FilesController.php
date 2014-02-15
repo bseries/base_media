@@ -134,7 +134,7 @@ class FilesController extends \cms_core\controllers\BaseController {
 		$item->delete();
 		$item->deleteVersions();
 
-		FlashMessage::write('Successfully deleted.');
+		FlashMessage::write($t('Successfully deleted.'), ['level' => 'success']);
 
 		$this->redirect(['action' => 'index', 'library' => 'cms_media']);
 	}
