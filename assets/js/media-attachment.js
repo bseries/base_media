@@ -52,7 +52,9 @@ function($, MediaExplorerModal) {
         // Also see inputs() and items().
       };
 
-      _this.populate();
+      _this.populate().done(function() {
+        _this.elements.selected.addClass('populated');
+      });
       _this.keepSynced();
 
       _this.elements.select.on('click', function(ev) {
@@ -134,27 +136,33 @@ function($, MediaExplorerModal) {
     // items (with images and handles) when we just have the ids
     // fromt the input fields..
     this.populate = function() {
+      var dfrs = [];
+
       _this.inputs().each(function(k, el) {
         var value = $(el).val();
 
         if (value) {
-          _this.append(value);
+          dfrs.push(_this.append(value));
         }
       });
+      return $.when.apply($, dfrs);
     };
 
     // Builds and appends an item to the select area
     // using just its id.
     this.append = function(id) {
+      var dfr = new $.Deferred();
       var req = $.getJSON(_this.endpoint('view', id));
 
       req.done(function(data) {
-          // Implicitly updates inputes as we add
-          // the item and modify the subtree. See keepSynced().
-          _this.elements.selected.append(
-            _this.buildSelectedItemHtml(data.file)
-          );
-        });
+        // Implicitly updates inputes as we add
+        // the item and modify the subtree. See keepSynced().
+        _this.elements.selected.append(
+          _this.buildSelectedItemHtml(data.file)
+        );
+        dfr.resolve();
+      });
+      return dfr;
     };
 
     this.buildSelectedItemHtml = function(item) {
