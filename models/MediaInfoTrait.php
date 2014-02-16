@@ -14,7 +14,7 @@ namespace cms_media\models;
 
 use \Media_Info;
 
-trait MediaTraitTrait {
+trait MediaInfoTrait {
 
 	public function info($entity, $name = null) {
 		$media = Media_Info::factory(['source' => $entity->url('file')]);
@@ -27,4 +27,3 @@ trait MediaTraitTrait {
 }
 
 ?>
-
