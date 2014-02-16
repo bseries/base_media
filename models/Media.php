@@ -23,6 +23,7 @@ class Media extends \cms_core\models\Base {
 	use \cms_media\models\UrlTrait;
 	use \cms_media\models\DownloadTrait;
 	use \cms_media\models\SchemeTrait;
+	use \cms_media\models\MediaInfoTrait;
 
 	public $hasMany = ['MediaVersions'];
 
