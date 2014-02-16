@@ -18,6 +18,28 @@ use lithium\analysis\Logger;
 // Class where this trait is used must provide a static `base()` method.
 trait UrlTrait {
 
+	public function scheme($entity) {
+		return parse_url($entity->url, PHP_URL_SCHEME);
+	}
+
+	// Supports "host-less" URLs for non HTTP schemes.
+	public function path($entity, array $options = []) {
+		$url = parse_url($entity->url);
+
+		$options += [
+			'withHost' => $url['scheme'] != 'http' && $url['scheme'] != 'https'
+		];
+		$path = [];
+
+		if (isset($url['host']) && $options['withHost']) {
+			$path[] = $url['host'];
+		}
+		if (isset($url['path'])) {
+			$path[] = $url['path'];
+		}
+		return implode('/', $path);
+	}
+
 	// Assumes when requesting http, https would be ok, too.
 	// Always returns absolute URLs.
 	public function url($entity, $targetScheme = 'http') {

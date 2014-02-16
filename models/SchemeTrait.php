@@ -16,16 +16,13 @@ use lithium\core\Environment;
 use lithium\util\Set;
 use OutOfBoundsException;
 
-// Usable in conjunction with an entity having an `url` property.
+// Usable in conjunction with an entity having an `url` property, depends
+// on a model using the UrlTrait.
 trait SchemeTrait {
 
 	protected static $_schemes = [];
 
-	public function scheme($entity) {
-		return parse_url($entity->url, PHP_URL_SCHEME);
-	}
-
-	// @fixme Make this part of higher Media/settings abstratiction.
+	// @fixme Make this part of higher Media/settings abstraction.
 	public static function registerScheme($scheme, array $options = []) {
 		if (isset(static::$_schemes[$scheme])) {
 			$default = static::$_schemes[$scheme];
@@ -67,24 +64,6 @@ trait SchemeTrait {
 		$bases = static::$_schemes[$scheme]['base'];
 		return is_array($bases) ? $bases[Environment::get()] : $bases;
 	}
-
-/*
-	public static function registerScheme($scheme, array $options = []) {
-		if (isset(static::$_schemes[$scheme])) {
-			$default = $static::$_schemes[$scheme];
-		} else {
-			$default = [
-				'base' => false,
-				'make' => false,
-				'delete' => false,
-				'checksum' => false,
-				'relative' => false
-			];
-		}
-		static::$_schemes[$scheme] = Set::merge($default, $options);
-	}
- */
-
 }
 
 ?>
