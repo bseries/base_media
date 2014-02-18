@@ -26,12 +26,19 @@ Libraries::add('mm', [
 	'path' => dirname(__DIR__) . '/libraries/mm'
 ]);
 
-Panes::register('cms_media', 'files', [
-	'title' => $t('Files'),
-	'group' => Panes::GROUP_MANAGE,
-	'url' => ['controller' => 'files', 'library' => 'cms_media', 'admin' => true]
-]);
 Features::register('cms_media', 'enableRegenerateVersions', false);
+
+$actions = [];
+Panes::register('cms_media', 'files', [
+	'title' => $t('Media'),
+	'group' => Panes::GROUP_MANAGE,
+	'url' => $base = ['controller' => 'files', 'library' => 'cms_media', 'admin' => true],
+	'actions' => [
+		$t('Explore') => ['action' => 'index'] + $base,
+		$t('Transfer') => ['action' => 'index'] + $base,
+		$t('Regenerate Versions') => ['action' => 'regenerate_versions'] + $base,
+	]
+]);
 
 Media_Process::config([
 	// 'audio' => 'SoxShell',

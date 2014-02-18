@@ -2,17 +2,9 @@
 
 use cms_core\extensions\cms\Features;
 
-
 ?>
-
 <article class="files-index">
 	<h1 class="alpha"><?= $t('Files') ?></h1>
-
-	<?php if (Features::enabled('enableRegenerateVersions')): ?>
-		<nav class="actions">
-			<?= $this->html->link($t('regenerate versions'), ['action' => 'regenerate_versions', 'library' => 'cms_media'], ['class' => 'button']) ?>
-		</nav>
-	<?php endif ?>
 
 	<section>
 		<h2 class="beta"><?= $t('Upload') ?></h2>
