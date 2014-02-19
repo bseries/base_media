@@ -4,7 +4,7 @@ use cms_core\extensions\cms\Features;
 
 ?>
 <article class="files-index">
-	<h1 class="alpha"><?= $t('Files') ?></h1>
+	<h1 class="alpha"><?= $this->title($t('Files')) ?></h1>
 
 	<section>
 		<h2 class="beta"><?= $t('Upload') ?></h2>
@@ -28,7 +28,7 @@ use cms_core\extensions\cms\Features;
 			<thead>
 				<tr>
 					<td><?= $t('Preview') ?>
-					<td><?= $t('Title') ?>
+					<td class="emphasize"><?= $t('Title') ?>
 					<td><?= $t('# dependent') ?>
 					<td>
 			<tbody>
@@ -38,7 +38,7 @@ use cms_core\extensions\cms\Features;
 					<?php if ($version = $item->version('fix3')): ?>
 						<img src="<?= $version->url() ?>" />
 					<?php endif ?>
-				<td>
+				<td class="emphasize">
 					<?= $item->title ?>
 				<td>
 					<?= count($item->depend()) ?: '–' ?>
