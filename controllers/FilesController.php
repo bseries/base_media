@@ -141,13 +141,8 @@ class FilesController extends \cms_core\controllers\BaseController {
 
 	public function admin_regenerate_versions() {
 		set_time_limit(60 * 5);
+		Media::regenerateVersions();
 
-		$data = Media::all();
-
-		foreach ($data as $item) {
-			$item->deleteVersions();
-			$item->makeVersions();
-		}
 		$this->redirect(['action' => 'index', 'library' => 'cms_media']);
 	}
 }

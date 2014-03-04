@@ -161,6 +161,15 @@ class Media extends \cms_core\models\Base {
 
 		return static::_uniqueUrl($base, $extension, ['exists' => true]);
 	}
+
+	public static function regenerateVersions() {
+		$data = static::all();
+
+		foreach ($data as $item) {
+			$item->deleteVersions();
+			$item->makeVersions();
+		}
+	}
 }
 
 // Filter running before saving.
