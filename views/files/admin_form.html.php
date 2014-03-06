@@ -13,7 +13,7 @@ $edit = $this->request()->params['action'] == 'edit';
 <article>
 	<h1 class="alpha">
 		<span class="action"><?= $title['action'] ?></span>
-		<span class="title"><?= $title['title'] ?></span>
+		<span class="title" data-untitled="<?= $t('Untitled') ?>"><?= $title['title'] ?></span>
 	</h1>
 
 	<?=$this->form->create($item) ?>
@@ -22,7 +22,7 @@ $edit = $this->request()->params['action'] == 'edit';
 		<?php if ($edit): ?>
 			<?=$this->form->field('id', ['type' => 'hidden']) ?>
 		<?php endif ?>
-		<?=$this->form->field('title') ?>
+		<?=$this->form->field('title', ['class' => 'use-for-title']) ?>
 		<?= $this->form->button($t('save'), ['type' => 'submit', 'class' => 'butto large']) ?>
 	<?=$this->form->end(); ?>
 </article>
