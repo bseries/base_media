@@ -23,6 +23,6 @@ $edit = $this->request()->params['action'] == 'edit';
 			<?=$this->form->field('id', ['type' => 'hidden']) ?>
 		<?php endif ?>
 		<?=$this->form->field('title', ['class' => 'use-for-title']) ?>
-		<?= $this->form->button($t('save'), ['type' => 'submit', 'class' => 'butto large']) ?>
+		<?= $this->form->button($t('save'), ['type' => 'submit', 'class' => 'button large']) ?>
 	<?=$this->form->end(); ?>
 </article>
