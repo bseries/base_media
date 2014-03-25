@@ -26,7 +26,7 @@ Libraries::add('mm', [
 	'path' => dirname(__DIR__) . '/libraries/mm'
 ]);
 
-Features::register('cms_media', 'enableRegenerateVersions', false);
+Features::register('cms_media', 'media.enableRegenerateVersions', false);
 
 $actions = [];
 Panes::register('cms_media', 'files', [
@@ -36,6 +36,7 @@ Panes::register('cms_media', 'files', [
 	'actions' => [
 		$t('Explore') => ['action' => 'index'] + $base,
 		$t('Transfer') => ['action' => 'index'] + $base,
+		// @fixme React on feature setting.
 		$t('Regenerate Versions') => ['action' => 'regenerate_versions'] + $base,
 	]
 ]);
