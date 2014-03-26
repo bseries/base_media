@@ -30,7 +30,7 @@ use cms_core\extensions\cms\Features;
 					<td><?= $t('Preview') ?>
 					<td class="emphasize"><?= $t('Title') ?>
 					<td><?= $t('# dependent') ?>
-					<td>
+					<td class="actions">
 			<tbody>
 			<?php foreach ($data as $item): ?>
 			<tr>
@@ -42,11 +42,9 @@ use cms_core\extensions\cms\Features;
 					<?= $item->title ?>
 				<td>
 					<?= count($item->depend()) ?: '–' ?>
-				<td>
-					<nav class="actions">
-						<?=$this->html->link($t('delete'), ['action' => 'delete', 'id' => $item->id, 'library' => 'cms_media'], ['class' => 'button']) ?>
-						<?=$this->html->link($t('edit'), ['action' => 'edit', 'id' => $item->id, 'library' => 'cms_media'], ['class' => 'button']) ?>
-					</nav>
+				<td class="actions">
+					<?=$this->html->link($t('delete'), ['action' => 'delete', 'id' => $item->id, 'library' => 'cms_media'], ['class' => 'button']) ?>
+					<?=$this->html->link($t('edit'), ['action' => 'edit', 'id' => $item->id, 'library' => 'cms_media'], ['class' => 'button']) ?>
 			<?php endforeach ?>
 			</tbody>
 			</table>
