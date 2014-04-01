@@ -39,8 +39,12 @@ class Media extends \lithium\template\Helper {
 		if (strpos($path, '://') !== false) {
 			return $path;
 		}
-		$base = MediaVersions::base($this->_context->request()->is('ssl') ? 'https' : 'http');
-		return $base . $path;
+		return $this->base() . $path;
+	}
+
+	public function base($scheme = null) {
+		$scheme = $scheme ?: $this->_context->request()->is('ssl') ? 'https' : 'http';
+		return MediaVersions::base($scheme);
 	}
 }
 
