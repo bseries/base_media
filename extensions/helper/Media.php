@@ -36,6 +36,9 @@ class Media extends \lithium\template\Helper {
 	}
 
 	public function url($path) {
+		if (is_object($path)) {
+			return $path->url($this->_context->request()->is('ssl') ? 'https' : 'http');
+		}
 		if (strpos($path, '://') !== false) {
 			return $path;
 		}
