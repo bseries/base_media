@@ -3,11 +3,13 @@
     "description": "Media functionality for bureau.",
     "license": "proprietary",
     "config": {
-        "vendor-dir": "libraries"
+        "vendor-dir": "libraries",
+        "preferred-install": "dist"
     },
     "require": {
         "php": ">=5.5.0",
-        "davidpersson/mm": "1.*",
+        "cms_core": "1.1.*",
+        "davidpersson/mm": "dev-next",
         "davidpersson/temporary": "1.*",
         "davidpersson/li3_behaviors": "dev-master"
     },
@@ -15,6 +17,10 @@
       {
         "type": "vcs",
         "url": "https://github.com/davidpersson/li3_behaviors"
+      },
+      {
+        "type": "vcs",
+        "url": "git@bitbucket.org:atelierdisko/cms_core.git"
       }
     ]
 }
