@@ -1,0 +1,20 @@
+{
+    "name": "atelierdisko/cms_media",
+    "description": "Media functionality for bureau.",
+    "license": "proprietary",
+    "config": {
+        "vendor-dir": "libraries"
+    },
+    "require": {
+        "php": ">=5.5.0",
+        "davidpersson/mm": "1.*",
+        "davidpersson/temporary": "1.*",
+        "davidpersson/li3_behaviors": "dev-master"
+    },
+    "repositories": [
+      {
+        "type": "vcs",
+        "url": "https://github.com/davidpersson/li3_behaviors"
+      }
+    ]
+}
