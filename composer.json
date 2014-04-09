@@ -1,7 +1,13 @@
 {
     "name": "atelierdisko/cms_media",
     "description": "Media functionality for bureau.",
+    "homepage": "http://atelierdisko.de",
+    "type": "lithium-library",
     "license": "proprietary",
+    "authors": {
+      "name": "Atelier Disko",
+      "homepage": "http://atelierdisko.de"
+    },
     "config": {
         "vendor-dir": "libraries",
         "preferred-install": "dist"
@@ -12,7 +18,9 @@
         "davidpersson/mm": "dev-next",
         "davidpersson/temporary": "1.*",
         "davidpersson/li3_behaviors": "*",
-        "uor/li3_flash_message": "dev-master"
+        "uor/li3_flash_message": "dev-master",
+        "unionofrad/lithium": "dev-dev",
+        "composer/installers": "~1.0"
     },
     "repositories": [
       {
