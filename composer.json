@@ -4,14 +4,13 @@
     "homepage": "http://atelierdisko.de",
     "type": "lithium-library",
     "license": "proprietary",
-    "minimum-stability": "dev",
     "authors": {
       "name": "Atelier Disko",
       "homepage": "http://atelierdisko.de"
     },
     "require": {
         "php": ">=5.5.0",
-        "cms_core": "dev-master",
+        "atelierdisko/cms_core": "dev-master",
         "davidpersson/mm": "dev-next",
         "davidpersson/temporary": "1.*",
         "davidpersson/li3_behaviors": "*",
