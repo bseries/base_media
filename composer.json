@@ -8,10 +8,6 @@
       "name": "Atelier Disko",
       "homepage": "http://atelierdisko.de"
     },
-    "config": {
-        "vendor-dir": "libraries",
-        "preferred-install": "dist"
-    },
     "require": {
         "php": ">=5.5.0",
         "cms_core": "dev-master",
