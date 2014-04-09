@@ -4,6 +4,7 @@
     "homepage": "http://atelierdisko.de",
     "type": "lithium-library",
     "license": "proprietary",
+    "minimum-stability": "dev",
     "authors": {
       "name": "Atelier Disko",
       "homepage": "http://atelierdisko.de"
