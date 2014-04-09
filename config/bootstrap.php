@@ -21,11 +21,6 @@ use cms_media\models\MediaVersions;
 
 extract(Message::aliases());
 
-Libraries::add('mm', [
-	'bootstrap' => 'bootstrap.php',
-	'path' => dirname(__DIR__) . '/libraries/mm'
-]);
-
 Features::register('cms_media', 'media.enableRegenerateVersions', false);
 
 $actions = [];
