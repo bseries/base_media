@@ -12,8 +12,8 @@
 define([
   'jquery',
   'handlebars',
-  'text!media/js/templates/media-explorer-index.hbs',
-  'text!media/js/templates/media-explorer-item.hbs',
+  'text!cms-media/js/templates/mediaExplorerIndex.hbs',
+  'text!cms-media/js/templates/mediaExplorerItem.hbs',
   'compat!sendAsBinary'
 ],
 function(
