@@ -10,9 +10,8 @@
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 
-require 'settings.php';
-require 'media.php';
-require 'panes.php';
-// require 'widgets.php';
+use cms_core\extensions\cms\Features;
+
+Features::register('cms_media', 'media.enableRegenerateVersions', false);
 
 ?>
