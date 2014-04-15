@@ -16,7 +16,8 @@ use cms_core\extensions\cms\Panes;
 extract(Message::aliases());
 
 Panes::registerGroup('cms_media', 'media', [
-	'title' => $t('Media')
+	'title' => $t('Media'),
+	'order' => 20
 ]);
 
 $base = ['controller' => 'files', 'library' => 'cms_media', 'admin' => true];
