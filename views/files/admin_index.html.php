@@ -2,12 +2,17 @@
 
 use cms_core\extensions\cms\Features;
 
+$this->set([
+	'page' => [
+		'type' => 'multiple',
+		'object' => $t('media')
+	]
+]);
+
 ?>
 <article class="files-index">
-	<h1 class="alpha"><?= $this->title($t('Files')) ?></h1>
-
-	<section>
-		<h2 class="beta"><?= $t('Upload') ?></h2>
+	<section class="grid-row">
+		<h1 class="h-gamma"><?= $t('Upload') ?></h2>
 		<?= $this->form->create(null, ['type' => 'file']) ?>
 			<?=  $this->form->field('transfer.form', [
 				'type' => 'file',
@@ -18,11 +23,11 @@ use cms_core\extensions\cms\Features;
 				'type' => 'text',
 				'label' => $t('(b) File (URL)')
 			]) ?>
-		<?= $this->form->button($t('upload'), ['type' => 'submit']) ?>
+		<?= $this->form->button($t('upload'), ['type' => 'submit', 'class' => 'button large save']) ?>
 		<?= $this->form->end() ?>
 	</section>
-	<section>
-		<h2 class="beta"><?= $t('Available Files') ?></h2>
+	<section class="grid-row">
+		<h1 class="h-gamma"><?= $t('Available Files') ?></h2>
 		<?php if ($data->count()): ?>
 			<table>
 			<thead>
@@ -31,6 +36,7 @@ use cms_core\extensions\cms\Features;
 					<td class="emphasize"><?= $t('Title') ?>
 					<td><?= $t('# dependent') ?>
 					<td class="actions">
+			</thead>
 			<tbody>
 			<?php foreach ($data as $item): ?>
 			<tr>
@@ -43,13 +49,13 @@ use cms_core\extensions\cms\Features;
 				<td>
 					<?= count($item->depend()) ?: '–' ?>
 				<td class="actions">
-					<?=$this->html->link($t('delete'), ['action' => 'delete', 'id' => $item->id, 'library' => 'cms_media'], ['class' => 'button']) ?>
-					<?=$this->html->link($t('edit'), ['action' => 'edit', 'id' => $item->id, 'library' => 'cms_media'], ['class' => 'button']) ?>
+					<?=$this->html->link($t('delete'), ['action' => 'delete', 'id' => $item->id, 'library' => 'cms_media'], ['class' => 'button delete']) ?>
+					<?=$this->html->link($t('open'), ['action' => 'edit', 'id' => $item->id, 'library' => 'cms_media'], ['class' => 'button']) ?>
 			<?php endforeach ?>
 			</tbody>
 			</table>
 		<?php else: ?>
-			<div class="none-available"><?= $t('There are currently no files available, yet.') ?></div>
+			<div class="none-available"><?= $t('There are currently no items available, yet.') ?></div>
 		<?php endif ?>
 	</section>
 </article>

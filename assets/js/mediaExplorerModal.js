@@ -1,4 +1,4 @@
-define(['jquery', 'media-explorer', 'modal'],
+define(['jquery', 'mediaExplorer', 'modal'],
 function($, MediaExplorer, Modal) {
 
   var mediaExplorerConfig = {

@@ -1,4 +1,4 @@
-define('media-lightbox',
+define('mediaLightbox',
 ['jquery', 'modal', 'underscore', 'domready!'],
 function($, Modal, _) {
 

@@ -1,10 +1,9 @@
 define([
   'jquery',
-  'media-explorer-modal',
+  'mediaExplorerModal',
   'domready!'
 ],
 function($, MediaExplorerModal) {
-
   // Uses input fields as a store for ids and thus references
   // to full media items. Media items themselves always have
   // a backreference to their id through their `data-id` property.
@@ -167,7 +166,7 @@ function($, MediaExplorerModal) {
 
     this.buildSelectedItemHtml = function(item) {
       var wrap = $('<article class="media-item" style="background-image: url(' + item.versions.fix2.url + ');">');
-      var button = $('<a href="#" class="remove">╳</a>');
+      var button = $('<a href="#" class="remove">×</a>');
       wrap.append(button);
 
       button.on('click', function(ev) {
