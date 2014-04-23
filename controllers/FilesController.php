@@ -88,9 +88,11 @@ class FilesController extends \cms_core\controllers\BaseController {
 	protected function _export($item) {
 		$result = $item->data();
 
+		$scheme = $this->request->is('ssl') ? 'https' : 'http';
+
 		if ($versions = $item->versions()) {
 			foreach ($versions as $name => $version) {
-				$result['versions'][$name]['url'] = $version->url('http');
+				$result['versions'][$name]['url'] = $version->url($scheme);
 			}
 		}
 		return $result;
