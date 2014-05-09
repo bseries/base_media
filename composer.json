@@ -10,12 +10,12 @@
     },
     "require": {
         "php": ">=5.5.0",
-        "atelierdisko/cms_core": "dev-master@dev",
-        "davidpersson/mm": "dev-next@dev",
+        "atelierdisko/cms_core": "dev-master",
+        "davidpersson/mm": "dev-2ddbb55623bdf06b763784c3e867c2eee8b9bfcd",
         "davidpersson/temporary": "1.*",
         "davidpersson/li3_behaviors": "*",
-        "uor/li3_flash_message": "dev-master@dev",
-        "unionofrad/lithium": "dev-dev@dev",
+        "uor/li3_flash_message": "dev-master",
+        "unionofrad/lithium": "dev-dev",
         "composer/installers": "~1.0"
     },
     "repositories": [
