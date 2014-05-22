@@ -1,6 +1,7 @@
 define([
   'jquery',
   'mediaExplorerModal',
+  'jqueryUi',
   'domready!'
 ],
 function($, MediaExplorerModal) {
@@ -24,6 +25,9 @@ function($, MediaExplorerModal) {
     // Not used here directly but passed through to ME.
     this.selectable = true;
 
+    // Enable sorting for items, makes only sense for multiple items.
+    this.sortable = false;
+
     this.endpoints = {
       view: '/files/__ID__'
       // Not used here but passed through to ME.
@@ -36,12 +40,14 @@ function($, MediaExplorerModal) {
       options = $.extend({
         formBinding: _this.formBinding,
         endpoints: _this.endpoints,
-        selectable: _this.selectable
+        selectable: _this.selectable,
+        sortable: _this.sortable
       }, options);
 
       _this.formBinding = options.formBinding;
-      _this.selectable = options.selectable;
       _this.endpoints = options.endpoints;
+      _this.selectable = options.selectable;
+      _this.sortable = options.sortable;
 
       _this.element = $(element);
 
@@ -61,6 +67,12 @@ function($, MediaExplorerModal) {
         _this.interactWithMediaExplorer();
       });
 
+      if (_this.sortable) {
+        _this.element.sortable({
+          placeholder: 'sortable-placeholder',
+          items: '.media-item'
+        });
+      }
     };
 
     // Returns endpoint string; may replace __ID__ placeholder.
@@ -137,28 +149,40 @@ function($, MediaExplorerModal) {
     this.populate = function() {
       var dfrs = [];
 
+      // Preload async but append sequentially to keep order.
+
+      var ids = [];
       _this.inputs().each(function(k, el) {
         var value = $(el).val();
 
         if (value) {
-          dfrs.push(_this.append(value));
+          ids.push(value);
         }
       });
-      return $.when.apply($, dfrs);
+      return _this.append(ids);
     };
 
-    // Builds and appends an item to the select area
-    // using just its id.
-    this.append = function(id) {
+    // Builds and appends items to the select area
+    // using just the id of each item. Also keeps
+    // order sequence.
+    this.append = function(ids) {
       var dfr = new $.Deferred();
-      var req = $.getJSON(_this.endpoint('view', id));
 
-      req.done(function(data) {
-        // Implicitly updates inputes as we add
-        // the item and modify the subtree. See keepSynced().
-        _this.elements.selected.append(
-          _this.buildSelectedItemHtml(data.file)
-        );
+      // Preload async but append synchronous to keep order.
+      var map = {};
+      var dfrs = [];
+
+      $.each(ids, function(k, id) {
+        dfrs.push($.getJSON(_this.endpoint('view', id)).done(function(data) {
+            map[id] = _this.buildSelectedItemHtml(data.file);
+        }));
+      });
+      $.when.apply($, dfrs).then(function() {
+        $.each(ids, function(k, id) {
+          // Implicitly updates inputes as we add
+          // the item and modify the subtree. See keepSynced().
+          _this.elements.selected.append(map[id]);
+        });
         dfr.resolve();
       });
       return dfr;
@@ -193,9 +217,6 @@ function($, MediaExplorerModal) {
       MediaExplorerModal.open();
 
       $(document).one('media-explorer:selected', function(ev, ids) {
-        // Pool deferreds.
-        var dfrs = [];
-
         // We rebuilt selected items completely and replace
         // the current selection with the one we get from ME.
         // Removing all existing first wont be visible as it
@@ -204,12 +225,8 @@ function($, MediaExplorerModal) {
         // part needs a better implementation.
         _this.elements.selected.html('');
 
-        $.each(ids, function(k, id) {
-          dfrs.push(_this.append(id));
-        });
-
         // Wait until all items are built and appended then close ME.
-        $.when.apply($, dfrs).then(MediaExplorerModal.close);
+        _this.append(ids).then(MediaExplorerModal.close);
       });
     };
   }
@@ -228,6 +245,7 @@ function($, MediaExplorerModal) {
 
       options.formBinding = 'joined';
       options.selectable = true;
+      options.sortable = true;
 
       ma.init(element, options);
     }
