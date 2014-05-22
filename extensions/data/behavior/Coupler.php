@@ -3,6 +3,7 @@
 namespace cms_media\extensions\data\behavior;
 
 use cms_media\models\Media;
+use lithium\util\Collection;
 
 class Coupler extends \li3_behaviors\data\model\Behavior {
 
@@ -93,14 +94,14 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 							'model' => $model,
 							'foreign_key' => $entity->id
 						],
+						'order' => ['id' => 'ASC'],
 						'with' => ['Media']
 					]);
-
 					$data = [];
 					foreach ($results as $result) {
 						$data[] = $result->media;
 					}
-					return $data;
+					return new Collection(compact('data'));
 				};
 			}
 		}
