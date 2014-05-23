@@ -10,7 +10,7 @@
     },
     "require": {
         "php": ">=5.5.0",
-        "atelierdisko/cms_core": "dev-master",
+        "atelierdisko/cms_core": "1.*",
         "davidpersson/mm": "dev-next",
         "davidpersson/temporary": "1.*",
         "davidpersson/li3_behaviors": "*",
