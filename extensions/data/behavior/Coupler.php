@@ -15,11 +15,20 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 			$joined = [];
 
 			foreach ($bindings as $alias => $options) {
-				if (!isset($params['data'][$alias])) {
+				if ($options['type'] == 'direct') {
+					$alias .= '_media_id';
+
+					if (!isset($params['data'][$alias])) {
+						continue;
+					}
+					if (empty($params['data'][$alias])) {
+						// Ensure we save NULL to datqbase.
+						$params['entity']->$alias = null;
+					}
+					// Direct bindings need no further special treatment.
 					continue;
 				}
-				if ($options['type'] == 'direct') {
-					// Direct bindings need no special treatment.
+				if (!isset($params['data'][$alias])) {
 					continue;
 				}
 
