@@ -12,6 +12,7 @@
 
 namespace cms_media\models;
 
+use Exception;
 use lithium\analysis\Logger;
 use temporary\Manager as Temporary;
 
