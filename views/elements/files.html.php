@@ -7,7 +7,7 @@ $edit = true;
 	<?php foreach ($files as $file): ?>
 		<li>
 			<?= $file->filename ?>
-			<?= $this->html->image($file->versions('fix2')->url()); ?>
+			<?= $this->html->image($file->versions('fix2admin')->url()); ?>
 		</li>
 	<?php endforeach ?>
 </ul>

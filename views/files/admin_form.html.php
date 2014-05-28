@@ -17,7 +17,7 @@ $edit = $this->request()->params['action'] == 'edit';
 		<?=$this->form->field('id', ['type' => 'hidden']) ?>
 
 		<div class="grid-row grid-row-last">
-			<img src="<?= $item->version('fix2')->url() ?>" class="media image"/>
+			<img src="<?= $item->version('fix2admin')->url() ?>" class="media image"/>
 			<?=$this->form->field('title', ['class' => 'use-for-title']) ?>
 		</div>
 		<div class="bottom-actions">

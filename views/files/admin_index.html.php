@@ -41,7 +41,7 @@ $this->set([
 			<?php foreach ($data as $item): ?>
 			<tr>
 				<td>
-					<?php if ($version = $item->version('fix3')): ?>
+					<?php if ($version = $item->version('fix3admin')): ?>
 						<img src="<?= $version->url() ?>" />
 					<?php endif ?>
 				<td class="emphasize">
