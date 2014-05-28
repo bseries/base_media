@@ -14,6 +14,7 @@ use \Media_Process;
 use \Media_Info;
 use cms_media\models\Media;
 use cms_media\models\MediaVersions;
+use lithium\core\Libraries;
 
 Media_Process::config([
 	// 'audio' => 'SoxShell',
@@ -120,5 +121,29 @@ MediaVersions::registerScheme('file', [
 		return $media->store($target);
 	}
 ]);
+
+// Workaround beacause we do not have mm added to libraries, yet.
+$sRGB = Libraries::get('app', 'path') . '/libraries/davidpersson/mm/data/sRGB_IEC61966-2-1_black_scaled.icc';
+
+// Base static versions.
+$fix = [
+	'convert' => 'image/png',
+	'compress' => 5.5,
+	'colorProfile' => $sRGB,
+	'colorDepth' => 8
+];
+$fix2 = [ // Used in journal index and partially in view.
+	'strip' => ['8bim', 'app1', 'app12'],
+	'fit' => [500, 500]
+];
+$fix3 = [ // Used in admin.
+	'strip' => ['xmp', '8bim', 'app1', 'app12', 'exif'],
+	'fit' => [100, 52]
+];
+
+MediaVersions::registerAssembly('document', 'fix2admin', $fix2 + $fix);
+MediaVersions::registerAssembly('document', 'fix3admin', $fix3 + $fix);
+MediaVersions::registerAssembly('image', 'fix2admin', $fix2 + $fix);
+MediaVersions::registerAssembly('image', 'fix3admin', $fix3 + $fix);
 
 ?>
