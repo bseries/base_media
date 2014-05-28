@@ -12,6 +12,9 @@
 
 namespace cms_media\models;
 
+use cms_media\models\Media;
+
+// Polymorphic model.
 class MediaAttachments extends \lithium\data\Model {
 
 	public $belongsTo = [
@@ -21,8 +24,23 @@ class MediaAttachments extends \lithium\data\Model {
 		]
 	];
 
-	// Polymorphic model.
-	// public $hasMany = [];
+	public function medium($entity) {
+		return Media::find('first', [
+			'conditions' => [
+				'id' => $entity->media_id
+			]
+		]);
+	}
+
+	public function attachee($entity) {
+		$model = $entity->model;
+
+		return $model::find('first', [
+			'conditions' => [
+				'id' => $entity->foreign_key
+			]
+		]);
+	}
 }
 
 ?>

@@ -15,6 +15,7 @@ namespace cms_media\models;
 use Exception;
 use \Mime_Type;
 use cms_media\models\MediaVersions;
+use cms_media\models\MediaAttachments;
 use lithium\analysis\Logger;
 
 class Media extends \cms_core\models\Base {
@@ -41,16 +42,41 @@ class Media extends \cms_core\models\Base {
 	}
 
 	// Finds out which other records depend on a given media entity.
-	// @todo Implement possibly using info from coupler behavior.
-	public function depend($entity) {
-		return $depend = [];
+	// Type can either be count or all.
+	public function depend($entity, $type) {
+		$depend = $type === 'count' ? 0 : [];
 
 		foreach (static::$_dependent as $model => $bindings) {
 			foreach ($bindings as $alias => $binding) {
 				if ($binding === 'direct') {
+					$results = $model::find($type, [
+						'conditions' => [
+							$alias . '_media_id' => $entity->id
+						]
+					]);
 
+					if ($type === 'count') {
+						$depend += $results;
+					} else {
+						foreach ($results as $result) {
+							$depend[] = $result;
+						}
+					}
+				} else {
+					$results = MediaAttachments::find($type, [
+						'conditions' => [
+							'model' => $model,
+							'media_id' => $entity->id
+						]
+					]);
+					if ($type === 'count') {
+						$depend += $results;
+					} else {
+						foreach ($results as $result) {
+							$depend[] = $result->medium();
+						}
+					}
 				}
-				$depend = array_merge($depend, $entity->{$alias}());
 			}
 		}
 		return $depend;

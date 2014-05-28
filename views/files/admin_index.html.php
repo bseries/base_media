@@ -47,9 +47,11 @@ $this->set([
 				<td class="emphasize">
 					<?= $item->title ?>
 				<td>
-					<?= count($item->depend()) ?: '–' ?>
+					<?= ($depend = $item->depend('count')) ?: '–' ?>
 				<td class="actions">
-					<?=$this->html->link($t('delete'), ['action' => 'delete', 'id' => $item->id, 'library' => 'cms_media'], ['class' => 'button delete']) ?>
+					<?php if (!$depend): ?>
+						<?=$this->html->link($t('delete'), ['action' => 'delete', 'id' => $item->id, 'library' => 'cms_media'], ['class' => 'button delete']) ?>
+					<?php endif ?>
 					<?=$this->html->link($t('open'), ['action' => 'edit', 'id' => $item->id, 'library' => 'cms_media'], ['class' => 'button']) ?>
 			<?php endforeach ?>
 			</tbody>
