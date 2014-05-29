@@ -56,6 +56,9 @@ class MediaVersions extends \cms_core\models\Base {
 
 	// Returns the assembly instructions for a specific media type and version.
 	public static function assembly($type, $version = null) {
+		if ($type === true) {
+			return static::$_instructions;
+		}
 		if (!isset(static::$_instructions[$type])) {
 			throw new OutOfBoundsException("No assembly registered for type `{$type}`.");
 		}

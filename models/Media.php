@@ -117,7 +117,13 @@ class Media extends \cms_core\models\Base {
 		if (!$entity->url) {
 			throw new Exception('Entity has no URL.');
 		}
-		$versions = array_keys(MediaVersions::assembly($entity->type));
+
+		$versions = [];
+		foreach (MediaVersions::assembly(true) as $type => $item) {
+			$versions = array_merge($versions, array_keys($item));
+		}
+		$versions = array_unique($versions);
+		sort($versions);
 
 		// File URLs come in here in relative form.
 		if ($entity->can('relative')) {
