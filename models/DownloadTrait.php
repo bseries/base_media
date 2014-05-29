@@ -23,8 +23,22 @@ trait DownloadTrait {
 
 		Logger::debug("Downloading into temporary `{$temporary}`.");
 
-		if (!$result = copy($entity->url, $temporary)) {
-			throw new Exception('Could not copy from source to temporary.');
+		if (strpos($entity->url, 'http') === 0) {
+			$curl = curl_init($entity->url);
+			$file = fopen($temporary, 'w');
+
+			curl_setopt($curl, CURLOPT_FILE, $file);
+			curl_setopt($curl, CURLOPT_HEADER, 0);
+
+			$result = curl_exec($curl);
+			curl_close($curl);
+			fclose($file);
+		} else {
+			$result = copy($entity->url, $temporary);
+		}
+		if (!$result) {
+			$message = "Could not copy from source {$entity->url} to temporary {$temporary}.";
+			throw new Exception($message);
 		}
 		return 'file://' . $temporary;
 	}
