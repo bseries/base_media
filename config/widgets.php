@@ -22,8 +22,6 @@ Widgets::register('cms_media', 'media', function() use ($t) {
 	$mediaVersions = MediaVersions::find('count');
 
 	return [
-		'class' => null,
-		'title' => false,
 		'url' => [
 			'controller' => 'files', 'library' => 'cms_media', 'admin' => true, 'action' => 'index'
 		],
@@ -33,7 +31,7 @@ Widgets::register('cms_media', 'media', function() use ($t) {
 		]
 	];
 }, [
-	'type' => Widgets::TYPE_COUNT_MULTIPLE_BETA,
+	'type' => Widgets::TYPE_COUNTER,
 	'group' => Widgets::GROUP_DASHBOARD,
 ]);
 
