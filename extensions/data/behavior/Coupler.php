@@ -91,7 +91,7 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 					// $to in this case is the field name i.e. cover_media_id.
 					$to = $options['to'];
 
-					return Media::findById($entity->{$to});
+					return Media::find('first', ['conditions' => ['id' => $entity->{$to}]]);
 				};
 			} else {
 				$methods[$alias] = function($entity) use ($options, $model) {
