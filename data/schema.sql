@@ -7,7 +7,7 @@
 #
 # Host: localhost (MySQL 10.0.10-MariaDB-log)
 # Datenbank: rainmap
-# Erstellungsdauer: 2014-06-03 15:26:45 +0000
+# Erstellungsdauer: 2014-06-03 15:27:54 +0000
 # ************************************************************
 
 
@@ -20,104 +20,63 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 
-# Export von Tabelle addresses
+# Export von Tabelle media
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `addresses`;
+DROP TABLE IF EXISTS `media`;
 
-CREATE TABLE `addresses` (
+CREATE TABLE `media` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) unsigned DEFAULT NULL,
-  `virtual_user_id` int(11) unsigned DEFAULT NULL,
-  `name` varchar(250) DEFAULT '',
-  `company` varchar(250) DEFAULT NULL,
-  `street` varchar(250) DEFAULT NULL,
-  `city` varchar(100) DEFAULT NULL,
-  `zip` varchar(100) DEFAULT NULL,
-  `country` char(2) DEFAULT 'DE',
-  `phone` varchar(200) DEFAULT NULL,
-  `created` datetime NOT NULL,
-  `modified` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `user_id` (`user_id`),
-  KEY `virtual_user_id` (`virtual_user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
-
-# Export von Tabelle tokens
-# ------------------------------------------------------------
-
-DROP TABLE IF EXISTS `tokens`;
-
-CREATE TABLE `tokens` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `token` varchar(32) NOT NULL,
-  `expires` datetime NOT NULL,
-  `created` datetime NOT NULL,
-  `modified` datetime NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
-
-# Export von Tabelle users
-# ------------------------------------------------------------
-
-DROP TABLE IF EXISTS `users`;
-
-CREATE TABLE `users` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `number` varchar(100) NOT NULL DEFAULT '',
-  `session_key` varchar(250) DEFAULT NULL,
-  `name` varchar(255) NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `password` varchar(64) NOT NULL,
-  `role` varchar(30) NOT NULL DEFAULT 'user',
-  `is_active` tinyint(1) unsigned NOT NULL DEFAULT '0',
-  `locale` varchar(5) DEFAULT 'de',
-  `timezone` varchar(100) NOT NULL DEFAULT 'UTC',
-  `billing_currency` char(3) NOT NULL DEFAULT 'EUR',
-  `billing_vat_reg_no` varchar(100) DEFAULT NULL,
-  `billing_address_id` int(11) unsigned DEFAULT NULL,
-  `shipping_address_id` int(11) unsigned DEFAULT NULL,
-  `is_notified` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `user_id` int(11) unsigned NOT NULL,
+  `title` varchar(250) DEFAULT NULL,
+  `url` char(40) NOT NULL DEFAULT '',
+  `type` varchar(100) NOT NULL,
+  `mime_type` varchar(100) NOT NULL,
+  `checksum` char(32) DEFAULT '',
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `email` (`email`),
-  UNIQUE KEY `number` (`number`),
-  KEY `session_key` (`session_key`)
+  KEY `user` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Unique index set on user_id+checksum instead of user_id+dirn';
+
+
+
+# Export von Tabelle media_attachments
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `media_attachments`;
+
+CREATE TABLE `media_attachments` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `media_id` int(11) unsigned NOT NULL,
+  `model` varchar(50) NOT NULL,
+  `foreign_key` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `poly` (`model`,`foreign_key`),
+  KEY `media_file` (`media_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
 
-# Export von Tabelle virtual_users
+# Export von Tabelle media_versions
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `virtual_users`;
+DROP TABLE IF EXISTS `media_versions`;
 
-CREATE TABLE `virtual_users` (
+CREATE TABLE `media_versions` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `number` varchar(100) DEFAULT NULL,
-  `session_key` varchar(250) NOT NULL DEFAULT '',
-  `name` varchar(255) DEFAULT '',
-  `email` varchar(100) DEFAULT '',
-  `role` varchar(30) NOT NULL DEFAULT 'user',
-  `is_active` tinyint(1) unsigned NOT NULL DEFAULT '1',
-  `locale` varchar(5) DEFAULT 'de',
-  `timezone` varchar(100) NOT NULL DEFAULT 'UTC',
-  `billing_currency` char(3) NOT NULL DEFAULT 'EUR',
-  `billing_vat_reg_no` varchar(100) DEFAULT NULL,
-  `billing_address_id` int(11) unsigned DEFAULT NULL,
-  `shipping_address_id` int(11) unsigned DEFAULT NULL,
-  `is_notified` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `media_id` int(11) unsigned NOT NULL,
+  `url` char(40) NOT NULL DEFAULT '',
+  `version` varchar(10) DEFAULT NULL,
+  `type` varchar(100) NOT NULL,
+  `mime_type` varchar(100) NOT NULL,
+  `checksum` char(32) DEFAULT '',
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `number` (`number`),
-  KEY `session_key` (`session_key`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  KEY `user` (`media_id`),
+  KEY `media_id` (`media_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Unique index set on user_id+checksum instead of user_id+dirn';
 
 
 
