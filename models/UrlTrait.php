@@ -134,7 +134,7 @@ trait UrlTrait {
 			Logger::warning("Cannot delete URL `{$url}`; is not within base.");
 			return false;
 		}
-		if (!unlink($url)) {
+		if (file_exists($url) && !unlink($url)) {
 			return false;
 		}
 		return true;
