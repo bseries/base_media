@@ -11,7 +11,7 @@
     "require": {
         "php": ">=5.5.0",
         "atelierdisko/cms_core": ">=1.1.0",
-        "davidpersson/mm": "dev-next as 1.3.0-dev",
+        "davidpersson/mm": "1.*",
         "davidpersson/temporary": "1.*",
         "davidpersson/li3_behaviors": "*",
         "uor/li3_flash_message": "dev-master",

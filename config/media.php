@@ -10,19 +10,19 @@
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 
-use \Media_Process;
-use \Media_Info;
+use mm\Media\Process;
+use mm\Media\Info;
 use cms_media\models\Media;
 use cms_media\models\MediaVersions;
 use lithium\core\Libraries;
 
-Media_Process::config([
+Process::config([
 	// 'audio' => 'SoxShell',
 	'document' => 'Imagick',
 	'image' => 'Imagick',
 	// 'video' => 'FfmpegShell'
 ]);
-Media_Info::config([
+Info::config([
 	'document' => ['Imagick'],
 	'image' => ['ImageBasic', 'Imagick']
 ]);
@@ -76,7 +76,7 @@ MediaVersions::registerScheme('file', [
 	'checksum' => true,
 	'delete' => true,
 	'make' => function($entity) {
-		$media = Media_Process::factory(['source' => $entity->url]);
+		$media = Process::factory(['source' => $entity->url]);
 		$target = MediaVersions::generateTargetUrl($entity->url, $entity->version);
 
 		// There may not be a flux0 version for an image type.
@@ -100,7 +100,7 @@ MediaVersions::registerScheme('file', [
 			return false;
 		}
 
-		// Process `Media_Process_*` instructions.
+		// Process media `Process` instructions.
 		// This part may throw exceptions which are catched by the callee.
 		foreach ($instructions as $method => $args) {
 			if (is_int($method)) {
@@ -114,7 +114,7 @@ MediaVersions::registerScheme('file', [
 			}
 			if ($result === false) {
 				return false;
-			} elseif (is_a($result, 'Media_Process_Generic')) {
+			} elseif (is_a($result, '\mm\Media\Process\Generic')) {
 				$media = $result;
 			}
 		}

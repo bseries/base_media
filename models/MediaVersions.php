@@ -12,8 +12,7 @@
 
 namespace cms_media\models;
 
-use \Mime_Type;
-use \Media_Process;
+use mm\Mime\Type;
 use lithium\analysis\Logger;
 use OutOfBoundsException;
 
@@ -35,16 +34,16 @@ class MediaVersions extends \cms_core\models\Base {
 
 	public static function generateTargetUrl($source, $version) {
 		$base = static::base('file') . '/' . $version;
-		$instructions = static::assembly(Mime_Type::guessName($source), $version);
+		$instructions = static::assembly(Type::guessName($source), $version);
 
 		if (isset($instructions['clone'])) {
 			// Guess from source filename or contents.
-			$extension = Mime_Type::guessExtension($source);
+			$extension = Type::guessExtension($source);
 		} else {
 			// Instead of re-using the extension from source we have to take
 			// the target extension into account as the target maybe converted;
 			// we guess from the MIME type as this is fastest.
-			$extension = Mime_Type::guessExtension($instructions['convert']);
+			$extension = Type::guessExtension($instructions['convert']);
 		}
 		return static::_uniqueUrl($base, $extension, ['exists' => true]);
 	}
@@ -107,8 +106,8 @@ MediaVersions::applyFilter('save', function($self, $params, $chain) {
 	if ($entity->can('checksum')) {
 		$entity->checksum = $entity->calculateChecksum();
 	}
-	$entity->type      = Mime_Type::guessName($entity->url);
-	$entity->mime_type = Mime_Type::guessType($entity->url);
+	$entity->type      = Type::guessName($entity->url);
+	$entity->mime_type = Type::guessType($entity->url);
 
 	return $chain->next($self, $params, $chain);
 });

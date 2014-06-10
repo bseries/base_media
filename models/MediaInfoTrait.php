@@ -12,12 +12,12 @@
 
 namespace cms_media\models;
 
-use \Media_Info;
+use mm\Media\Info;
 
 trait MediaInfoTrait {
 
 	public function info($entity, $name = null) {
-		$media = Media_Info::factory(['source' => $entity->url('file')]);
+		$media = Info::factory(['source' => $entity->url('file')]);
 
 		if ($name) {
 			return $media->get($name);
