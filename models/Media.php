@@ -13,7 +13,7 @@
 namespace cms_media\models;
 
 use Exception;
-use \Mime_Type;
+use mm\Mime\Type;
 use cms_media\models\MediaVersions;
 use cms_media\models\MediaAttachments;
 use lithium\analysis\Logger;
@@ -188,7 +188,7 @@ class Media extends \cms_core\models\Base {
 	// determining the correct extension of the file.
 	public static function generateTargetUrl($source) {
 		$base      = static::base('file');
-		$extension = Mime_Type::guessExtension($source);
+		$extension = Type::guessExtension($source);
 
 		return static::_uniqueUrl($base, $extension, ['exists' => true]);
 	}
@@ -214,8 +214,8 @@ Media::applyFilter('save', function($self, $params, $chain) {
 		$entity->checksum = $entity->calculateChecksum();
 	}
 
-	$entity->type = $entity->can('type') ?: Mime_Type::guessName($entity->url);
-	$entity->mime_type = $entity->can('mime_type') ?: Mime_Type::guessType($entity->url);
+	$entity->type = $entity->can('type') ?: Type::guessName($entity->url);
+	$entity->mime_type = $entity->can('mime_type') ?: Type::guessType($entity->url);
 
 	return $chain->next($self, $params, $chain);
 });
