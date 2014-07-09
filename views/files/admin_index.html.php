@@ -14,14 +14,18 @@ $this->set([
 	<section class="grid-row">
 		<h1 class="h-gamma"><?= $t('Upload') ?></h2>
 		<?= $this->form->create(null, ['type' => 'file']) ?>
-			<?=  $this->form->field('transfer.form', [
+			<?=  $this->form->field('form', [
 				'type' => 'file',
 				'label' => $t('(a) File (from computer)'),
 				'value' => false
 			]) ?>
-			<?= $this->form->field('transfer.url', [
+			<?= $this->form->field('url', [
 				'type' => 'text',
 				'label' => $t('(b) File (URL)')
+			]) ?>
+			<?= $this->form->field('vimeo_id', [
+				'type' => 'text',
+				'label' => $t('(c) Vimeo ID')
 			]) ?>
 		<?= $this->form->button($t('upload'), ['type' => 'submit', 'class' => 'button large save']) ?>
 		<?= $this->form->end() ?>
