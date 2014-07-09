@@ -122,43 +122,6 @@ MediaVersions::registerScheme('file', [
 	}
 ]);
 
-// Configure processing of media.
-
-Process::config([
-	'audio' => 'SoxShell',
-	'document' => 'Imagick',
-	'image' => 'Imagick',
-	'video' => 'FfmpegShell'
-]);
-Info::config([
-	'document' => ['Imagick'],
-	'image' => ['ImageBasic', 'Imagick']
-]);
-
-// Workaround beacause we do not have mm added to libraries, yet.
-$sRGB = Libraries::get('app', 'path') . '/libraries/davidpersson/mm/data/sRGB_IEC61966-2-1_black_scaled.icc';
-
-// Base static versions.
-$fix = [
-	'convert' => 'image/png',
-	'compress' => 5.5,
-	'colorProfile' => $sRGB,
-	'colorDepth' => 8
-];
-$fix2 = [ // Used in journal index and partially in view.
-	'strip' => ['8bim', 'app1', 'app12'],
-	'fit' => [500, 500]
-];
-$fix3 = [ // Used in admin.
-	'strip' => ['xmp', '8bim', 'app1', 'app12', 'exif'],
-	'fit' => [100, 52]
-];
-
-MediaVersions::registerAssembly('document', 'fix2admin', $fix2 + $fix);
-MediaVersions::registerAssembly('document', 'fix3admin', $fix3 + $fix);
-MediaVersions::registerAssembly('image', 'fix2admin', $fix2 + $fix);
-MediaVersions::registerAssembly('image', 'fix3admin', $fix3 + $fix);
-
 // Wire cute handler to make function.
 Handlers::register('MediaVersions::make', function($id) {
 	MediaVersions::pdo()->beginTransaction();
@@ -171,5 +134,101 @@ Handlers::register('MediaVersions::make', function($id) {
 	MediaVersions::pdo()->rollback();
 	return false;
 });
+
+
+// Configure processing of media.
+Process::config([
+	'audio' => 'SoxShell',
+	'document' => 'Imagick',
+	'image' => 'Imagick',
+	'video' => 'FfmpegShell'
+]);
+Info::config([
+	'document' => ['Imagick'],
+	'image' => ['ImageBasic', 'Imagick']
+]);
+
+//
+// ### Media Version Assemblies
+//
+// Defines the instructions for each version. The convention is
+// to use _flux_ as a prefix for all timebased media and _fix_
+// as a prefix for all static versions. For each flux and fixed
+// version there are multiple variants. Best quality versions
+// i.e. contain a 0 whereas `fix3` would denote a static version
+// with lower quality or size. `flux0` is always a closed format
+// and `flux1` of open format.
+//
+// Here we define only the admin versions as we don't want
+// the app versions to interfer with the admin.
+//
+
+$sRGB = Libraries::get('app', 'path');
+$sRGB . '/libraries/davidpersson/mm/data/sRGB_IEC61966-2-1_black_scaled.icc';
+
+$fix = [
+	'convert' => 'image/png',
+	'compress' => 5.5,
+	'colorProfile' => $sRGB,
+	'colorDepth' => 8
+];
+$fluxAudio = [
+	'sampleRate' => 48000,
+	'channels' => 2
+];
+$fluxVideo = [
+	'fit' => [680, 470], // 1280x720 hd, 640x480, 680x470
+	'threads' => 2, // 0 to auto-select number of threads
+	'ar' => 48000,
+	// 'faststart' => true
+];
+
+MediaVersions::registerAssembly('document', 'fix2admin', [
+	'strip' => ['8bim', 'app1', 'app12'],
+	'fit' => [500, 500]
+] + $fix);
+MediaVersions::registerAssembly('document', 'fix3admin', [
+	'strip' => ['xmp', '8bim', 'app1', 'app12', 'exif'],
+	'fit' => [100, 52]
+] + $fix);
+MediaVersions::registerAssembly('document', 'flux0admin', [
+	'clone' => 'symlink'
+]);
+MediaVersions::registerAssembly('image', 'fix2admin', [
+	'strip' => ['8bim', 'app1', 'app12'],
+	'fit' => [500, 500]
+] + $fix);
+MediaVersions::registerAssembly('image', 'fix3admin', [
+	'strip' => ['xmp', '8bim', 'app1', 'app12', 'exif'],
+	'fit' => [100, 52]
+] + $fix);
+MediaVersions::registerAssembly('audio', 'flux0admin', [
+	'convert' => 'audio/mpeg'
+] + $fluxAudio);
+MediaVersions::registerAssembly('audio', 'flux1admin', [
+	'convert' => 'audio/ogg'
+] + $fluxAudio);
+MediaVersions::registerAssembly('video', 'flux0admin', [
+	'convert' => 'video/mp4',
+	'codec:a' => 'libfaac',
+	'codec:v' => 'libx264',
+	'vpre' => 'libx264-ipod640',
+	'b:a' => '192k',
+	'b:v' => '512k'
+] + $fluxVideo);
+MediaVersions::registerAssembly('video', 'flux1admin', [
+	'convert' => 'video/webm',
+	'codec:v' => 'libvpx',
+	'threads' => 2, // must come after codec:v
+	'b:v' => '1024k', // video bitrate
+	'maxrate' => '1024k',
+	'bufsize' => '2048k', // twice the maxrate, overshooting
+	'qmin' => 10, // fixing broken behavior since ffmpeg 0.9
+	'qmax' => 42, // -- * --
+	'quality' => 'good', // rec. good in combination with cpu-used 0
+	'cpu-used' => 0, // speed for quality, lower = better quality
+	'codec:a' => 'libvorbis',
+	'b:a' => '192k' // audio bitrate
+] + $fluxVideo);
 
 ?>
