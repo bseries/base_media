@@ -153,7 +153,21 @@ class Media extends \cms_core\models\Base {
 			if (!$version->save()) {
 				return false;
 			}
-			$job = new Job(static::$_cuteConnection);
+			$isFix = strpos($version->version, 'fix') !== false;
+
+			$job = new Job(static::$_cuteConnection, [
+				// Allow this to be connection less.
+				'fallback' => true,
+
+				// Separate queues for fix and flux.
+				'queue' => $isFix ? 'fix' : 'flux',
+
+				// Make thumbnails avaialble once we return from here.
+				'wait' => strpos($version->version, 'fix3') !== false,
+
+				// Videos need much more time to transcode (max 1h).
+				'ttr' => $isFix ? 60 * 5 : 60 * 60
+			]);
 
 			if (!$job->run('MediaVersions::make', $version->id)) {
 				$message  = "Failed enqueuing `MediaVersions::make`";
