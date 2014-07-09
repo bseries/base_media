@@ -19,6 +19,9 @@
         "unionofrad/lithium": "dev-dev",
         "composer/installers": "~1.0"
     },
+    "suggests": {
+      "beanstalkd": "Enables async processing when uploading media."
+    },
     "repositories": [
       {
         "type": "vcs",
