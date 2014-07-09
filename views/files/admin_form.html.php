@@ -26,26 +26,28 @@ $edit = $this->request()->params['action'] == 'edit';
 		</div>
 
 		<div class="grid-row grid-row-last">
-			<h1 class="h-gamma"><?= $t('Versions') ?></h1>
+			<?php $versions = $item->versions() ?>
+			<h1 class="h-gamma">
+				<?= $t('Versions') ?>
+				<span class="count"><?= $versions->count() ?></span>
+			</h1>
 			<table>
 				<thead>
 					<tr>
 						<td><?= $t('Version') ?>
 						<td><?= $t('URL') ?>
-						<td><?= $t('Status') ?>
 						<td><?= $t('MIME-Type') ?>
+						<td><?= $t('Status') ?>
 						<td class="actions">
 				</thead>
-			<?php foreach ($item->versions() as $version): ?>
+			<?php foreach ($versions as $version): ?>
 				<tr>
 					<td class="emphasize"><?= $version->version ?>
 					<td><?= $version->url ?>
-					<td><?= $version->status ?>
 					<td><?= $version->mime_type ?>
+					<td><?= $version->status ?>
 					<td class="actions">
-						<?php if ($version->url): ?>
-							<?= $this->html->link($t('open'), $this->media->url($version), ['class' => 'button']) ?>
-						<?php endif ?>
+						<?= $this->html->link($t('open'), $this->media->url($version), ['class' => 'button']) ?>
 			<?php endforeach ?>
 			</table>
 		</div>
