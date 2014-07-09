@@ -19,6 +19,7 @@ use cms_media\models\MediaAttachments;
 use lithium\analysis\Logger;
 use Cute\Job;
 use Cute\Connection;
+use lithium\util\Collection;
 
 class Media extends \cms_core\models\Base {
 
@@ -96,7 +97,7 @@ class Media extends \cms_core\models\Base {
 		if (isset($this->_cachedVersions[$entity->id][$version])) {
 			return $this->_cachedVersions[$entity->id][$version];
 		}
-		return $this->_cachedVersions[$entity->id][$version] = MediaVersions::first([
+		return MediaVersions::first([
 			'conditions' => [
 				'media_id' => $entity->id,
 				'version' => $version
@@ -111,13 +112,14 @@ class Media extends \cms_core\models\Base {
 		$data = MediaVersions::all([
 			'conditions' => [
 				'media_id' => $entity->id
-			]
+			],
+			'order' => ['version' => 'ASC']
 		]);
 		$results = [];
 		foreach ($data as $item) {
 			$results[$item->version] = $item;
 		}
-		return $this->_cachedVersions[$entity->id] = $results;
+		return $this->_cachedVersions[$entity->id] = new Collection(['data' => $results]);
 	}
 
 	public function makeVersions($entity) {
