@@ -163,8 +163,8 @@ Info::config([
 // the app versions to interfer with the admin.
 //
 
-$sRGB = Libraries::get('app', 'path');
-$sRGB . '/libraries/davidpersson/mm/data/sRGB_IEC61966-2-1_black_scaled.icc';
+$sRGB  = Libraries::get('app', 'path');
+$sRGB .= '/libraries/davidpersson/mm/data/sRGB_IEC61966-2-1_black_scaled.icc';
 
 $fix = [
 	'convert' => 'image/png',
