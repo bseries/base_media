@@ -123,10 +123,10 @@ MediaVersions::registerScheme('file', [
 ]);
 
 // Wire cute handler to make function.
-Handlers::register('MediaVersions::make', function($id) {
+Handlers::register('MediaVersions::make', function($data) {
 	MediaVersions::pdo()->beginTransaction();
 
-	if (MediaVersions::make($id)) {
+	if (MediaVersions::make($data['mediaId'], $data['version'])) {
 		MediaVersions::pdo()->commit();
 		return true;
 	}

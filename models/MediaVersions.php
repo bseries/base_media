@@ -104,45 +104,72 @@ class MediaVersions extends \cms_core\models\Base {
 
 	// Will (re-)generate version from source and return target path on success.
 	// Will be called from the cute handler. Registered in `config/media.php`.
-	public static function make($id) {
-		$entity = static::find('first', ['conditions' => ['id' => $id]]);
-		if (!$entity) {
+	public static function make($mediaId, $version) {
+		$parent = Media::find('first', ['conditions' => ['id' => $mediaId]]);
+
+		if (!$parent) {
+			Logger::debug("Parent Media `{$mediaId}` seems gone.");
 			return false;
 		}
 
-		// Uses the parent's url as the version's source. Also allows us
-		// to call url methods like `scheme()` on us.
-		$entity->url = $entity->media()->url;
+		if ($parent->can('relative')) {
+			// Make all URLs absolute if not already absolute. File URLs
+			// come in in relative form.
+			$parent->url = Media::absoluteUrl($parent->url);
+		}
 
+		$entity = static::create([
+			'media_id' => $parent->id,
+			// Uses the parent's url as the version's source. Also allows us
+			// to call url methods like `scheme()` on us.
+			'url' => $parent->url,
+			'version' => $version,
+			'status' => 'processing'
+			// Versions don't have an user id as their records are
+			// already associated with a media_file record an thus
+			// indirectly carry an user id.
+		]);
 		Logger::debug("Trying to make version `{$entity->version}` of `{$entity->url}`.");
 
 		if (!$handler = static::$_schemes[$entity->scheme()]['make']) {
 			throw new Exception('Unhandled make for entity with scheme `' . $entity->scheme() . '`');
 		}
-		$entity->updateStatus('processing');
 
 		try {
 			$result = $handler($entity);
 		} catch (Exception $e) {
 			$message  = "Failed making version `{$entity->version}` of `{$entity->url}` with:";
 			$message .= $e->getMessage();
-			Logger::debug($message);
+			Logger::notice($message);
 
-			$entity->updateStatus('error');
+			$entity->status = 'error';
+			$entity->url = null;
+			$entit->save();
+
 			return false;
 		}
-		if (!$result) {
+		if ($result === false) {
 			$message = "Failed making version `{$entity->version}` of `{$entity->url}`.";
-			Logger::debug($message);
+			Logger::notice($message);
 
-			$entity->updateStatus('error');
+			$entity->status = 'error';
+			$entity->url = null;
+			$entit->save();
+
 			return false;
+		}
+		if ($result === null) {
+			$message = "Skipping making version `{$entity->version}` of `{$entity->url}`.";
+			Logger::debug($message);
+			return true;
 		}
 		$message = "Made version `{$entity->version}` of `{$entity->url}` target is `{$result}`.";
 		Logger::debug($message);
 
-		$entity->updateStatus('processed');
-		return $entity->save(['url' => $result]);
+		$entity->url = $result;
+		$entity->status = 'processed';
+
+		return $entity->save();
 	}
 
 	public function updateStatus($entity, $status) {

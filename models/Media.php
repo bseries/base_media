@@ -42,9 +42,7 @@ class Media extends \cms_core\models\Base {
 	protected static $_cuteConnection;
 
 	public static function init() {
-		static::$_cuteConnection = new Connection([
-			'scope' => PROJECT_NAME
-		]);
+		static::$_cuteConnection = new Connection(null, PROJECT_NAME);
 	}
 
 	// @fixme Make this part of higher Media/settings abstratiction.
@@ -130,34 +128,15 @@ class Media extends \cms_core\models\Base {
 			throw new Exception('Entity has no URL.');
 		}
 
-		// Make all URLs absolute if not already absolute. File URLs
-		// come in here in relative form.
-		if ($entity->can('relative')) {
-			$entity->url = static::absoluteUrl($entity->url);
-		}
-
 		// Fetch versions we need to make. We're assembling all
 		// possible version strings as we don't know if a certain
 		// version applies for an entity. This decicison is made late
 		// in the scheme make handler.
 		foreach (MediaVersions::assemblyVersions() as $version) {
-			// Insert possible version into database, even if this will
-			// never be "made". Helpers should consider a version record
-			// as non-existent if it doesn't have an url.
-			$version = MediaVersions::create([
-				'media_id' => $entity->id,
-				'url' => null, // Will be set once version is made.
-				'version' => $version
-				// Versions don't have an user id as their records are
-				// already associated with a media_file record an thus
-				// indirectly carry an user id.
-			]);
-			if (!$version->save()) {
-				return false;
-			}
-			$isFix = strpos($version->version, 'fix') !== false;
+			$isFix = strpos($version, 'fix') !== false;
 
-			$job = new Job(static::$_cuteConnection, [
+			$job = new Job(static::$_cuteConnection);
+			$options = [
 				// Allow this to be connection less.
 				'fallback' => true,
 
@@ -165,15 +144,22 @@ class Media extends \cms_core\models\Base {
 				'queue' => $isFix ? 'fix' : 'flux',
 
 				// Make thumbnails avaialble once we return from here.
-				'wait' => strpos($version->version, 'fix3') !== false,
+				'wait' => strpos($version, 'fix3') !== false,
 
 				// Videos need much more time to transcode (max 1h).
 				'ttr' => $isFix ? 60 * 5 : 60 * 60
-			]);
-
-			if (!$job->run('MediaVersions::make', $version->id)) {
+			];
+			try {
+				// Provide all required data to create a valid
+				// media version object later.
+				$job->run('MediaVersions::make', [
+					'mediaId' => $entity->id,
+					'version' => $version
+				], $options);
+			} catch (Exception $e) {
 				$message  = "Failed enqueuing `MediaVersions::make`";
-				$message .= " job for media version id `{$version->id}`.";
+				$message .= " job for media version id `{$version->id}` exception message was: ";
+				$message .= $e->getMessage();
 				Logger::notice($message);
 
 				return false;
