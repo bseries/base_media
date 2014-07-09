@@ -41,7 +41,9 @@ class Media extends \cms_core\models\Base {
 	protected static $_cuteConnection;
 
 	public static function init() {
-		static::$_cuteConnection = new Connection();
+		static::$_cuteConnection = new Connection([
+			'scope' => PROJECT_NAME
+		]);
 	}
 
 	// @fixme Make this part of higher Media/settings abstratiction.
