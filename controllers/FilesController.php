@@ -46,25 +46,7 @@ class FilesController extends \cms_core\controllers\BaseController {
 	}
 
 	public function admin_api_transfer() {
-		if (!empty($this->request->data['url'])) {
-			$source = $this->request->data['url'];
-			$title = basename($source);
-		} elseif (!empty($this->request->data['vimeo_id'])) {
-			// @todo Use Transfer handlers.
-			$source = 'vimeo://' . $this->request->data['vimeo_id'];
-			$title = Vimeo::first($this->request->data['vimeo_id'])->title;
-		} else {
-			if (!$source = fopen('php://input', 'rb')) {
-				throw new InternalServerError();
-			}
-			$temporary = 'file://' . Temporary::file(['context' => 'upload']);
-
-			file_put_contents($temporary, $source);
-			fclose($source);
-
-			$source = $temporary;
-			$title = $this->request->query['title'];
-		}
+		list($source, $title) = $this->_handleTransferRequest();
 
 		$file = Media::create([
 			'url' => $source,
@@ -98,16 +80,38 @@ class FilesController extends \cms_core\controllers\BaseController {
 		return $result;
 	}
 
+	protected function _handleTransferRequest() {
+		if (!empty($this->request->data['url'])) {
+			$source = $this->request->data['url'];
+			$title = basename($source);
+		} elseif (!empty($this->request->data['vimeo_id'])) {
+			// @todo Use Transfer handlers.
+			$source = 'vimeo://' . $this->request->data['vimeo_id'];
+			$title = Vimeo::first($this->request->data['vimeo_id'])->title;
+
+		} elseif (!empty($this->request->data['form']['tmp_name'])) {
+			$source = 'file://' . $this->request->data['form']['tmp_name'];
+			$title = $this->request->data['form']['name'];
+		} else {
+			if (!$source = fopen('php://input', 'rb')) {
+				throw new InternalServerError();
+			}
+			$temporary = 'file://' . Temporary::file(['context' => 'upload']);
+
+			file_put_contents($temporary, $source);
+			fclose($source);
+
+			$source = $temporary;
+			$title = $this->request->query['title'];
+		}
+		return [$source, $title];
+	}
+
 	public function admin_index() {
 		// Handle transfer via URL or form uplaod.
 		if ($this->request->data) {
-			if ($this->request->data['transfer']['url']) {
-				$source = $this->request->data['transfer']['url'];
-				$title = basename($source);
-			} else {
-				$source = 'file://' . $this->request->data['transfer']['form']['tmp_name'];
-				$title = $this->request->data['transfer']['form']['name'];
-			}
+			list($source, $title) = $this->_handleTransferRequest();
+
 			$file = Media::create([
 				'url' => $source,
 				'title' => $title,
@@ -116,10 +120,12 @@ class FilesController extends \cms_core\controllers\BaseController {
 				// only.
 			]);
 
-			if (parse_url($file->url, PHP_URL_SCHEME) != 'file') {
+			if ($file->can('download')) {
 				$file->url = $file->download();
 			}
-			$file->url = $file->transfer();
+			if ($file->can('transfer')) {
+				$file->url = $file->transfer();
+			}
 
 			$file->save();
 			$file->makeVersions();
