@@ -152,7 +152,11 @@ class MediaVersions extends \cms_core\models\Base {
 
 MediaVersions::applyFilter('save', function($self, $params, $chain) {
 	$entity = $params['entity'];
+	$whitelist = $params['options']['whitelist'];
 
+	if ($whitelist && !in_array('url', (array) $whitelist)) {
+		return $chain->next($self, $params, $chain);
+	}
 	if (!$entity->url || (!$entity->modified('url') && $entity->exists())) {
 		return $chain->next($self, $params, $chain);
 	}
@@ -169,7 +173,11 @@ MediaVersions::applyFilter('save', function($self, $params, $chain) {
 // Make URL relative before saving.
 MediaVersions::applyFilter('save', function($self, $params, $chain) {
 	$entity = $params['entity'];
+	$whitelist = $params['options']['whitelist'];
 
+	if ($whitelist && !in_array('url', (array) $whitelist)) {
+		return $chain->next($self, $params, $chain);
+	}
 	if ($entity->url && $entity->modified('url') && $entity->can('relative')) {
 		$entity->url = MediaVersions::relativeUrl($entity->url);
 	}
