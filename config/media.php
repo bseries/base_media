@@ -81,7 +81,7 @@ MediaVersions::registerScheme('file', [
 
 		// There may i.e. not be a flux0 version for an image type.
 		if (!$instructions = MediaVersions::assembly($media->name(), $entity->version)) {
-			throw new Exception('No instructions.');
+			return null; // Skip.
 		};
 
 		if (!is_dir(dirname($target))) {
