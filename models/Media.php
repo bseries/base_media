@@ -17,6 +17,8 @@ use mm\Mime\Type;
 use cms_media\models\MediaVersions;
 use cms_media\models\MediaAttachments;
 use lithium\analysis\Logger;
+use Cute\Job;
+use Cute\Connection;
 
 class Media extends \cms_core\models\Base {
 
@@ -35,6 +37,12 @@ class Media extends \cms_core\models\Base {
 	protected $_cachedVersions = [];
 
 	protected static $_dependent = [];
+
+	protected static $_cuteConnection;
+
+	public static function init() {
+		static::$_cuteConnection = new Connection();
+	}
 
 	// @fixme Make this part of higher Media/settings abstratiction.
 	public static function registerDependent($model, array $bindings) {
@@ -118,40 +126,38 @@ class Media extends \cms_core\models\Base {
 			throw new Exception('Entity has no URL.');
 		}
 
-		$versions = [];
-		foreach (MediaVersions::assembly(true) as $type => $item) {
-			$versions = array_merge($versions, array_keys($item));
-		}
-		$versions = array_unique($versions);
-		sort($versions);
-
-		// File URLs come in here in relative form.
+		// Make all URLs absolute if not already absolute. File URLs
+		// come in here in relative form.
 		if ($entity->can('relative')) {
 			$entity->url = static::absoluteUrl($entity->url);
 		}
 
-		foreach ($versions as $version) {
+		// Fetch versions we need to make. We're assembling all
+		// possible version strings as we don't know if a certain
+		// version applies for an entity. This decicison is made late
+		// in the scheme make handler.
+		foreach (MediaVersions::assemblyVersions() as $version) {
+			// Insert possible version into database, even if this will
+			// never be "made". Helpers should consider a version record
+			// as non-existent if it doesn't have an url.
 			$version = MediaVersions::create([
 				'media_id' => $entity->id,
-				'url' => $entity->url,
+				'url' => null, // Will be set once version is made.
 				'version' => $version
-				// Versions don't have an user id as their records are already
-				// associated with a media_file record an thus indirectly carry an user
-				// id.
+				// Versions don't have an user id as their records are
+				// already associated with a media_file record an thus
+				// indirectly carry an user id.
 			]);
-			$target = $version->make();
-
-			// @fixme Use exceptions inside make handlers?
-			if ($target === false) {
-				Logger::debug("Failed to make media version `{$version}`.");
-				return false;
-			} elseif ($target === null) {
-				// Skipped version.
-				continue;
-			}
-			$version->url = $target;
-
 			if (!$version->save()) {
+				return false;
+			}
+			$job = new Job(static::$_cuteConnection);
+
+			if (!$job->run('MediaVersions::make', $version->id)) {
+				$message  = "Failed enqueuing `MediaVersions::make`";
+				$message .= " job for media version id `{$version->id}`.";
+				Logger::notice($message);
+
 				return false;
 			}
 		}
@@ -202,6 +208,8 @@ class Media extends \cms_core\models\Base {
 		}
 	}
 }
+
+Media::init();
 
 // Filter running before saving.
 Media::applyFilter('save', function($self, $params, $chain) {

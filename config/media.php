@@ -10,27 +10,29 @@
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 
-use mm\Media\Process;
-use mm\Media\Info;
 use cms_media\models\Media;
 use cms_media\models\MediaVersions;
 use lithium\core\Libraries;
-
-Process::config([
-	// 'audio' => 'SoxShell',
-	'document' => 'Imagick',
-	'image' => 'Imagick',
-	// 'video' => 'FfmpegShell'
-]);
-Info::config([
-	'document' => ['Imagick'],
-	'image' => ['ImageBasic', 'Imagick']
-]);
+use mm\Media\Process;
+use mm\Media\Info;
+use Cute\Handlers;
 
 // Registers Media and MediaVersions schemes. The `base` key of each
 // scheme is intentionally left unset. This must be added by the app
 // as we cannot provide sane defaults here.
+//
+// @see cms_media\models\Media::registerScheme()
+// @see cms_media\models\MediaVersions::registerScheme()
 
+// Original media files are not accessible through the web
+// directly - security reasons. That's why we don't give
+// a `base` here. Always download http sources.
+Media::registerScheme('http', [
+	'download' => true
+]);
+Media::registerScheme('https', [
+	'download' => true
+]);
 Media::registerScheme('file', [
 	'relative' => true,
 	'checksum' => true,
@@ -38,39 +40,37 @@ Media::registerScheme('file', [
 	'delete' => true
 ]);
 
-// Original media files are not accessible through the web
-// directly - security reasons. That's why we don't give
-// a `base` here.
-Media::registerScheme('http', [
-	'download' => true
-]);
-Media::registerScheme('https', [
-	'download' => true
-]);
-
+// ### Media Version Schemes
+//
 // When http/https URLs get here, the resources behind them
 // are not downloaded or processed in any way. They are
 // linked to.
 //
-// This is useful when you have a remote entity as the `Media`
-// i.e. (a vimeo video) that already comes with pregenerated
-// versions (posters, images) that are similar to the versions
-// that would normally be generated using the instructions and
-// you just want to use them by roughly mapping to their
-// instructed versions.
+// FIXME Clarify if http media versions are downloaded or not.
 //
-// That's why linked versions must _not_ necessarily adhere to
-// the constraints specified in the instructions.
+// ### Media Version Make Handlers
+//
+// Handlers will generate a version off the passed entity. They must
+// either return `true`/`false` to indicate success/failure or return
+// `null` to indicate that the version doesn't need to be made.
+//
+// Returning `null` will effectively link the version. This is useful
+// when you have a remote entity as the `Media` i.e. (a vimeo video)
+// that already comes with pregenerated versions (posters, images)
+// that are similar to the versions that would normally be generated
+// using the instructions and you just want to use them by roughly
+// mapping to their instructed versions.
+//
+// The handler gets passed a MediaVersion entity and must then retrieve
+// instructions via MediaVersions::assembly(). These instructions should
+// then be used to generate a version.
+//
 MediaVersions::registerScheme('http', [
 	'download' => true
 ]);
 MediaVersions::registerScheme('https', [
 	'download' => true
 ]);
-
-// Processe a local file an generates versions according
-// to instructions. The resulting versions will adhere to
-// the constraints specified in the instructions.
 MediaVersions::registerScheme('file', [
 	'relative' => true,
 	'checksum' => true,
@@ -79,9 +79,9 @@ MediaVersions::registerScheme('file', [
 		$media = Process::factory(['source' => $entity->url]);
 		$target = MediaVersions::generateTargetUrl($entity->url, $entity->version);
 
-		// There may not be a flux0 version for an image type.
+		// There may i.e. not be a flux0 version for an image type.
 		if (!$instructions = MediaVersions::assembly($media->name(), $entity->version)) {
-			return null;
+			throw new Exception('No instructions.');
 		};
 
 		if (!is_dir(dirname($target))) {
@@ -122,6 +122,19 @@ MediaVersions::registerScheme('file', [
 	}
 ]);
 
+// Configure processing of media.
+
+Process::config([
+	'audio' => 'SoxShell',
+	'document' => 'Imagick',
+	'image' => 'Imagick',
+	'video' => 'FfmpegShell'
+]);
+Info::config([
+	'document' => ['Imagick'],
+	'image' => ['ImageBasic', 'Imagick']
+]);
+
 // Workaround beacause we do not have mm added to libraries, yet.
 $sRGB = Libraries::get('app', 'path') . '/libraries/davidpersson/mm/data/sRGB_IEC61966-2-1_black_scaled.icc';
 
@@ -145,5 +158,18 @@ MediaVersions::registerAssembly('document', 'fix2admin', $fix2 + $fix);
 MediaVersions::registerAssembly('document', 'fix3admin', $fix3 + $fix);
 MediaVersions::registerAssembly('image', 'fix2admin', $fix2 + $fix);
 MediaVersions::registerAssembly('image', 'fix3admin', $fix3 + $fix);
+
+// Wire cute handler to make function.
+Handlers::register('MediaVersions::make', function($id) {
+	MediaVersions::pdo()->beginTransaction();
+
+	if (MediaVersions::make($id)) {
+		MediaVersions::pdo()->commit();
+		return true;
+	}
+
+	MediaVersions::pdo()->rollback();
+	return false;
+});
 
 ?>

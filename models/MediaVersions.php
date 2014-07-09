@@ -32,6 +32,14 @@ class MediaVersions extends \cms_core\models\Base {
 
 	protected static $_instructions = [];
 
+	public static $enum = [
+		'status' => ['unknown', 'processing', 'processed', 'error']
+	];
+
+	public function media($entity) {
+		return Media::find('first', ['conditions' => ['id' => $entity->media_id]]);
+	}
+
 	public static function generateTargetUrl($source, $version) {
 		$base = static::base('file') . '/' . $version;
 		$instructions = static::assembly(Type::guessName($source), $version);
@@ -70,37 +78,70 @@ class MediaVersions extends \cms_core\models\Base {
 		return static::$_instructions[$type][$version];
 	}
 
+	// Returns all available versions.
+	public static function assemblyVersions() {
+		$versions = [];
+		foreach (static::$_instructions as $type => $item) {
+			$versions = array_merge($versions, array_keys($item));
+		}
+		$versions = array_unique($versions);
+		sort($versions);
+
+		return $versions;
+	}
+
 	// Will (re-)generate version from source and return target path on success.
-	public function make($entity) {
+	// Will be called from the cute handler. Registered in `config/media.php`.
+	public static function make($id) {
+		$entity = static::find('first', ['conditions' => ['id' => $id]]);
+		if (!$entity) {
+			return false;
+		}
+
+		// Uses the parent's url as the version's source. Also allows us
+		// to call url methods like `scheme()` on us.
+		$entity->url = $entity->media()->url;
+
 		Logger::debug("Trying to make version `{$entity->version}` of `{$entity->url}`.");
 
-		$handler = static::$_schemes[$entity->scheme()]['make'];
-
-		if (!$handler) {
+		if (!$handler = static::$_schemes[$entity->scheme()]['make']) {
 			throw new Exception('Unhandled make for entity with scheme `' . $entity->scheme() . '`');
 		}
+		$entity->updateStatus('processing');
 
 		try {
 			$result = $handler($entity);
-		} catch (\Exception $e) {
-			Logger::debug("Failed making version `{$entity->version}` of `{$entity->url}` with:" . $e->getMessage());
+		} catch (Exception $e) {
+			$message  = "Failed making version `{$entity->version}` of `{$entity->url}` with:";
+			$message .= $e->getMessage();
+			Logger::debug($message);
+
+			$entity->updateStatus('error');
 			return false;
 		}
-		if ($result === false) {
-			Logger::debug("Failed making version `{$entity->version}` of `{$entity->url}`.");
-		} elseif ($result === null) {
-			Logger::debug("Skipped making version `{$entity->version}` of `{$entity->url}`.");
-		} else {
-			Logger::debug("Made version `{$entity->version}` of `{$entity->url}` target is `{$result}`.");
+		if (!$result) {
+			$message = "Failed making version `{$entity->version}` of `{$entity->url}`.";
+			Logger::debug($message);
+
+			$entity->updateStatus('error');
+			return false;
 		}
-		return $result;
+		$message = "Made version `{$entity->version}` of `{$entity->url}` target is `{$result}`.";
+		Logger::debug($message);
+
+		$entity->updateStatus('processed');
+		return $entity->save(['url' => $result]);
+	}
+
+	public function updateStatus($entity, $status) {
+		return $entity->save(compact('status'), ['whitelist' => ['status']]);
 	}
 }
 
 MediaVersions::applyFilter('save', function($self, $params, $chain) {
 	$entity = $params['entity'];
 
-	if (!$entity->modified('url') && $entity->exists()) {
+	if (!$entity->url || (!$entity->modified('url') && $entity->exists())) {
 		return $chain->next($self, $params, $chain);
 	}
 	if ($entity->can('checksum')) {
@@ -117,7 +158,7 @@ MediaVersions::applyFilter('save', function($self, $params, $chain) {
 MediaVersions::applyFilter('save', function($self, $params, $chain) {
 	$entity = $params['entity'];
 
-	if ($entity->modified('url') && $entity->can('relative')) {
+	if ($entity->url && $entity->modified('url') && $entity->can('relative')) {
 		$entity->url = MediaVersions::relativeUrl($entity->url);
 	}
 	return $chain->next($self, $params, $chain);
@@ -126,7 +167,7 @@ MediaVersions::applyFilter('save', function($self, $params, $chain) {
 MediaVersions::applyFilter('delete', function($self, $params, $chain) {
 	$entity = $params['entity'];
 
-	if ($entity->can('delete')) {
+	if ($entity->url && $entity->can('delete')) {
 		Logger::debug("Deleting corresponding URL `{$entity->url}` of media version.");
 		$entity->deleteUrl();
 	}
