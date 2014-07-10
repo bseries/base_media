@@ -140,16 +140,28 @@ class Media extends \cms_core\models\Base {
 		foreach (MediaVersions::assemblyVersions() as $version) {
 			$isFix = strpos($version, 'fix') !== false;
 
+			$priority = Job::PRIORITY_NORMAL;
+			if (preg_match('/fix([0-9]{1})(admin)?/', $version, $matches)) {
+
+				if (isset($matches[2])) {
+					$priority = Job::PRIORITY_NORMAL - ($matches[1] * 2);
+				} else {
+					$priority = Job::PRIORITY_NORMAL - $matches[1];
+				}
+			}
+
 			$job = new Job(static::$_cuteConnection);
 			$options = [
 				// Allow this to be connection less.
-				// 'fallback' => true,
+				'fallback' => true,
 
 				// Separate queues for fix and flux.
 				'queue' => $isFix ? 'fix' : 'flux',
 
 				// Make thumbnails avaialble once we return from here.
-				// 'wait' => strpos($version, 'fix3') !== false,
+				'wait' => strpos($version, 'fix3') !== false,
+
+				'priority' => $priority,
 
 				// Videos need much more time to transcode (max 1h).
 				'ttr' => $isFix ? 60 * 5 : 60 * 60
