@@ -186,22 +186,22 @@ $fluxVideo = [
 	// 'faststart' => true
 ];
 
-MediaVersions::registerAssembly('document', 'fix2admin', [
+MediaVersions::registerAssembly('document', 'fix2admin', $fix + [
 	'strip' => ['8bim', 'app1', 'app12'],
 	'fit' => [500, 500]
-] + $fix);
-MediaVersions::registerAssembly('document', 'fix3admin', [
+]);
+MediaVersions::registerAssembly('document', 'fix3admin', $fix + [
 	'strip' => ['xmp', '8bim', 'app1', 'app12', 'exif'],
 	'fit' => [100, 52]
-] + $fix);
+]);
 MediaVersions::registerAssembly('document', 'flux0admin', [
 	'clone' => 'symlink'
 ]);
-MediaVersions::registerAssembly('image', 'fix2admin', [
+MediaVersions::registerAssembly('image', 'fix2admin', $fix + [
 	'strip' => ['8bim', 'app1', 'app12'],
 	'fit' => [500, 500]
-] + $fix);
-MediaVersions::registerAssembly('image', 'fix3admin', [
+]);
+MediaVersions::registerAssembly('image', 'fix3admin', $fix + [
 	'strip' => ['xmp', '8bim', 'app1', 'app12', 'exif'],
 	'fit' => [100, 52]
 ] + $fix);
@@ -218,15 +218,15 @@ MediaVersions::registerAssembly('video', 'fix2admin',
 MediaVersions::registerAssembly('video', 'fix3admin',
 	MediaVersions::assembly('image', 'fix3admin')
 );
-MediaVersions::registerAssembly('video', 'flux0admin', [
+MediaVersions::registerAssembly('video', 'flux0admin', $fluxVideo + [
 	'convert' => 'video/mp4',
 	'codec:a' => 'libfaac',
 	'codec:v' => 'libx264',
 	'vpre' => 'libx264-ipod640',
 	'b:a' => '192k',
 	'b:v' => '512k'
-] + $fluxVideo);
-MediaVersions::registerAssembly('video', 'flux1admin', [
+]);
+MediaVersions::registerAssembly('video', 'flux1admin', $fluxVideo + [
 	'convert' => 'video/webm',
 	'codec:v' => 'libvpx',
 	'threads' => 2, // must come after codec:v
@@ -239,6 +239,6 @@ MediaVersions::registerAssembly('video', 'flux1admin', [
 	'cpu-used' => 0, // speed for quality, lower = better quality
 	'codec:a' => 'libvorbis',
 	'b:a' => '192k' // audio bitrate
-] + $fluxVideo);
+]);
 
 ?>
