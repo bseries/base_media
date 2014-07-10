@@ -211,6 +211,13 @@ MediaVersions::registerAssembly('audio', 'flux0admin', [
 MediaVersions::registerAssembly('audio', 'flux1admin', [
 	'convert' => 'audio/ogg'
 ] + $fluxAudio);
+
+MediaVersions::registerAssembly('video', 'fix2admin',
+	MediaVersions::assembly('image', 'fix2admin')
+);
+MediaVersions::registerAssembly('video', 'fix3admin',
+	MediaVersions::assembly('image', 'fix3admin')
+);
 MediaVersions::registerAssembly('video', 'flux0admin', [
 	'convert' => 'video/mp4',
 	'codec:a' => 'libfaac',
