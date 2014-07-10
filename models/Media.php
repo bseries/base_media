@@ -44,13 +44,14 @@ class Media extends \cms_core\models\Base {
 
 	protected static $_cuteConnection;
 
-	public static function init() {
-		if (Features::enabled('media.asyncProcessing')) {
+	protected static function _cuteConnection() {
+		if (!static::$_cuteConnection) {
 			$log = new MonologLogger(PROJECT_NAME);
 			$log->pushHandler(new StreamHandler(PROJECT_PATH . '/log/app.log'));
 
-			static::$_cuteConnection = new Connection($log, PROJECT_NAME);
+			return static::$_cuteConnection = new Connection($log, PROJECT_NAME);
 		}
+		return static::$_cuteConnection;
 	}
 
 	// @fixme Make this part of higher Media/settings abstratiction.
@@ -165,7 +166,7 @@ class Media extends \cms_core\models\Base {
 				}
 			}
 
-			$job = new Job(static::$_cuteConnection);
+			$job = new Job(static::_cuteConnection());
 			$options = [
 				// Allow this to be connection less.
 				'fallback' => true,
@@ -244,8 +245,6 @@ class Media extends \cms_core\models\Base {
 		}
 	}
 }
-
-Media::init();
 
 // Filter running before saving.
 Media::applyFilter('save', function($self, $params, $chain) {
