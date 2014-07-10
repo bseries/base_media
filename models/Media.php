@@ -20,6 +20,8 @@ use lithium\analysis\Logger;
 use Cute\Job;
 use Cute\Connection;
 use lithium\util\Collection;
+use Monolog\Logger as MonologLogger;
+use Monolog\Handler\StreamHandler;
 
 class Media extends \cms_core\models\Base {
 
@@ -42,7 +44,10 @@ class Media extends \cms_core\models\Base {
 	protected static $_cuteConnection;
 
 	public static function init() {
-		static::$_cuteConnection = new Connection(null, PROJECT_NAME);
+		$log = new MonologLogger(PROJECT_NAME);
+		$log->pushHandler(new StreamHandler(PROJECT_PATH . '/log/app.log'));
+
+		static::$_cuteConnection = new Connection($log, PROJECT_NAME);
 	}
 
 	// @fixme Make this part of higher Media/settings abstratiction.
