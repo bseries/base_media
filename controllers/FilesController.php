@@ -18,6 +18,7 @@ use lithium\core\Libraries;
 use temporary\Manager as Temporary;
 use lithium\analysis\Logger;
 use li3_flash_message\extensions\storage\FlashMessage;
+use Exception;
 
 // @todo Rename to media controller.
 class FilesController extends \cms_core\controllers\BaseController {
@@ -74,18 +75,22 @@ class FilesController extends \cms_core\controllers\BaseController {
 
 		if ($versions = $item->versions()) {
 			foreach ($versions as $name => $version) {
-				$result['versions'][$name]['url'] = $version->url($scheme);
+				try {
+					$result['versions'][$name]['url'] = $version->url($scheme);
+				} catch (Exception $e) {
+					Logger::notice("Failed to export media version {$version->id}.");
+				}
 			}
 		}
 		return $result;
 	}
 
+	// @fixme Use Transfer handlers.
 	protected function _handleTransferRequest() {
 		if (!empty($this->request->data['url'])) {
 			$source = $this->request->data['url'];
 			$title = basename($source);
 		} elseif (!empty($this->request->data['vimeo_id'])) {
-			// @todo Use Transfer handlers.
 			$source = 'vimeo://' . $this->request->data['vimeo_id'];
 			$title = Vimeo::first($this->request->data['vimeo_id'])->title;
 
