@@ -138,13 +138,13 @@ class Media extends \cms_core\models\Base {
 			$job = new Job(static::$_cuteConnection);
 			$options = [
 				// Allow this to be connection less.
-				'fallback' => true,
+				// 'fallback' => true,
 
 				// Separate queues for fix and flux.
 				'queue' => $isFix ? 'fix' : 'flux',
 
 				// Make thumbnails avaialble once we return from here.
-				'wait' => strpos($version, 'fix3') !== false,
+				// 'wait' => strpos($version, 'fix3') !== false,
 
 				// Videos need much more time to transcode (max 1h).
 				'ttr' => $isFix ? 60 * 5 : 60 * 60
