@@ -144,7 +144,7 @@ class MediaVersions extends \cms_core\models\Base {
 
 			$entity->status = 'error';
 			$entity->url = null;
-			$entit->save();
+			$entity->save();
 
 			return false;
 		}
@@ -154,7 +154,7 @@ class MediaVersions extends \cms_core\models\Base {
 
 			$entity->status = 'error';
 			$entity->url = null;
-			$entit->save();
+			$entity->save();
 
 			return false;
 		}
