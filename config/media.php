@@ -124,6 +124,9 @@ MediaVersions::registerScheme('file', [
 
 // Wire cute handler to make function.
 Handlers::register('MediaVersions::make', function($data) {
+	if (MediaVersions::pdo()->inTransaction()) {
+		MediaVersions::pdo()->rollback();
+	}
 	MediaVersions::pdo()->beginTransaction();
 
 	if (MediaVersions::make($data['mediaId'], $data['version'])) {
