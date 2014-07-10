@@ -22,6 +22,7 @@ use Cute\Connection;
 use lithium\util\Collection;
 use Monolog\Logger as MonologLogger;
 use Monolog\Handler\StreamHandler;
+use cms_core\extensions\cms\Features;
 
 class Media extends \cms_core\models\Base {
 
@@ -44,10 +45,12 @@ class Media extends \cms_core\models\Base {
 	protected static $_cuteConnection;
 
 	public static function init() {
-		$log = new MonologLogger(PROJECT_NAME);
-		$log->pushHandler(new StreamHandler(PROJECT_PATH . '/log/app.log'));
+		if (Features::enabled('media.asyncProcessing')) {
+			$log = new MonologLogger(PROJECT_NAME);
+			$log->pushHandler(new StreamHandler(PROJECT_PATH . '/log/app.log'));
 
-		static::$_cuteConnection = new Connection($log, PROJECT_NAME);
+			static::$_cuteConnection = new Connection($log, PROJECT_NAME);
+		}
 	}
 
 	// @fixme Make this part of higher Media/settings abstratiction.
@@ -138,6 +141,18 @@ class Media extends \cms_core\models\Base {
 		// version applies for an entity. This decicison is made late
 		// in the scheme make handler.
 		foreach (MediaVersions::assemblyVersions() as $version) {
+			if (!Features::enabled('media.asyncProcessing')) {
+				MediaVersions::pdo()->beginTransaction();
+
+				if (MediaVersions::make($entity->id, $version)) {
+					MediaVersions::pdo()->commit();
+				} else {
+					MediaVersions::pdo()->rollback();
+					return false;
+				}
+				continue;
+			}
+
 			$isFix = strpos($version, 'fix') !== false;
 
 			$priority = Job::PRIORITY_NORMAL;
