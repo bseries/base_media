@@ -13,16 +13,21 @@
 namespace cms_media\models;
 
 use mm\Media\Info;
+use Exception;
 
 trait MediaInfoTrait {
 
-	public function info($entity, $name = null) {
-		$media = Info::factory(['source' => $entity->url('file')]);
+	public function size($entity) {
+		return filesize($entity->url('file'));
+	}
 
-		if ($name) {
-			return $media->get($name);
+	public function info($entity, $name = null) {
+		try {
+			$media = Info::factory(['source' => $entity->url('file')]);
+			return $name ? $media->get($name) : $media->all();
+		} catch (Exception $e) {
+			return $name ? null : [];
 		}
-		return $media->all();
 	}
 }
 
