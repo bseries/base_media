@@ -157,7 +157,7 @@ class Media extends \cms_core\models\Base {
 			$isFix = strpos($version, 'fix') !== false;
 
 			$priority = Job::PRIORITY_NORMAL;
-			if (preg_match('/fix([0-9]{1})(admin)?/', $version, $matches)) {
+			if (preg_match('/fix([0-9]{1}).*(admin)?/', $version, $matches)) {
 
 				if (isset($matches[2])) {
 					$priority = Job::PRIORITY_NORMAL - ($matches[1] * 2);

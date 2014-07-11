@@ -205,10 +205,10 @@ MediaVersions::registerAssembly('image', 'fix3admin', $fix + [
 	'strip' => ['xmp', '8bim', 'app1', 'app12', 'exif'],
 	'fit' => [100, 52]
 ] + $fix);
-MediaVersions::registerAssembly('audio', 'flux0admin', [
+MediaVersions::registerAssembly('audio', 'flux0aadmin', [
 	'convert' => 'audio/mpeg'
 ] + $fluxAudio);
-MediaVersions::registerAssembly('audio', 'flux1admin', [
+MediaVersions::registerAssembly('audio', 'flux0badmin', [
 	'convert' => 'audio/ogg'
 ] + $fluxAudio);
 
