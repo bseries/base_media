@@ -161,6 +161,7 @@ class MediaVersions extends \cms_core\models\Base {
 		if ($result === null) {
 			$message = "Skipping making version `{$entity->version}` of `{$entity->url}`.";
 			Logger::debug($message);
+
 			return true;
 		}
 		$message = "Made version `{$entity->version}` of `{$entity->url}` target is `{$result}`.";
