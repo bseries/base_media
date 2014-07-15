@@ -5,7 +5,7 @@ $this->set([
 		'type' => 'single',
 		'title' => $item->title,
 		'empty' => $t('untitled'),
-		'object' => $t('file')
+		'object' => $t('media')
 	]
 ]);
 

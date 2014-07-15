@@ -20,8 +20,7 @@ use lithium\analysis\Logger;
 use li3_flash_message\extensions\storage\FlashMessage;
 use Exception;
 
-// @todo Rename to media controller.
-class FilesController extends \cms_core\controllers\BaseController {
+class MediaController extends \cms_core\controllers\BaseController {
 
 	protected $_model = '\cms_media\models\Media';
 

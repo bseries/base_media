@@ -10,7 +10,7 @@ $this->set([
 ]);
 
 ?>
-<article class="files-index">
+<article class="media-index">
 	<section class="grid-row">
 		<h1 class="h-gamma"><?= $t('Upload') ?></h2>
 		<?= $this->form->create(null, ['type' => 'file']) ?>
@@ -31,7 +31,7 @@ $this->set([
 		<?= $this->form->end() ?>
 	</section>
 	<section class="grid-row">
-		<h1 class="h-gamma"><?= $t('Available Files') ?></h2>
+		<h1 class="h-gamma"><?= $t('Available Media') ?></h2>
 		<?php if ($data->count()): ?>
 			<table>
 			<thead>
