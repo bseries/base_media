@@ -52,11 +52,6 @@ $edit = $this->request()->params['action'] == 'edit';
 					<td><?= $version->status ?>
 					<td class="actions">
 						<?= $this->html->link($t('open'), $this->media->url($version), ['class' => 'button']) ?>
-						<dl class="more-content">
-							<?php foreach ($version->info() as $k => $v): ?>
-								<dt><?= $k ?></dt><dd><?= $v ?></dd>
-							<?php endforeach ?>
-						</dl>
 
 			<?php endforeach ?>
 			</table>
