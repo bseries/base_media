@@ -59,8 +59,8 @@ function(
     };
 
     this.endpoints = {
-      index: '/files',
-      transfer: '/files/transfer'
+      index: '/media',
+      transfer: '/media/transfer'
     };
 
     this.templates = {

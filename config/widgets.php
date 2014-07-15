@@ -23,7 +23,7 @@ Widgets::register('cms_media', 'media', function() use ($t) {
 
 	return [
 		'url' => [
-			'controller' => 'files', 'library' => 'cms_media', 'admin' => true, 'action' => 'index'
+			'controller' => 'media', 'library' => 'cms_media', 'admin' => true, 'action' => 'index'
 		],
 		'data' => [
 			$t('Media') => $media,

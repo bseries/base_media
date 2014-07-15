@@ -29,11 +29,11 @@ function($, MediaExplorerModal) {
     this.sortable = false;
 
     this.endpoints = {
-      view: '/files/__ID__'
+      view: '/media/__ID__'
       // Not used here but passed through to ME.
-      // index: '/files',
+      // index: '/media',
       // Not used here but passed through to ME.
-      // transfer: '/files/transfer'
+      // transfer: '/media/transfer'
     };
 
     this.init = function(element, options) {

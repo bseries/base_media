@@ -20,12 +20,12 @@ Panes::registerGroup('cms_media', 'media', [
 	'order' => 20
 ]);
 
-$base = ['controller' => 'files', 'library' => 'cms_media', 'admin' => true];
+$base = ['controller' => 'media', 'library' => 'cms_media', 'admin' => true];
 Panes::registerActions('cms_media', 'media', [
 	$t('Explore') => ['action' => 'index'] + $base,
 	$t('Transfer') => ['action' => 'index'] + $base,
 	// @fixme React on feature setting.
-	$t('Regenerate Versions') => ['action' => 'regenerate_versions'] + $base,
+	// $t('Regenerate Versions') => ['action' => 'regenerate_versions'] + $base,
 ]);
 
 ?>
