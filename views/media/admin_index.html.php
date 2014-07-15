@@ -31,13 +31,19 @@ $this->set([
 		<?= $this->form->end() ?>
 	</section>
 	<section class="grid-row">
-		<h1 class="h-gamma"><?= $t('Available Media') ?></h2>
+		<h1 class="h-gamma">
+			<?= $t('Available Media') ?>
+			<span class="count"><?= $data->count() ?></span>
+		</h2>
 		<?php if ($data->count()): ?>
 			<table>
 			<thead>
 				<tr>
 					<td><?= $t('Preview') ?>
 					<td class="emphasize"><?= $t('Title') ?>
+					<td><?= $t('Type') ?>
+					<td><?= $t('MIME-Type') ?>
+					<td><?= $t('Size') ?>
 					<td><?= $t('# dependent') ?>
 					<td class="actions">
 			</thead>
@@ -50,6 +56,9 @@ $this->set([
 					<?php endif ?>
 				<td class="emphasize">
 					<?= $item->title ?>
+				<td><?= $version->type ?>
+				<td><?= $version->mime_type ?>
+				<td><?= $this->number->format(round($version->size() / 1024), 'decimal') ?> kb
 				<td>
 					<?= ($depend = $item->depend('count')) ?: '–' ?>
 				<td class="actions">

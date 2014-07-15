@@ -36,6 +36,7 @@ $edit = $this->request()->params['action'] == 'edit';
 					<tr>
 						<td><?= $t('Version') ?>
 						<td><?= $t('URL') ?>
+						<td><?= $t('Type') ?>
 						<td><?= $t('MIME-Type') ?>
 						<td><?= $t('Size') ?>
 						<td><?= $t('Status') ?>
@@ -45,6 +46,7 @@ $edit = $this->request()->params['action'] == 'edit';
 				<tr>
 					<td class="emphasize"><?= $version->version ?>
 					<td><?= $version->url ?>
+					<td><?= $version->type ?>
 					<td><?= $version->mime_type ?>
 					<td><?= $this->number->format(round($version->size() / 1024), 'decimal') ?> kb
 					<td><?= $version->status ?>
