@@ -9,10 +9,13 @@
 		<div class="upload">
 			<div class="input">
 				<label>Lokal (vom Computer)</label>
-				<input type="file" accept="image/*" style="display: none;">
+				<input type="file" accept="image/* video/* audio/* application/pdf" style="display: none;">
 			</div>
 			<div class="title"></div>
-			<button class="select">Datei auswählen</button>
+			<button class="select button">Datei auswählen</button>
+			<div class="drop">
+				Datei hier per drag'n drop zum hochladen hinziehen…
+			</div>
 		</div>
 		<div class="url">
 			<div class="input">
@@ -36,10 +39,15 @@
 	</form>
 </section>
 <footer>
+	<div class="filter">
+		<div class="input">
+			<input type="text" class="search" name="search" placeholder="Filter (z.B. `image`, `video`, …)"/>	
+		</div>
+	</div>
 	<div class="selection hide">
-		<button class="transfer-toggle">Transfer</button>
-		<button class="cancel">Auswahl abbrechen</button>
-		<button class="confirm">Auswahl bestätigen</button>
+		<button class="transfer-toggle button">Transfer</button>
+		<button class="cancel button">Auswahl abbrechen</button>
+		<button class="confirm button">Auswahl bestätigen</button>
 	</div>
 </footer>
 

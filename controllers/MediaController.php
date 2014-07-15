@@ -75,7 +75,9 @@ class MediaController extends \cms_core\controllers\BaseController {
 		if ($versions = $item->versions()) {
 			foreach ($versions as $name => $version) {
 				try {
-					$result['versions'][$name]['url'] = $version->url($scheme);
+					$result['versions'][$name] = [
+						'url' => $version->url($scheme)
+					];
 				} catch (Exception $e) {
 					Logger::notice("Failed to export media version {$version->id}.");
 				}
