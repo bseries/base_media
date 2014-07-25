@@ -1,0 +1,60 @@
+
+<nav>
+	<div class="tabs-h">
+		<a class="tab-h active" href="#available">Verfügbare Medien</a> 
+		<a class="tab-h" href="#transfer">Medien Hinzufügen</a> 
+	</div>
+	<input 
+		type="text" 
+		class="search" 
+		name="search" 
+		placeholder="Filter (z.B. `image`, `video`, …)"
+	/>	
+</nav>
+
+<div id="available" class="available pane active">
+	<div class="items"></div>
+
+	<div class="actions">
+		<button class="cancel button">abbrechen</button>
+		<button class="confirm button hide">bestätigen</button>
+	</div>
+</div>
+
+<div id="transfer" class="transfer pane">
+	<div class="queue">
+		<div class="items"></div>
+	</div>
+	<form url="#" action="POST" class="methods">
+		<!-- Uses modal window content area as drop area. -->
+		<div class="drop-message">
+			Medien hierher ziehen
+		</div>
+		<div class="or">– oder –</div>
+		<div class="file-local method">
+			<input type="file" multiple accept="image/* video/* audio/* application/pdf" style="display: none;">
+			<button class="select button">Vom Computer hochladen</button>
+		</div>
+		<div class="or">– oder –</div>
+		<div class="file-url method">
+			<input type="url" name="url" placeholder="https://foo.com/cat.png">
+			<button class="confirm button">Über URL hochladen</button>
+		</div>
+		<div class="or">– oder –</div>
+		<div class="vimeo method">
+			<input 
+				type="text" 
+				name="vimeo_id"
+				pattern="[0-9]+"
+				placeholder="Vimeo ID z.b. 1357899"
+			>
+			<button class="confirm">Vimeo Video hochladen</button>
+		</div>
+	</form>
+	<div class="actions">
+		<button class="reset button">Reset</button>
+		<button class="cancel">Alle abbrechen</button>
+		<button class="start">Alle starten</button>
+	</div>
+</div>
+

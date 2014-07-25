@@ -1,10 +1,23 @@
+/*!
+ * Bureau Media
+ *
+ * Copyright (c) 2013-2014 Atelier Disko - All rights reserved.
+ *
+ * This software is proprietary and confidential. Redistribution
+ * not permitted. Unless required by applicable law or agreed to
+ * in writing, software distributed on an "AS IS" BASIS, WITHOUT-
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ */
+
 define([
   'jquery',
+  'router',
   'mediaExplorerModal',
   'jqueryUi',
   'domready!'
 ],
-function($, MediaExplorerModal) {
+function($, Router, MediaExplorerModal) {
+
   // Uses input fields as a store for ids and thus references
   // to full media items. Media items themselves always have
   // a backreference to their id through their `data-id` property.
@@ -28,24 +41,14 @@ function($, MediaExplorerModal) {
     // Enable sorting for items, makes only sense for multiple items.
     this.sortable = false;
 
-    this.endpoints = {
-      view: '/media/__ID__'
-      // Not used here but passed through to ME.
-      // index: '/media',
-      // Not used here but passed through to ME.
-      // transfer: '/media/transfer'
-    };
-
     this.init = function(element, options) {
       options = $.extend({
         formBinding: _this.formBinding,
-        endpoints: _this.endpoints,
         selectable: _this.selectable,
         sortable: _this.sortable
       }, options);
 
       _this.formBinding = options.formBinding;
-      _this.endpoints = options.endpoints;
       _this.selectable = options.selectable;
       _this.sortable = options.sortable;
 
@@ -73,16 +76,6 @@ function($, MediaExplorerModal) {
           items: '.media-item'
         });
       }
-    };
-
-    // Returns endpoint string; may replace __ID__ placeholder.
-    this.endpoint = function(name, id) {
-      var item = _this.endpoints[name];
-
-      if (name == 'view') {
-        return item.replace('__ID__', id);
-      }
-      return item;
     };
 
     // Returns a current live list of all inputs.
@@ -173,9 +166,15 @@ function($, MediaExplorerModal) {
       var dfrs = [];
 
       $.each(ids, function(k, id) {
-        dfrs.push($.getJSON(_this.endpoint('view', id)).done(function(data) {
+        var dfr = Router.match('media:view', {'id': id})
+          .then(function(url) {
+            return $.getJSON(url);
+          })
+          .then(function(data) {
             map[id] = _this.buildSelectedItemHtml(data.file);
-        }));
+          });
+
+        dfrs.push(dfr);
       });
       $.when.apply($, dfrs).then(function() {
         $.each(ids, function(k, id) {
@@ -210,8 +209,7 @@ function($, MediaExplorerModal) {
 
       MediaExplorerModal.init({
         selected: ids,
-        selectable: _this.selectable,
-        endpoints: _this.endpoints
+        selectable: _this.selectable
       });
 
       MediaExplorerModal.open();

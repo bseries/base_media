@@ -1,7 +1,7 @@
 /*!
- * Bureau Media
+ * Media Explorer
  *
- * Copyright (c) 2013-2014 Atelier Disko - All rights reserved.
+ * Copyright (c) 2013-2014 David Persson - All rights reserved.
  *
  * This software is proprietary and confidential. Redistribution
  * not permitted. Unless required by applicable law or agreed to
@@ -11,352 +11,73 @@
 
 define([
   'jquery',
+  'mediaExplorerAvailablePane',
+  'mediaExplorerTransferPane',
   'handlebars',
-  'text!cms-media/js/templates/mediaExplorerIndex.hbs',
-  'text!cms-media/js/templates/mediaExplorerItem.hbs',
-  'compat!sendAsBinary'
+  'text!cms-media/js/templates/mediaExplorer.hbs'
 ],
 function(
   $,
+  AvailablePane,
+  TransferPane,
   Handlebars,
-  indexTemplate,
-  itemTemplate
+  template
 ) {
 
-  return function MediaExplorer() {
+  //
+  // Main Media Explorer Class, holds avaiable items
+  // and transfer panes. Bridges transfer queue and available items.
+  //
+  return function MediaExplorer(element, options) {
     var _this = this;
 
-    // Are we embedded and show select features?
-    // true for inifinite multi or an integer for
-    // number of items that are selectable. False
-    // if selection feature should be disabled.
-    this.selectable = false;
+    this.element = $(element);
 
-    this.element = null;
-    this.elements = {
-      available: null,
-      transfer: {
-        wrap: null,
-        start: null,
+    options = $.extend({
+      selectable: null,
+      selected: [],
+      // methods: ['localFile', 'localFileDrop']
+    }, options);
 
-        upload: {
-          input: null,
-          title: null,
-          select: null,
-          drop: null
-        },
-        url: {
-          input: null
-        },
-        vimeo: {
-          input: null
-        }
-      },
-      filter: {
-        search: null
-      },
-      selection: {
-        wrap: null,
-        confirm: null,
-        cancel: null
-      }
-    };
+    // This must come before initializing the panes as they
+    // rely on the HTML to be in DOM already.
+    _this.element.html(Handlebars.compile(template));
 
-    this.endpoints = {
-      index: '/media',
-      transfer: '/media/transfer'
-    };
+    this.availablePane = new AvailablePane(_this.element.find('.available'), options);
+    this.transferPane = new TransferPane(_this.element.find('.transfer'), options);
 
-    this.templates = {
-      index: null,
-      item: null
-    };
+    // Once an item has been transferred within the queue, add
+    // it to the list of available items automatically. Item is
+    // built from the JSON as returned from transfer endpoint.
+    //
+    // Bridges transfer queue via transfer pane and available pane.
+    _this.element.on('transfer-queue:finished', function(ev, item) {
+      _this.availablePane.insert(item.file);
+    });
 
-    this.init = function(element, options) {
-      _this.element = element;
+    // Handle Pane Switching/Tabbing.
+    var $search = _this.element.find('.search');
 
-      options = $.extend({
-        endpoints: {},
-        selectable: null,
-        selected: []
-      }, options);
+    _this.element.find('.tab-h').on('click', function(ev) {
+      ev.preventDefault();
 
-      _this.endpoints = $.extend(_this.endpoints, options.endpoints || {});
+     var $tab = $(this);
+     var $pane = _this.element.find($tab.attr('href'));
 
-      _this.selectable = options.selectable || false;
-
-      _this.templates.index = Handlebars.compile(indexTemplate);
-      _this.templates.item = Handlebars.compile(itemTemplate);
-      Handlebars.registerPartial('item', _this.templates.item);
-
-      // Populates existing available files.
-      _this.populate().done(function() {
-        _this.elements.available = _this.element.find('.available');
-
-        var wrap;
-
-        _this.elements.transfer.wrap = wrap = _this.element.find('.transfer');
-        _this.elements.transfer.start = wrap.find('.start');
-
-        _this.elements.transfer.upload = {
-          input: wrap.find('.upload input'),
-          title: wrap.find('.upload .title'),
-          select: wrap.find('.upload .select'),
-          drop: wrap.find('.drop')
-        };
-        _this.elements.transfer.url = {
-          input: wrap.find('.url input')
-        };
-        _this.elements.transfer.vimeo = {
-          input: wrap.find('.vimeo input')
-        };
-
-        _this.elements.selection.wrap = _this.element.find('.selection');
-        _this.elements.selection.confirm = _this.elements.selection.wrap.find('.confirm');
-        _this.elements.selection.cancel = _this.elements.selection.wrap.find('.cancel');
-
-        if (_this.selectable) {
-          _this.elements.selection.wrap.removeClass('hide');
-        }
-
-        _this.elements.filter.search = _this.element.find('.filter .search');
-
-        // Preset selected.
-        _this.elements.available.find('.item').each(function(k, el) {
-          var $el = $(el);
-
-          if ($.inArray($el.data('id'), options.selected) !== -1) {
-            $el.addClass('selected');
-          }
-        });
-
-        // DOM complete now ready to bind events.
-        _this.bindEvents();
-        _this.bindDragDropTransfer();
-        _this.bindFilter();
-      });
-    };
-
-    // Returns endpoint string; may replace __ID__ placeholder.
-    this.endpoint = function(name, id) {
-      var item = _this.endpoints[name];
-
-      if (name == 'view') {
-        return item.replace('__ID__', id);
-      }
-      return item;
-    };
-
-    this.populate = function() {
-      return $.getJSON(_this.endpoint('index'))
-        .done(function(data) {
-          _this.element.html(_this.templates.index(data));
-        });
-    };
-
-    // Filters existing files using dead simple search.
-    this.bindFilter = function() {
-      _this.elements.filter.search.on('keyup', function() {
-        var val = $(this).val();
-
-        _this.elements.available.find('.item').each(function() {
-          var $item = $(this);
-          var haystack = $item.data('type') + '|' + $item.find('.title').text();
-
-          if (haystack.indexOf(val) !== -1) {
-            $item.removeClass('hide');
-          } else {
-            $item.addClass('hide');
-          }
-        });
-      });
-    };
-
-    this.bindDragDropTransfer = function() {
-      var noop = function(ev) {
-        ev.stopPropagation();
-        ev.preventDefault();
-      };
-      _this.elements.transfer.upload.drop.on('dragenter', function(ev) {
-        noop(ev);
-        $(this).addClass('dragged-over');
-      });
-      _this.elements.transfer.upload.drop.on('dragexit', function(ev) {
-        noop(ev);
-        $(this).removeClass('dragged-over');
-      });
-      _this.elements.transfer.upload.drop.on('dragover', noop);
-      _this.elements.transfer.upload.drop.on('drop', function(ev) {
-        noop(ev);
-
-        var files = ev.originalEvent.dataTransfer.files;
-        var req = (new $.Deferred()).resolve(); // Chain uploads
-
-        if (files.length > 0) {
-          $(files).each(function() {
-            _this.elements.transfer.upload.drop.text('Processing ' + this.name);
-            req.then(_this.upload(this));
-          });
-          req.done(function() {
-            _this.elements.transfer.upload.drop.text('Done');
-            console.debug('?');
-          });
-        }
-      });
-    };
-
-    this.bindEvents = function() {
-      // Pick a file to upload.
-      _this.elements.transfer.upload.select.on('click', function(ev) {
-        ev.preventDefault();
-        _this.elements.transfer.upload.input.trigger('click');
-
-        _this.elements.transfer.upload.input.on('change', function(ev) {
-          $('.transfer .upload .title').text(this.files[0].name);
-        });
+      _this.element.find('.pane.active, .tab-h.active').each(function() {
+        $(this).removeClass('active');
+        $(this).trigger('pane:deactivated');
       });
 
-      // Execute transfer.
-      _this.elements.transfer.start.on('click', function(ev) {
-        ev.preventDefault();
-        _this.elements.transfer.start.attr('disabled', 'disabled');
-
-        var ready = _this.ready();
-        var req;
-
-        if (ready == 'upload') {
-          req = _this.upload(_this.elements.transfer.upload.input.get(0).files[0]);
-        } else {
-          if (ready == 'url') {
-            req = $.ajax({
-              type: 'POST',
-              url: _this.endpoint('transfer'),
-              data: _this.elements.transfer.url.input.serialize()
-            });
-          } else if (ready == 'vimeo') {
-            req = $.ajax({
-              type: 'POST',
-              url: _this.endpoint('transfer'),
-              data: _this.elements.transfer.vimeo.input.serialize()
-            });
-          } else {
-            // FIXME Notify user what went wrong.
-            return;
-          }
-        }
-
-        req.done(function(data) {
-          _this.insert(data.file);
-          _this.elements.transfer.start.removeAttr('disabled');
-          _this.elements.transfer.wrap.slideUp(400);
-
-          // Reset form entirely.
-          _this.elements.transfer.upload.input.replaceWith(
-            _this.elements.transfer.upload.input = _this.elements.transfer.upload.input.clone(true)
-          );
-          _this.elements.transfer.upload.title.text('');
-          _this.elements.transfer.url.input.val('');
-          _this.elements.transfer.vimeo.input.val('');
-        });
-      });
-
-      if (_this.selectable) {
-        _this.elements.selection.confirm.on('click', _this.confirmSelection);
-        _this.elements.selection.cancel.on('click', _this.cancelSelection);
-
-        _this.elements.available.on('click', '.item', function() {
-          $this = $(this);
-
-          if (_this.selectable === 1) {
-            _this.elements.available.find('.item').removeClass('selected');
-            $this.addClass('selected');
-          } else if (_this.selectable === true) {
-            $this.toggleClass('selected');
-          } else if (_this.selectable > 1) {
-            var current = _this.elements.available.find('.item.selected').length;
-
-            if ($this.hasClass('selected') || current < _this.selectable) {
-              $this.toggleClass('selected');
-            } else if (current >= _this.selectable) {
-              // FIXME Notify user that items must be deselected first to select new ones.
-            }
-          }
-        });
-      }
-
-      _this.element.find('.transfer-toggle').on('click', function() {
-        _this.elements.transfer.wrap.slideDown(300);
-      });
-      _this.element.find('.transfer .cancel').on('click', function(ev) {
-        ev.preventDefault();
-        _this.elements.transfer.wrap.slideUp(200);
-      });
-    };
-
-    this.insert = function(item) {
-      _this.elements.available.prepend(_this.templates.item(item));
-    };
-
-    this.ready = function() {
-      if (_this.elements.transfer.upload.input.get(0).files.length) {
-        return 'upload';
-      }
-      if (_this.elements.transfer.url.input.val() !== '') {
-        return 'url';
-      }
-      if (_this.elements.transfer.vimeo.input.val() !== '') {
-        return 'vimeo';
-      }
-      return false;
-    };
-
-    // Uploads a file using the file form upload method.
-    this.upload = function(file) {
-      $(document).trigger('transfer:start');
-
-      var reader = new FileReader();
-      var xhr = new XMLHttpRequest();
-
-      var dfr = new $.Deferred();
-      dfr.done(function() {
-        $(document).trigger('transfer:done');
-      });
-
-      xhr.open('POST', _this.endpoint('transfer') + '?title=' + file.name);
-      xhr.overrideMimeType('text/plain; charset=x-user-defined-binary');
-      $(document).trigger('transfer:start');
-
-      // Redirect and reformat progress events.
-      xhr.upload.addEventListener('progress', function(ev) {
-        if (ev.lengthComputable) {
-          $(document).trigger('transfer:progress', (ev.loaded * 100) / ev.total);
-        }
-      }, false);
-
-      xhr.onload = function(done) {
-        $(document).trigger('transfer:done');
-        dfr.resolve($.parseJSON(this.responseText));
-      };
-
-      reader.onload = function(ev) {
-        xhr.sendAsBinary(ev.target.result);
-      };
-      reader.readAsBinaryString(file);
-
-      return dfr.promise();
-    };
-
-    this.cancelSelection = function() {
-      $(document).trigger('media-explorer:cancel');
-    };
-
-    this.confirmSelection = function() {
-      var ids = [];
-
-      _this.elements.available.find('.selected').each(function(k, el) {
-        ids.push($(el).data('id'));
-      });
-      $(document).trigger('media-explorer:selected', [ids]);
-    };
+      $tab.addClass('active');
+      $pane.addClass('active');
+      $pane.trigger('pane:activated');
+    });
+    _this.availablePane.element.on('pane:activated', function() {
+      $search.show();
+    });
+    _this.availablePane.element.on('pane:deactivated', function() {
+      $search.hide();
+    });
   };
 });

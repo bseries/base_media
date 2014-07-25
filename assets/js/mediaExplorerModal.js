@@ -2,7 +2,7 @@ define(['jquery', 'mediaExplorer', 'modal'],
 function($, MediaExplorer, Modal) {
 
   var mediaExplorerConfig = {
-      'selectable': false
+    'selectable': false
   };
 
   var init = function(options) {
@@ -14,8 +14,8 @@ function($, MediaExplorer, Modal) {
     Modal.loading();
     Modal.type('media-explorer');
 
-    var ME = new MediaExplorer();
-    ME.init(Modal.elements.content, this.mediaExplorerConfig);
+    // Render Media Explorer into the content area of the modal window.
+    var ME = new MediaExplorer(Modal.elements.content, this.mediaExplorerConfig);
 
     Modal.ready();
 
