@@ -13,10 +13,10 @@ define([
   'jquery',
   'router',
   'mediaExplorerModal',
-  'jqueryUi',
+  'sortable',
   'domready!'
 ],
-function($, Router, MediaExplorerModal) {
+function($, Router, MediaExplorerModal, Sortable) {
 
   // Uses input fields as a store for ids and thus references
   // to full media items. Media items themselves always have
@@ -71,9 +71,14 @@ function($, Router, MediaExplorerModal) {
       });
 
       if (_this.sortable) {
-        _this.element.sortable({
-          placeholder: 'sortable-placeholder',
-          items: '.media-item'
+        new Sortable(_this.element.find('.selected').get(0), {
+          store: null,
+          ghostClass: 'sortable-placeholder',
+          draggable: '.media-item',
+        });
+        _this.element.find('.selected').on('dragstart', function(ev) {
+          // Disable drag image.
+          // ev.originalEvent.dataTransfer.setDragImage($('<div/>').get(0), 0, 0);
         });
       }
     };
