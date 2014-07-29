@@ -51,7 +51,10 @@ function(
     // FIXME Assumes ME is always contained in a modal for drop method.
     // FIXME Allow selecting which methods are available.
     _this.methods.push(new TransferMethods.FileLocal($methods.find('.file-local')));
-    _this.methods.push(new TransferMethods.FileLocalDrop(_this.element.parents('#modal')));
+    _this.methods.push(new TransferMethods.FileLocalDrop(
+      _this.element.parents('#modal'),
+      $methods.find('.drop-message')
+    ));
     _this.methods.push(new TransferMethods.FileUrl($methods.find('.file-url')));
     _this.methods.push(new TransferMethods.Vimeo($methods.find('.vimeo')));
 

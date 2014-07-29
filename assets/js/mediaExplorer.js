@@ -14,7 +14,8 @@ define([
   'mediaExplorerAvailablePane',
   'mediaExplorerTransferPane',
   'handlebars',
-  'text!cms-media/js/templates/mediaExplorer.hbs'
+  'text!cms-media/js/templates/mediaExplorer.hbs',
+  'notify'
 ],
 function(
   $,
@@ -53,6 +54,7 @@ function(
     // Bridges transfer queue via transfer pane and available pane.
     _this.element.on('transfer-queue:finished', function(ev, item) {
       _this.availablePane.insert(item.file);
+      $.notify('Neues Medium verfügbar.', 'success');
     });
 
     // Handle Pane Switching/Tabbing.

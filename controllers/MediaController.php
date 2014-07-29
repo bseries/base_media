@@ -45,6 +45,26 @@ class MediaController extends \cms_core\controllers\BaseController {
 		$this->render(array('type' => $this->request->accepts(), 'data' => compact('files')));
 	}
 
+	// Retrieve information of transfer without actually downloading the entity.
+	public function admin_api_transfer_meta() {
+		list($source, $title) = $this->_handleTransferRequest();
+
+		$item = Media::create([
+			'url' => $source,
+			'title' => $title
+		]);
+		$file = [
+			'size' => $item->size(),
+			'title' => $item->title
+		];
+		$this->render(array('type' => 'json', 'data' => compact('file')));
+	}
+
+	public function admin_api_transfer_preflight() {
+		$file = [];
+		$this->render(array('type' => 'json', 'data' => compact('file')));
+	}
+
 	public function admin_api_transfer() {
 		list($source, $title) = $this->_handleTransferRequest();
 

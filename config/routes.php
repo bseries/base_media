@@ -26,6 +26,14 @@ Router::connect(
 	$persist
 );
 Router::connect(
+	'/admin/api/media/transfer-preflight',
+	['controller' => 'media', 'action' => 'api_transfer_preflight', 'library' => 'cms_media', 'admin' => true]
+);
+Router::connect(
+	'/admin/api/media/transfer-meta',
+	['controller' => 'media', 'action' => 'api_transfer_meta', 'library' => 'cms_media', 'admin' => true]
+);
+Router::connect(
 	'/admin/api/media/transfer',
 	['controller' => 'media', 'action' => 'api_transfer', 'library' => 'cms_media', 'admin' => true]
 );

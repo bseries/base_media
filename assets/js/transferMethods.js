@@ -26,6 +26,58 @@ function(
   //
   var TransferMethods = {};
 
+  // Reusable methods.
+
+  var fileLocalTransfer = function(file) {
+    var reader = new FileReader();
+    var xhr = new XMLHttpRequest();
+
+    // Outer deferred. Will resolve with response from transfer.
+    var dfr = new $.Deferred();
+
+    // Bind all transfer handlers.
+    xhr.upload.addEventListener('progress', function(ev) {
+      // Redirect and reformat progress events.
+      if (ev.lengthComputable) {
+        dfr.notify('progress', Math.ceil((ev.loaded * 100) / ev.total));
+      }
+    }, false);
+    xhr.onload = function() {
+      dfr.resolve($.parseJSON(this.responseText));
+    };
+    xhr.upload.addEventListener('error', function(ev) {
+        // FIXME parse json error message
+//          dfr.reject($.parseJSON(this.responseText));
+        dfr.reject();
+    }, false);
+
+    Router.match('media:transfer', {'title': file.name})
+      .then(function(url) {
+        xhr.open('POST', url);
+        xhr.overrideMimeType(file.type);
+        xhr.send(file);
+      });
+
+    return {dfr: dfr.promise(), cancel: xhr.abort};
+  };
+
+  // Gets data url to be used for preview image.
+  var fileLocalPreview = function(file) {
+    var dfr = new $.Deferred();
+
+    if (!file.type.match(/image\/(png|jpeg|gif)/)) {
+      return dfr.reject();
+    }
+    var reader = new FileReader();
+
+    // Wrap event so we get a consistent return value.
+    reader.onload = function(ev) {
+      dfr.resolve(ev.target.result);
+    };
+    reader.readAsDataURL(file);
+    return dfr;
+  };
+
   //
   // Local Drop Method aka "Upload from Computer"
   //
@@ -52,81 +104,29 @@ function(
           var file = this;
 
           _this.element.trigger('transfer-method:loaded', [$.extend(new Transfer(), {
-            run: function() {
-              return _this.transfer(file);
-            },
-            image: function() {
-              return _this.image(file);
-            },
-            title: file.name,
-            size: file.size,
+            run: function() { return fileLocalTransfer(file); },
+            preview: function() { return fileLocalPreview(file); },
+            meta: function() {
+              return $.Deferred().resolve({
+                size: file.size,
+                title: file.name
+              });
+            }
           })]);
         });
         $input.replaceWith($input.clone(true));
       });
     });
-
-    // This is a "static" method and will be called from the outside once
-    // for each file.
-    this.transfer = function(file) {
-      var reader = new FileReader();
-      var xhr = new XMLHttpRequest();
-
-      // Outer deferred. Will resolve with response from transfer.
-      var dfr = new $.Deferred();
-
-      // Bind all transfer handlers.
-      xhr.upload.addEventListener('progress', function(ev) {
-        // Redirect and reformat progress events.
-        if (ev.lengthComputable) {
-          dfr.notify('progress', Math.ceil((ev.loaded * 100) / ev.total));
-        }
-      }, false);
-      xhr.onload = function() {
-        dfr.resolve($.parseJSON(this.responseText));
-      };
-      xhr.upload.addEventListener('error', function(ev) {
-          // FIXME parse json error message
-//          dfr.reject($.parseJSON(this.responseText));
-          dfr.reject();
-      }, false);
-
-      Router.match('media:transfer', {'title': file.name})
-        .then(function(url) {
-          xhr.open('POST', url);
-          xhr.overrideMimeType(file.type);
-          xhr.send(file);
-        });
-
-      return {dfr: dfr.promise(), cancel: xhr.abort};
-    };
-
-    // Gets data url to be used for preview image.
-    this.image = function(file) {
-      var dfr = new $.Deferred();
-
-      if (!file.type.match(/image\/(png|jpeg|gif)/)) {
-        return dfr.reject();
-      }
-      var reader = new FileReader();
-
-      // Wrap event so we get a consistent return value.
-      reader.onload = function(ev) {
-        dfr.resolve(ev.target.result);
-      };
-      reader.readAsDataURL(file);
-      return dfr;
-    };
-
   };
 
   //
   // Local Drop Method
   //
-  TransferMethods.FileLocalDrop = function(element) {
+  TransferMethods.FileLocalDrop = function(outer, inner) {
     var _this = this;
 
-    this.element = $(element);
+    this.outer = $(outer);
+    this.inner = $(inner);
 
     var noop = function(ev) {
       ev.stopPropagation();
@@ -137,16 +137,16 @@ function(
     // possiblity user drops file into window (that would throw her
     // back into viewing the file directly).
 
-    _this.element.on('dragenter', function(ev) {
+    _this.outer.on('dragenter', function(ev) {
       noop(ev);
       $(this).addClass('dragged-over');
     });
-    _this.element.on('dragexit', function(ev) {
+    _this.outer.on('dragexit', function(ev) {
       noop(ev);
       $(this).removeClass('dragged-over');
     });
-    _this.element.on('dragover', noop);
-    _this.element.on('drop', function(ev) {
+    _this.outer.on('dragover', noop);
+    _this.outer.on('drop', function(ev) {
       noop(ev);
 
       var files = ev.originalEvent.dataTransfer.files;
@@ -155,16 +155,15 @@ function(
         $.each(files, function() {
           var file = this;
 
-          _this.element.trigger('transfer-method:loaded', [$.extend(new Transfer(), {
-            // Reuses methods from other transfer method.
-            run: function() {
-              return TransferMethods.FileLocal.prototype.transfer(file);
-            },
-            image: function() {
-              TransferMethods.FileLocal.prototype.image(file);
-            },
-            title: file.name,
-            size: file.size,
+          _this.inner.trigger('transfer-method:loaded', [$.extend(new Transfer(), {
+            run: function() { return fileLocalTransfer(file); },
+            preview: function() { return fileLocalPreview(file); },
+            meta: function() {
+              return $.Deferred().resolve({
+                size: file.size,
+                title: file.name
+              });
+            }
           })]);
         });
       }
@@ -175,15 +174,17 @@ function(
   //
   // File URL Method
   //
-  // FIXME parse title from URL.
-  // FIXME Head request to get meta data?
   TransferMethods.FileUrl = function(element) {
     var _this = this;
 
     this.element = $(element);
 
     var $ok = _this.element.find('.confirm');
-    var $input = _this.element.find('.input');
+    var $input = _this.element.find('input');
+
+    $input.on('keyup', function(ev) {
+      $ok.prop('disabled', !this.validity.valid || !this.value);
+    });
 
     $ok.on('click', function(ev) {
       ev.preventDefault();
@@ -192,6 +193,20 @@ function(
       _this.element.trigger('transfer-method:loaded', [$.extend(new Transfer(), {
         run: function() {
           return _this.transfer(url);
+        },
+        meta: function() {
+          var dfr = new $.Deferred();
+
+          Router.match('media:transfer-meta').done(function(_url) {
+            $.ajax({
+              type: 'POST',
+              url: _url,
+              data: 'url=' + url
+            }).done(function(data) {
+              dfr.resolve(data.file);
+            });
+          });
+          return dfr;
         }
       })]);
 
@@ -199,7 +214,7 @@ function(
     });
 
     this.transfer = function(url) {
-       return Router.match('media:transfer', {'title': ''})
+       var dfr = Router.match('media:transfer', {'title': ''})
         .then(function(_url) {
           return $.ajax({
             type: 'POST',
@@ -207,19 +222,25 @@ function(
             data: 'url=' + url
           });
         });
+        return {dfr: dfr.promise(), cancel: null};
     };
   };
 
   //
   // Vimeo (ID) Method
   //
+  // FIXME Preview Image via HEAD Request?
   TransferMethods.Vimeo = function(element) {
     var _this = this;
 
     this.element = $(element);
 
     var $ok = _this.element.find('.confirm');
-    var $input = _this.element.find('.input');
+    var $input = _this.element.find('input');
+
+    $input.on('keyup', function(ev) {
+      $ok.prop('disabled', !this.validity.valid || !this.value);
+    });
 
     $ok.on('click', function(ev) {
       ev.preventDefault();
@@ -229,14 +250,27 @@ function(
         run: function() {
           return _this.transfer(id);
         },
-        title: id, // Use title as ID for now. We cannot contact the API.
+        meta: function() {
+          var dfr = new $.Deferred();
+
+          Router.match('media:transfer-meta').done(function(_url) {
+            $.ajax({
+              type: 'POST',
+              url: _url,
+              data: 'vimeo_id=' + id
+            }).done(function(data) {
+              dfr.resolve(data.file);
+            });
+          });
+          return dfr;
+        }
       })]);
 
       $input.val('');
     });
 
     this.transfer = function(id) {
-       return Router.match('media:transfer', {'title': id})
+       var dfr = Router.match('media:transfer', {'title': id})
         .then(function(url) {
           return $.ajax({
             type: 'POST',
@@ -244,6 +278,7 @@ function(
             data: 'vimeo_id=' + id
           });
         });
+        return {dfr: dfr.promise(), cancel: null};
     };
   };
 

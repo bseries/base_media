@@ -23,21 +23,33 @@ define(['jquery'], function($) {
     // An element that represents the transfer and allows to control it.
     this.element =  null;
 
+    this.preflight = function() {
+      return $.Deferred().reject();
+    };
+
     // Executes the transfer, may notify about progress and status.
     this.run = function() {
-      return $.Deferred().reject();
+      return {dfr: $.Deferred().reject(), cancel: null};
     };
 
     // Allows to return a dataUrl via a deferred, if the transfer allows this.
-    this.image = function() {
+    this.preview = function() {
       return $.Deferred().reject();
     };
 
-    // The title of the transferred object.
     this.title = null;
 
-    // Filesize in bytes of the transferred object.
-    this.size =  null;
+    //
+    // {
+    //  title:
+    //  size:
+    // }
+    this.function = function() {
+      // The title of the transferred object.
+      // Filesize in bytes of the transferred object.
+
+      return $.Deferred().reject();
+    };
   };
 });
 

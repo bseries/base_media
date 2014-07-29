@@ -17,8 +17,26 @@ use Exception;
 
 trait MediaInfoTrait {
 
+	// @fixme This is only a first step into making the media entity work
+	//        with non existing items. Abstract this more and allow
+	//        us to retrieve more meta data.
 	public function size($entity) {
-		return filesize($entity->url('file'));
+		if ($entity->exists()) {
+			return filesize($entity->url('file'));
+		}
+		if (strpos($entity->url, 'http') === 0) {
+			$curl = curl_init($entity->url);
+
+			curl_setopt($curl, CURLOPT_HEADER, true);
+			curl_setopt($curl, CURLOPT_NOBODY, true);
+			curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+
+			curl_exec($curl);
+			$result = curl_getinfo($curl);
+			curl_close($curl);
+
+			return $result['download_content_length'];
+		}
 	}
 
 	public function info($entity, $name = null) {

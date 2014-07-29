@@ -33,13 +33,23 @@ function(
       _this.element.trigger('transfer-queue:enqueued');
 
       transfer.element = $(_this.template({
-        title: transfer.title,
-        size: _this._formatSize(transfer.size),
         progress: "0%"
+        // Size and preview are set below lazily.
       }));
-      var $img = transfer.element.find('.image');
-      transfer.image().done(function(dataUrl) {
-        $img.css('background-image', 'url(' + dataUrl + ')');
+
+      var $title = transfer.element.find('.title');
+      var $size = transfer.element.find('.size');
+      transfer.meta().done(function(meta) {
+        $title.text(meta.title);
+        if (meta.size) {
+          $size.text(_this._formatSize(meta.size));
+        }
+      });
+
+      var $preview = transfer.element.find('.preview');
+      transfer.preview().done(function(dataUrl) {
+        // We assume preview is always an image.
+        $preview.css('background-image', 'url(' + dataUrl + ')');
       });
 
       // Initial state.
@@ -60,14 +70,18 @@ function(
       $cancel.removeAttr('disabled');
 
       $.each(_this.data, function() {
-        if (!this.hasRun) {
-          chain.then(_this._start(this));
+        var t = this;
+
+        if (!t.hasRun) {
+          chain.then(function() {
+            return _this._start(t);
+          });
         }
       });
 
       chain.done(function() {
-        $start.removeAttr('disabled');
-        $cancel.attr('disabled', 'disabled');
+        $start.prop('disabled', false);
+        $cancel.prop('disabled', true);
       });
     };
 
@@ -102,6 +116,11 @@ function(
         _this._updateStatus(transfer, 'error');
         $message.text(msg);
       });
+      // Some methods may not report progress, so we force
+      // it to be 100% on here.
+      run.dfr.always(function() {
+        $progress.text('100%');
+      });
 
       transfer.hasRun = true;
       transfer.cancel = run.cancel;
@@ -125,9 +144,21 @@ function(
       _this.element.html('');
     };
 
-    // Helper function; formats a given file size nicely.
+    // Helper function; formats a given file size nicely. Will leave null
+    // values untouched.
     this._formatSize = function(value) {
-      return Math.round(value / 1024) + 'kb';
+      if (value === null) {
+        return value;
+      }
+      var i = -1;
+      var byteUnits = [' kB', ' MB', ' GB', ' TB', 'PB', 'EB', 'ZB', 'YB'];
+
+      do {
+          value = value / 1024;
+          i++;
+      } while (value > 1024);
+
+      return Math.max(value, 0.1).toFixed(1) + byteUnits[i];
     };
 
     // Helper function; updates text status as well adds correct
