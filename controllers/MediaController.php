@@ -60,6 +60,9 @@ class MediaController extends \cms_core\controllers\BaseController {
 		$this->render(array('type' => 'json', 'data' => compact('file')));
 	}
 
+	// Same as api_transfer but without storing the result permanently plus
+	// running additional heuristic checks to determine if media can be
+	// processed.
 	public function admin_api_transfer_preflight() {
 		$file = [];
 		$this->render(array('type' => 'json', 'data' => compact('file')));
