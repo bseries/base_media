@@ -15,17 +15,10 @@ use cms_core\extensions\cms\Panes;
 
 extract(Message::aliases());
 
-Panes::registerGroup('cms_media', 'media', [
+Panes::register('media', [
 	'title' => $t('Media'),
-	'order' => 20
-]);
-
-$base = ['controller' => 'media', 'library' => 'cms_media', 'admin' => true];
-Panes::registerActions('cms_media', 'media', [
-	$t('Explore') => ['action' => 'index'] + $base,
-	$t('Transfer') => ['action' => 'index'] + $base,
-	// @fixme React on feature setting.
-	// $t('Regenerate Versions') => ['action' => 'regenerate_versions'] + $base,
+	'order' => 20,
+	'url' => ['controller' => 'media', 'action' => 'index', 'library' => 'cms_media', 'admin' => true]
 ]);
 
 ?>
