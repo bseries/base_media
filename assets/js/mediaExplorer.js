@@ -53,20 +53,20 @@ function(
     //
     // Bridges transfer queue via transfer pane and available pane.
     _this.element.on('transfer-queue:finished', function(ev, item) {
-      _this.availablePane.insert(item.file);
+      _this.availablePane.insert(item);
       $.notify('Neues Medium verfügbar.', 'success');
     });
 
     // Handle Pane Switching/Tabbing.
     var $search = _this.element.find('.search');
 
-    _this.element.find('.tab-h').on('click', function(ev) {
+    _this.element.find('.blocktab-h').on('click', function(ev) {
       ev.preventDefault();
 
      var $tab = $(this);
      var $pane = _this.element.find($tab.attr('href'));
 
-      _this.element.find('.pane.active, .tab-h.active').each(function() {
+      _this.element.find('.pane.active, .blocktab-h.active').each(function() {
         $(this).removeClass('active');
         $(this).trigger('pane:deactivated');
       });
@@ -80,6 +80,10 @@ function(
     });
     _this.availablePane.element.on('pane:deactivated', function() {
       $search.hide();
+    });
+
+    _this.availablePane.element.find('#good-night').on('change', function() {
+      _this.element.toggleClass('good-night');
     });
   };
 });

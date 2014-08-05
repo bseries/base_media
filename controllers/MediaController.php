@@ -18,7 +18,9 @@ use lithium\core\Libraries;
 use temporary\Manager as Temporary;
 use lithium\analysis\Logger;
 use li3_flash_message\extensions\storage\FlashMessage;
+use jsend\Response as JSendResponse;
 use Exception;
+use lithium\g11n\Message;
 
 class MediaController extends \cms_core\controllers\BaseController {
 
@@ -30,7 +32,12 @@ class MediaController extends \cms_core\controllers\BaseController {
 		$item = Media::find('first', ['conditions' => ['id' => $this->request->id]]);
 		$file = $this->_export($item);
 
-		$this->render(array('type' => $this->request->accepts(), 'data' => compact('file')));
+		$response = new JSendResponse('success', compact('file'));
+
+		$this->render(array(
+			'type' => 'json',
+			'data' => $response->to('array')
+		));
 	}
 
 	public function admin_api_index() {
@@ -42,12 +49,27 @@ class MediaController extends \cms_core\controllers\BaseController {
 		foreach ($media as $item) {
 			$files[] = $this->_export($item);
 		}
-		$this->render(array('type' => $this->request->accepts(), 'data' => compact('files')));
+		$response = new JSendResponse('success', compact('files'));
+
+		$this->render(array(
+			'type' => 'json',
+			'data' => $response->to('array')
+		));
 	}
 
 	// Retrieve information of transfer without actually downloading the entity.
 	public function admin_api_transfer_meta() {
-		list($source, $title) = $this->_handleTransferRequest();
+		try {
+			list($source, $title) = $this->_handleTransferRequest();
+		} catch (Exception $e) {
+			$response = new JSendResponse('error', $e->getMessage());
+
+			return $this->render(array(
+				'status' => 500,
+				'type' => 'json',
+				'data' => $response->to('array')
+			));
+		}
 
 		$item = Media::create([
 			'url' => $source,
@@ -57,7 +79,12 @@ class MediaController extends \cms_core\controllers\BaseController {
 			'size' => $item->size(),
 			'title' => $item->title
 		];
-		$this->render(array('type' => 'json', 'data' => compact('file')));
+		$response = new JSendResponse('success', compact('file'));
+
+		$this->render(array(
+			'type' => 'json',
+			'data' => $response->to('array')
+		));
 	}
 
 	// Same as api_transfer but without storing the result permanently plus
@@ -69,13 +96,22 @@ class MediaController extends \cms_core\controllers\BaseController {
 	}
 
 	public function admin_api_transfer() {
-		list($source, $title) = $this->_handleTransferRequest();
+		try {
+			list($source, $title) = $this->_handleTransferRequest();
+		} catch (Exception $e) {
+			$response = new JSendResponse('error', $e->getMessage());
+
+			return $this->render(array(
+				'status' => 500,
+				'type' => 'json',
+				'data' => $response->to('array')
+			));
+		}
 
 		$file = Media::create([
 			'url' => $source,
 			'title' => $title
 		]);
-
 		if ($file->can('download')) {
 			$file->url = $file->download();
 		}
@@ -83,11 +119,26 @@ class MediaController extends \cms_core\controllers\BaseController {
 			$file->url = $file->transfer();
 		}
 
-		$file->save();
-		$file->makeVersions();
+		try {
+			$file->save();
+			$file->makeVersions();
+		} catch (Exception $e) {
+			$response = new JSendResponse('error', $e->getMessage());
+
+			return $this->render(array(
+				'status' => 500,
+				'type' => 'json',
+				'data' => $response->to('array')
+			));
+		}
 
 		$file = $this->_export($file);
-		$this->render(array('type' => 'json', 'data' => compact('file')));
+		$response = new JSendResponse('success', compact('file'));
+
+		$this->render(array(
+			'type' => 'json',
+			'data' => $response->to('array')
+		));
 	}
 
 	protected function _export($item) {
@@ -111,13 +162,17 @@ class MediaController extends \cms_core\controllers\BaseController {
 
 	// @fixme Use Transfer handlers.
 	protected function _handleTransferRequest() {
+		extract(Message::aliases());
+
 		if (!empty($this->request->data['url'])) {
 			$source = $this->request->data['url'];
 			$title = basename($source);
 		} elseif (!empty($this->request->data['vimeo_id'])) {
 			$source = 'vimeo://' . $this->request->data['vimeo_id'];
-			$title = Vimeo::first($this->request->data['vimeo_id'])->title;
-
+			if (!$item = Vimeo::first($this->request->data['vimeo_id'])) {
+				throw new Exception($t('Could not find vimeo video.'));
+			}
+			$title = $item->title;
 		} elseif (!empty($this->request->data['form']['tmp_name'])) {
 			$source = 'file://' . $this->request->data['form']['tmp_name'];
 			$title = $this->request->data['form']['name'];

@@ -68,7 +68,7 @@ function(
           var $items = _this.element.find('.items');
 
           // Returned data is nested under "files" key.
-          $.each(data.files, function() {
+          $.each(data.data.files, function() {
             var $el = $(_this.template(this));
 
             if ($.inArray($el.data('id'), _this.selected) !== -1) {

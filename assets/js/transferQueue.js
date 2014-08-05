@@ -37,31 +37,53 @@ function(
         // Size and preview are set below lazily.
       }));
 
-      var $title = transfer.element.find('.title');
-      var $size = transfer.element.find('.size');
-      transfer.meta().done(function(meta) {
-        $title.text(meta.title);
-        if (meta.size) {
-          $size.text(_this._formatSize(meta.size));
-        }
+      transfer.element.find('.remove-item').on('click', function(ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+
+        transfer.element.remove();
+        transfer.isCancelled = true;
       });
 
+      var $card = transfer.element.find('.card');
       var $preview = transfer.element.find('.preview');
-      transfer.preview().done(function(dataUrl) {
-        // We assume preview is always an image.
-        $preview.css('background-image', 'url(' + dataUrl + ')');
-      });
+      var $title = transfer.element.find('.title');
+      var $size = transfer.element.find('.size');
+      var $message = transfer.element.find('.message');
+
+      transfer.meta()
+        .done(function(meta) {
+          $title.text(meta.title);
+          if (meta.size) {
+            $card.html(meta.title);
+            $size.text(_this._formatSize(meta.size));
+          }
+        })
+        .fail(function(msg) {
+            $card.html('?');
+            $message.text(msg);
+            _this._updateStatus(transfer, 'error');
+        });
+
+      transfer.preview()
+        .done(function(dataUrl) {
+          transfer.element.addClass('has-visual');
+
+          // We assume preview is always an image.
+          $preview.replaceWith($('<img />').attr('src', dataUrl).addClass($preview.attr('class')));
+        });
 
       // Initial state.
       _this._updateStatus(transfer, 'pending');
 
       _this.data.push(transfer);
-      _this.element.prepend(transfer.element);
+      _this.element.find('.items').prepend(transfer.element);
     };
 
     // Starts all transfers that have not been run.
     this.start = function() {
-      var chain = $.Deferred().resolve();
+      var dfr = $.Deferred();
+      var prm = dfr.promise();
 
       var $start = _this.element.find('.start');
       var $cancel = _this.element.find('.cancel');
@@ -72,17 +94,33 @@ function(
       $.each(_this.data, function() {
         var t = this;
 
-        if (!t.hasRun) {
-          chain.then(function() {
+        if (!t.hasRun && !t.isCancelled && !t.isFailed) {
+          prm = prm.then(function() {
             return _this._start(t);
           });
         }
       });
+      dfr.resolve();
 
-      chain.done(function() {
+      prm.always(function() {
+        _this.element.trigger('transfer-queue:allDone');
         $start.prop('disabled', false);
         $cancel.prop('disabled', true);
       });
+    };
+
+    this._calcTotalProgress = function() {
+      var count = 0;
+      var result = 0;
+
+      $.each(_this.data, function() {
+        var t = this;
+        if (!t.hasRun && !t.isCancelled && t.progress !== null && !t.isFailed) {
+          count++;
+          result += t.progress;
+        }
+      });
+      return Math.round(result / count);
     };
 
     this._start = function(transfer) {
@@ -93,13 +131,17 @@ function(
       var $progress = transfer.element.find('.progress');
       var $message = transfer.element.find('.message');
 
-      run.dfr.progress(function(type, value) {
+      run.progress(function(type, value) {
         if (type === 'progress') {
+          transfer.progress = value;
+
           $progress.text(value + '%');
+          transfer.element.find('img').css('filter', 'grayscale(' + (100 - value) + '%)');
 
           if (value > 99) {
             _this._updateStatus(transfer, 'processing');
           }
+          _this.element.trigger('transfer-queue:progress', [_this._calcTotalProgress()]);
         }
         if (type === 'status') {
           _this._updateStatus(transfer, value);
@@ -108,23 +150,26 @@ function(
 
       // Sets status and triggers finished event with item
       // data as returned from endpoint.
-      run.dfr.done(function(data) {
+      run.done(function(data) {
         _this._updateStatus(transfer, 'success');
         transfer.element.trigger('transfer-queue:finished', [data]);
       });
-      run.dfr.fail(function(msg) {
+      run.fail(function(msg) {
+        transfer.isFailed = true;
         _this._updateStatus(transfer, 'error');
         $message.text(msg);
       });
       // Some methods may not report progress, so we force
       // it to be 100% on here.
-      run.dfr.always(function() {
+      //
+      // FIXME Do we need this here?
+      run.always(function() {
+        transfer.hasRun = true;
+        transfer.progress = 100;
         $progress.text('100%');
       });
 
-      transfer.hasRun = true;
-      transfer.cancel = run.cancel;
-      return run.dfr;
+      return run;
     };
 
     // Aborts all cancellable transfers.
@@ -133,6 +178,7 @@ function(
         if (this.cancel) {
           this.cancel();
         }
+        this.isCancelled = true;
       });
       _this.data = [];
     };
@@ -141,7 +187,7 @@ function(
       _this.element.trigger('transfer-queue:reset');
 
       _this.data = [];
-      _this.element.html('');
+      _this.element.find('.items').html('');
     };
 
     // Helper function; formats a given file size nicely. Will leave null

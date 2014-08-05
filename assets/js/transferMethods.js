@@ -42,14 +42,17 @@ function(
         dfr.notify('progress', Math.ceil((ev.loaded * 100) / ev.total));
       }
     }, false);
-    xhr.onload = function() {
-      dfr.resolve($.parseJSON(this.responseText));
+    xhr.onreadystatechange = function(ev) {
+      if (xhr.readyState === 4) {
+        var res = $.parseJSON(xhr.responseText);
+
+        if (xhr.status === 200) {
+          dfr.resolve(res.data.file);
+        } else {
+          dfr.reject(res.message);
+        }
+      }
     };
-    xhr.upload.addEventListener('error', function(ev) {
-        // FIXME parse json error message
-//          dfr.reject($.parseJSON(this.responseText));
-        dfr.reject();
-    }, false);
 
     Router.match('media:transfer', {'title': file.name})
       .then(function(url) {
@@ -81,13 +84,13 @@ function(
   //
   // Local Drop Method aka "Upload from Computer"
   //
-  TransferMethods.FileLocal = function(element) {
+  TransferMethods.FileLocal = function(trigger, input) {
     var _this = this;
 
-    this.element = $(element);
+    this.element = $(input);
 
-    var $input = _this.element.find('input');
-    var $select = _this.element.find('button');
+    var $input = $(input);
+    var $select = $(trigger);
 
     // Bind click handler to button which in turn triggers
     // the actual file input select to pop up. The input
@@ -97,22 +100,42 @@ function(
     // Will automatically trigger action once file is selected.
     $select.on('click', function(ev) {
       ev.preventDefault();
+
       $input.trigger('click');
 
       $input.on('change', function(ev) {
         $.each(this.files, function() {
           var file = this;
+          var transfer = new Transfer();
 
-          _this.element.trigger('transfer-method:loaded', [$.extend(new Transfer(), {
-            run: function() { return fileLocalTransfer(file); },
-            preview: function() { return fileLocalPreview(file); },
-            meta: function() {
-              return $.Deferred().resolve({
-                size: file.size,
-                title: file.name
+          transfer.run = function() {
+            var r = fileLocalTransfer(file);
+
+            transfer.cancel = r.cancel;
+
+            r.dfr
+              .progress(function(type, value) {
+                if (type === 'progress') {
+                  transfer.progress = value;
+                }
+              })
+              .fail(function() {
+                transfer.isFailed = true;
               });
-            }
-          })]);
+
+            return r.dfr;
+          };
+          transfer.preview = function() {
+            return fileLocalPreview(file);
+          };
+          transfer.meta = function() {
+            return $.Deferred().resolve({
+              size: file.size,
+              title: file.name
+            });
+          };
+
+          _this.element.trigger('transfer-method:loaded', [transfer]);
         });
         $input.replaceWith($input.clone(true));
       });
@@ -154,17 +177,36 @@ function(
       if (files.length > 0) {
         $.each(files, function() {
           var file = this;
+          var transfer = new Transfer();
 
-          _this.inner.trigger('transfer-method:loaded', [$.extend(new Transfer(), {
-            run: function() { return fileLocalTransfer(file); },
-            preview: function() { return fileLocalPreview(file); },
-            meta: function() {
-              return $.Deferred().resolve({
-                size: file.size,
-                title: file.name
+          transfer.run = function() {
+            var r = fileLocalTransfer(file);
+
+            transfer.cancel = r.cancel;
+
+            r.dfr
+              .progress(function(type, value) {
+                if (type === 'progress') {
+                  transfer.progress = value;
+                }
+              })
+              .fail(function() {
+                transfer.isFailed = true;
               });
-            }
-          })]);
+
+            return r.dfr;
+          };
+          transfer.preview = function() {
+            return fileLocalPreview(file);
+          };
+          transfer.meta = function() {
+            return $.Deferred().resolve({
+              size: file.size,
+              title: file.name
+            });
+          };
+
+          _this.inner.trigger('transfer-method:loaded', [transfer]);
         });
       }
       $(this).removeClass('dragged-over');
@@ -189,40 +231,60 @@ function(
     $ok.on('click', function(ev) {
       ev.preventDefault();
       var url = $input.val();
+      var transfer = new Transfer();
 
-      _this.element.trigger('transfer-method:loaded', [$.extend(new Transfer(), {
-        run: function() {
-          return _this.transfer(url);
-        },
-        meta: function() {
-          var dfr = new $.Deferred();
+      transfer.run = function() {
+        // Need to wrap as its just a promise.
+        // Fake progress.
 
-          Router.match('media:transfer-meta').done(function(_url) {
-            $.ajax({
-              type: 'POST',
-              url: _url,
-              data: 'url=' + url
-            }).done(function(data) {
-              dfr.resolve(data.file);
-            });
-          });
-          return dfr;
-        }
-      })]);
+        var dfr = new $.Deferred();
+        var r = _this._transfer(url)
+          .done(dfr.resolve)
+          .fail(dfr.reject);
 
-      $input.val('');
-    });
+        dfr.notify('progress', transfer.progress = 0);
+        dfr.done(function() {
+          result.notify('progress', transfer.progress = 100);
+        });
 
-    this.transfer = function(url) {
-       var dfr = Router.match('media:transfer', {'title': ''})
-        .then(function(_url) {
-          return $.ajax({
+        return dfr.promise();
+      };
+      transfer.meta = function() {
+        var dfr = new $.Deferred();
+
+        Router.match('media:transfer-meta').done(function(_url) {
+          $.ajax({
             type: 'POST',
             url: _url,
             data: 'url=' + url
+          }).done(function(data) {
+            dfr.resolve(data.file);
           });
         });
-        return {dfr: dfr.promise(), cancel: null};
+        return dfr.promise();
+      };
+
+      _this.element.trigger('transfer-method:loaded', [transfer]);
+      $input.val('');
+    });
+
+    this._transfer = function(url) {
+      var dfr = new $.Deferred();
+
+       Router.match('media:transfer', {'title': ''})
+        .then(function(_url) {
+          $.ajax({
+            type: 'POST',
+            url: _url,
+            data: 'url=' + url
+          }).done(function(data) {
+            dfr.resolve(data.data.file);
+          }).fail(function(res) {
+            dfr.reject(res.responseJSON.message);
+          });
+        });
+
+        return dfr;
     };
   };
 
@@ -238,39 +300,55 @@ function(
     var $ok = _this.element.find('.confirm');
     var $input = _this.element.find('input');
 
-    $input.on('keyup', function(ev) {
+    $input.on('keyup focusout', function(ev) {
       $ok.prop('disabled', !this.validity.valid || !this.value);
     });
 
     $ok.on('click', function(ev) {
       ev.preventDefault();
       var id = $input.val();
+      var transfer = new Transfer();
 
-      _this.element.trigger('transfer-method:loaded', [$.extend(new Transfer(), {
-        run: function() {
-          return _this.transfer(id);
-        },
-        meta: function() {
-          var dfr = new $.Deferred();
+      transfer.run = function() {
+        // Need to wrap as its just a promise.
+        // Fake progress.
 
-          Router.match('media:transfer-meta').done(function(_url) {
-            $.ajax({
-              type: 'POST',
-              url: _url,
-              data: 'vimeo_id=' + id
-            }).done(function(data) {
-              dfr.resolve(data.file);
-            });
+        var dfr = new $.Deferred();
+        var r = _this._transfer(id)
+          .done(dfr.resolve)
+          .fail(dfr.reject);
+
+        dfr.notify('progress', transfer.progress = 0);
+        dfr.done(function() {
+          dfr.notify('progress', transfer.progress = 100);
+        });
+
+        return dfr.promise();
+      };
+      transfer.meta = function() {
+        var dfr = new $.Deferred();
+
+        Router.match('media:transfer-meta').done(function(_url) {
+          $.ajax({
+            type: 'POST',
+            url: _url,
+            data: 'vimeo_id=' + id
+          }).done(function(data) {
+            dfr.resolve(data.data.file);
+          }).fail(function(res) {
+            transfer.isFailed = true;
+            dfr.reject(res.responseJSON.message);
           });
-          return dfr;
-        }
-      })]);
+        });
+        return dfr;
+      };
 
+      _this.element.trigger('transfer-method:loaded', [transfer]);
       $input.val('');
     });
 
-    this.transfer = function(id) {
-       var dfr = Router.match('media:transfer', {'title': id})
+    this._transfer = function(id) {
+       return Router.match('media:transfer', {'title': id})
         .then(function(url) {
           return $.ajax({
             type: 'POST',
@@ -278,7 +356,6 @@ function(
             data: 'vimeo_id=' + id
           });
         });
-        return {dfr: dfr.promise(), cancel: null};
     };
   };
 

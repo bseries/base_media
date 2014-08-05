@@ -41,7 +41,6 @@ function(
     this.methods = [];
 
     $start = _this.element.find('.start');
-    $reset = _this.element.find('.reset');
     $cancel = _this.element.find('.cancel');
     $methods = _this.element.find('.methods');
     $queue = _this.element.find('.queue');
@@ -50,10 +49,13 @@ function(
 
     // FIXME Assumes ME is always contained in a modal for drop method.
     // FIXME Allow selecting which methods are available.
-    _this.methods.push(new TransferMethods.FileLocal($methods.find('.file-local')));
+    _this.methods.push(new TransferMethods.FileLocal(
+      $queue,
+      $methods.find('.file-local input')
+    ));
     _this.methods.push(new TransferMethods.FileLocalDrop(
       _this.element.parents('#modal'),
-      $methods.find('.drop-message')
+      $methods.find('.file-local-drop')
     ));
     _this.methods.push(new TransferMethods.FileUrl($methods.find('.file-url')));
     _this.methods.push(new TransferMethods.Vimeo($methods.find('.vimeo')));
@@ -65,22 +67,44 @@ function(
 
     // Make room once at least once transfer has been queued.
     $queue.on('transfer-queue:enqueued', function() {
-      $methods.addClass('hide');
+      $queue.addClass('with-items');
     });
 
+
     // Handle interaction with main action buttons.
-    $start.on('click', function(ev) {
-      ev.preventDefault();
-      _this.queue.start();
-    });
     $cancel.on('click', function(ev) {
       ev.preventDefault();
       _this.queue.cancel();
     });
-    $reset.on('click', function(ev) {
+
+    $start.one('click', function(ev) {
       ev.preventDefault();
-      _this.queue.reset();
-      $methods.removeClass('hide');
+      _this.queue.start();
+    });
+    $queue.on('transfer-queue:allDone', function(ev) {
+      $start.addClass('all-done');
+      $start.find('.button-text').text('Fertig');
+
+      // Overlay previous behavior.
+      $start.one('click', function(ev) {
+        ev.preventDefault();
+
+        _this.queue.reset();
+
+        $start.removeClass('all-done');
+        $start.find('.button-text').text('Hochladen');
+        $start.find('.progress-bar').css('width', '0%');
+        $start.one('click', function(ev) {
+          ev.preventDefault();
+          _this.queue.start();
+        });
+      });
+    });
+    $queue.on('transfer-queue:progress', function(ev, value) {
+      $start.find('.progress-bar').css('width', value + '%');
+    });
+    $queue.on('transfer-queue:reset', function(ev, value) {
+      $queue.removeClass('with-items');
     });
   };
 });

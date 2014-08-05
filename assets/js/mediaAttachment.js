@@ -176,7 +176,7 @@ function($, Router, MediaExplorerModal, Sortable) {
             return $.getJSON(url);
           })
           .then(function(data) {
-            map[id] = _this.buildSelectedItemHtml(data.file);
+            map[id] = _this.buildSelectedItemHtml(data.data.file);
           });
 
         dfrs.push(dfr);
@@ -194,7 +194,7 @@ function($, Router, MediaExplorerModal, Sortable) {
 
     this.buildSelectedItemHtml = function(item) {
       var wrap = $('<article class="media-item" style="background-image: url(' + item.versions.fix2.url + ');">');
-      var button = $('<a href="#" class="remove">×</a>');
+      var button = $('<a href="#" class="remove-item">×</a>');
       wrap.append(button);
 
       button.on('click', function(ev) {

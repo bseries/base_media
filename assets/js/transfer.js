@@ -14,8 +14,18 @@ define(['jquery'], function($) {
   // Represents a transfer.
   //
   return function Transfer() {
+
     // Flag to indicate if the run method has been called once.
     this.hasRun = false;
+
+    // Flag to indicate either meta or transfer failed.
+    this.isFailed = false;
+
+    // Flag to indicate this transfer has been cancelled.
+    this.isCancelled = false;
+
+    // Progress in percent as an integer - if available.
+    this.progress = null;
 
     // Once transfer is running a cancel function may be attached here.
     this.cancel =  false;
