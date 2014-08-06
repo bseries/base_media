@@ -10,6 +10,7 @@
  */
 
 define(['jquery'], function($) {
+
   //
   // Represents a transfer.
   //
@@ -49,11 +50,7 @@ define(['jquery'], function($) {
 
     this.title = null;
 
-    //
-    // {
-    //  title:
-    //  size:
-    // }
+    // Must return deferred which when resolved must pass an object with `title` and `size` keys.
     this.function = function() {
       // The title of the transferred object.
       // Filesize in bytes of the transferred object.
@@ -61,5 +58,6 @@ define(['jquery'], function($) {
       return $.Deferred().reject();
     };
   };
+
 });
 
