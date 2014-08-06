@@ -136,7 +136,7 @@ function(
           transfer.progress = value;
 
           $progress.text(value + '%');
-          transfer.element.find('img').css('filter', 'grayscale(' + (100 - value) + '%)');
+          transfer.element.find('img').css('-webkit-filter', 'grayscale(' + (100 - value) + '%)');
 
           if (value > 99) {
             _this._updateStatus(transfer, 'processing');
