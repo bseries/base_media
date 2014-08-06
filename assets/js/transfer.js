@@ -51,7 +51,7 @@ define(['jquery'], function($) {
     this.title = null;
 
     // Must return deferred which when resolved must pass an object with `title` and `size` keys.
-    this.function = function() {
+    this.meta = function() {
       // The title of the transferred object.
       // Filesize in bytes of the transferred object.
 
