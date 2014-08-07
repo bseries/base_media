@@ -96,6 +96,7 @@ class MediaController extends \cms_core\controllers\BaseController {
 	}
 
 	public function admin_api_transfer() {
+			Logger::write('debug', 'mem:' . memory_get_peak_usage());
 		try {
 			list($source, $title) = $this->_handleTransferRequest();
 		} catch (Exception $e) {
@@ -107,21 +108,27 @@ class MediaController extends \cms_core\controllers\BaseController {
 				'data' => $response->to('array')
 			));
 		}
+			Logger::write('debug', 'mem:' . memory_get_peak_usage());
 
 		$file = Media::create([
 			'url' => $source,
 			'title' => $title
 		]);
+			Logger::write('debug', 'mem:' . memory_get_peak_usage());
 		if ($file->can('download')) {
 			$file->url = $file->download();
 		}
+			Logger::write('debug', 'mem:' . memory_get_peak_usage());
 		if ($file->can('transfer')) {
 			$file->url = $file->transfer();
 		}
 
 		try {
+			Logger::write('debug', 'mem:' . memory_get_peak_usage());
 			$file->save();
+			Logger::write('debug', 'mem:' . memory_get_peak_usage());
 			$file->makeVersions();
+			Logger::write('debug', 'mem:' . memory_get_peak_usage());
 		} catch (Exception $e) {
 			$response = new JSendResponse('error', $e->getMessage());
 
@@ -177,13 +184,13 @@ class MediaController extends \cms_core\controllers\BaseController {
 			$source = 'file://' . $this->request->data['form']['tmp_name'];
 			$title = $this->request->data['form']['name'];
 		} else {
-			if (!$source = fopen('php://input', 'rb')) {
+			if (is_resource($this->data)) {
 				throw new InternalServerError();
 			}
 			$temporary = 'file://' . Temporary::file(['context' => 'upload']);
 
-			file_put_contents($temporary, $source);
-			fclose($source);
+			file_put_contents($temporary, $this->data);
+			// fclose($source);
 
 			$source = $temporary;
 			$title = $this->request->query['title'];
