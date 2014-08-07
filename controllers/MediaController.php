@@ -184,13 +184,16 @@ class MediaController extends \cms_core\controllers\BaseController {
 			$source = 'file://' . $this->request->data['form']['tmp_name'];
 			$title = $this->request->data['form']['name'];
 		} else {
-			if (is_resource($this->data)) {
+			Logger::write('debug', 'a mem:' . memory_get_peak_usage());
+			if (!is_resource($this->request->data)) {
 				throw new InternalServerError();
 			}
+			Logger::write('debug', 'ab mem:' . memory_get_peak_usage());
 			$temporary = 'file://' . Temporary::file(['context' => 'upload']);
 
-			file_put_contents($temporary, $this->data);
+			file_put_contents($temporary, $this->request->data);
 			// fclose($source);
+			Logger::write('debug', 'ac mem:' . memory_get_peak_usage());
 
 			$source = $temporary;
 			$title = $this->request->query['title'];
