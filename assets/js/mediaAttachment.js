@@ -193,7 +193,7 @@ function($, Router, MediaExplorerModal, Sortable) {
     };
 
     this.buildSelectedItemHtml = function(item) {
-      var wrap = $('<article class="media-item" style="background-image: url(' + item.versions.fix2.url + ');">');
+      var wrap = $('<article class="media-item" style="background-image: url(' + item.versions.fix2admin.url + ');">');
       var button = $('<a href="#" class="remove-item">×</a>');
       wrap.append(button);
 
