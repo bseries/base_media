@@ -12,7 +12,7 @@
 
 use cms_core\extensions\cms\Features;
 
-Features::register('cms_media', 'media.enableRegenerateVersions', false);
-Features::register('cms_media', 'media.asyncProcessing', false);
+Features::register('media.enableRegenerateVersions', false);
+Features::register('media.asyncProcessing', false);
 
 ?>
