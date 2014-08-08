@@ -20,6 +20,7 @@ use lithium\analysis\Logger;
 use li3_flash_message\extensions\storage\FlashMessage;
 use jsend\Response as JSendResponse;
 use Exception;
+use cms_core\extensions\net\http\InternalServerErrorException;
 use lithium\g11n\Message;
 
 class MediaController extends \cms_core\controllers\BaseController {
@@ -96,7 +97,6 @@ class MediaController extends \cms_core\controllers\BaseController {
 	}
 
 	public function admin_api_transfer() {
-			Logger::write('debug', 'mem:' . memory_get_peak_usage());
 		try {
 			list($source, $title) = $this->_handleTransferRequest();
 		} catch (Exception $e) {
@@ -108,27 +108,21 @@ class MediaController extends \cms_core\controllers\BaseController {
 				'data' => $response->to('array')
 			));
 		}
-			Logger::write('debug', 'mem:' . memory_get_peak_usage());
 
 		$file = Media::create([
 			'url' => $source,
 			'title' => $title
 		]);
-			Logger::write('debug', 'mem:' . memory_get_peak_usage());
 		if ($file->can('download')) {
 			$file->url = $file->download();
 		}
-			Logger::write('debug', 'mem:' . memory_get_peak_usage());
 		if ($file->can('transfer')) {
 			$file->url = $file->transfer();
 		}
 
 		try {
-			Logger::write('debug', 'mem:' . memory_get_peak_usage());
 			$file->save();
-			Logger::write('debug', 'mem:' . memory_get_peak_usage());
 			$file->makeVersions();
-			Logger::write('debug', 'mem:' . memory_get_peak_usage());
 		} catch (Exception $e) {
 			$response = new JSendResponse('error', $e->getMessage());
 
@@ -169,6 +163,7 @@ class MediaController extends \cms_core\controllers\BaseController {
 
 	// @fixme Use Transfer handlers.
 	protected function _handleTransferRequest() {
+		Logger::write('debug', 'Handling transfer request.');
 		extract(Message::aliases());
 
 		if (!empty($this->request->data['url'])) {
@@ -184,16 +179,12 @@ class MediaController extends \cms_core\controllers\BaseController {
 			$source = 'file://' . $this->request->data['form']['tmp_name'];
 			$title = $this->request->data['form']['name'];
 		} else {
-			Logger::write('debug', 'a mem:' . memory_get_peak_usage());
 			if (!is_resource($this->request->data)) {
-				throw new InternalServerError();
+				throw new InternalServerErrorException();
 			}
-			Logger::write('debug', 'ab mem:' . memory_get_peak_usage());
 			$temporary = 'file://' . Temporary::file(['context' => 'upload']);
 
 			file_put_contents($temporary, $this->request->data);
-			// fclose($source);
-			Logger::write('debug', 'ac mem:' . memory_get_peak_usage());
 
 			$source = $temporary;
 			$title = $this->request->query['title'];
