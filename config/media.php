@@ -138,17 +138,16 @@ Handlers::register('MediaVersions::make', function($data) {
 	return false;
 });
 
-
 // Configure processing of media.
 Process::config([
 	'audio' => 'SoxShell',
-	'document' => 'Imagick',
-	'image' => 'Imagick',
+	'document' => USE_IMAGICK ? 'Imagick' : null,
+	'image' => USE_IMAGICK ? 'Imagick' : 'Gd',
 	'video' => 'FfmpegShell'
 ]);
 Info::config([
-	'document' => ['Imagick'],
-	'image' => ['ImageBasic', 'Imagick']
+	'document' => USE_IMAGICK ? 'Imagick' : null,
+	'image' => USE_IMAGICK ? ['ImageBasic', 'Imagick'] : ['ImageBasic']
 ]);
 
 //

@@ -13,6 +13,5 @@
 use cms_core\extensions\cms\Features;
 
 Features::register('media.enableRegenerateVersions', false);
-Features::register('media.asyncProcessing', false);
 
 ?>

@@ -142,7 +142,7 @@ class Media extends \cms_core\models\Base {
 		// version applies for an entity. This decicison is made late
 		// in the scheme make handler.
 		foreach (MediaVersions::assemblyVersions() as $version) {
-			if (!Features::enabled('media.asyncProcessing')) {
+			if (USE_ASYNC_PROCESSING) {
 				MediaVersions::pdo()->beginTransaction();
 
 				if (MediaVersions::make($entity->id, $version)) {
