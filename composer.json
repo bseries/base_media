@@ -20,7 +20,8 @@
         "composer/installers": "~1.0"
     },
     "suggests": {
-      "beanstalkd": "Enables async processing when uploading media."
+      "beanstalkd": "Enables async processing when uploading media.",
+      "ext-imagick": "Enables high-quality image resizing."
     },
     "repositories": [
       {
