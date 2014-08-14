@@ -168,12 +168,20 @@ Info::config([
 $sRGB  = Libraries::get('app', 'path');
 $sRGB .= '/libraries/davidpersson/mm/data/sRGB_IEC61966-2-1_black_scaled.icc';
 
-$fix = [
-	'convert' => 'image/png',
-	'compress' => 5.5,
-	'colorProfile' => $sRGB,
-	'colorDepth' => 8
-];
+if (USE_IMAGICK) {
+	$fix = [
+		'convert' => 'image/png',
+		'compress' => 5.5,
+		'colorProfile' => $sRGB,
+		'colorDepth' => 8,
+		'strip' => ['xmp', '8bim', 'app1', 'app12', 'exif'],
+	];
+} else {
+	$fix = [
+		'convert' => 'image/png',
+		'compress' => 5.5
+	];
+}
 $fluxAudio = [
 	'sampleRate' => 48000,
 	'channels' => 2
@@ -186,22 +194,18 @@ $fluxVideo = [
 ];
 
 MediaVersions::registerAssembly('document', 'fix2admin', $fix + [
-	'strip' => ['8bim', 'app1', 'app12'],
 	'fit' => [500, 500]
 ]);
 MediaVersions::registerAssembly('document', 'fix3admin', $fix + [
-	'strip' => ['xmp', '8bim', 'app1', 'app12', 'exif'],
 	'fit' => [100, 52]
 ]);
 MediaVersions::registerAssembly('document', 'flux0admin', [
 	'clone' => 'symlink'
 ]);
 MediaVersions::registerAssembly('image', 'fix2admin', $fix + [
-	'strip' => ['8bim', 'app1', 'app12'],
 	'fit' => [500, 500]
 ]);
 MediaVersions::registerAssembly('image', 'fix3admin', $fix + [
-	'strip' => ['xmp', '8bim', 'app1', 'app12', 'exif'],
 	'fit' => [100, 52]
 ] + $fix);
 MediaVersions::registerAssembly('audio', 'flux0aadmin', [
