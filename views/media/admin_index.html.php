@@ -58,7 +58,7 @@ $this->set([
 					<?= $item->title ?>
 				<td><?= $version->type ?>
 				<td><?= $version->mime_type ?>
-				<td><?= $this->number->format(round($version->size() / 1024), 'decimal') ?> kb
+				<td><?= $this->number->format(round($item->size() / 1024), 'decimal') ?> kb
 				<td>
 					<?= ($depend = $item->depend('count')) ?: '–' ?>
 				<td class="actions">

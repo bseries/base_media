@@ -22,6 +22,7 @@ class Media extends \lithium\template\Helper {
 
 		$defaults = ['alt' => ''];
 		$options += $defaults;
+
 		$path = $this->_context->url($path, ['absolute' => true]);
 		$params = compact('path', 'options');
 		$method = __METHOD__;
