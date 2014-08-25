@@ -107,7 +107,7 @@ function(
 
     this.handleSelection = function() {
       // Signals outer world that we're cancelling.
-      _this.element.on('click', '.cancel', function() {
+      _this.element.on('click', '.cancel', function(ev) {
         ev.preventDefault();
         _this.element.trigger('media-explorer:cancel');
       });
