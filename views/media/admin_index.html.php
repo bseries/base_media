@@ -11,6 +11,7 @@ $this->set([
 
 ?>
 <article class="media-index">
+<!--
 	<section class="grid-row">
 		<h1 class="h-gamma"><?= $t('Upload') ?></h2>
 		<?= $this->form->create(null, ['type' => 'file']) ?>
@@ -30,6 +31,7 @@ $this->set([
 		<?= $this->form->button($t('upload'), ['type' => 'submit', 'class' => 'button large save']) ?>
 		<?= $this->form->end() ?>
 	</section>
+-->
 	<section class="grid-row">
 		<h1 class="h-gamma">
 			<?= $t('Available Media') ?>
