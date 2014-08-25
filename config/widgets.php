@@ -17,7 +17,7 @@ use cms_media\models\MediaVersions;
 
 extract(Message::aliases());
 
-Widgets::register('cms_media', 'media', function() use ($t) {
+Widgets::register('media', function() use ($t) {
 	$media = Media::find('count');
 	$mediaVersions = MediaVersions::find('count');
 
