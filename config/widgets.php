@@ -19,15 +19,20 @@ extract(Message::aliases());
 
 Widgets::register('media', function() use ($t) {
 	$media = Media::find('count');
-	$mediaVersions = MediaVersions::find('count');
+	$size = 0;
+
+	foreach (Media::find('all') as $item) {
+		$size += $item->size();
+	}
 
 	return [
+		'title' => $t('Media'),
 		'url' => [
 			'controller' => 'media', 'library' => 'cms_media', 'admin' => true, 'action' => 'index'
 		],
 		'data' => [
-			$t('Media') => $media,
-			$t('Media Versions') => $mediaVersions
+			$t('Items') => $media,
+			$t('Size') => intval($size / 1014 / 1024) . ' MB'
 		]
 	];
 }, [
