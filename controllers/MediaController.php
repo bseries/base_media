@@ -180,7 +180,7 @@ class MediaController extends \cms_core\controllers\BaseController {
 			$title = $this->request->data['form']['name'];
 		} else {
 			if (!is_resource($this->request->data)) {
-				throw new InternalServerErrorException();
+				throw new Exception('Received invalid data.');
 			}
 			$temporary = 'file://' . Temporary::file(['context' => 'upload']);
 
