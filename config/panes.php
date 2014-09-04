@@ -1,6 +1,6 @@
 <?php
 /**
- * Bureau Media
+ * Base Media
  *
  * Copyright (c) 2013-2014 Atelier Disko - All rights reserved.
  *
@@ -11,14 +11,14 @@
  */
 
 use lithium\g11n\Message;
-use cms_core\extensions\cms\Panes;
+use base_core\extensions\cms\Panes;
 
 extract(Message::aliases());
 
 Panes::register('media', [
 	'title' => $t('Media'),
 	'order' => 20,
-	'url' => ['controller' => 'media', 'action' => 'index', 'library' => 'cms_media', 'admin' => true]
+	'url' => ['controller' => 'media', 'action' => 'index', 'library' => 'base_media', 'admin' => true]
 ]);
 
 ?>

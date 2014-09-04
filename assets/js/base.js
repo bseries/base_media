@@ -1,13 +1,13 @@
 requirejs.config({
   paths: {
-    'mediaAttachment': 'cms-media/js/mediaAttachment',
-    'mediaExplorerModal': 'cms-media/js/mediaExplorerModal',
-    'mediaExplorer': 'cms-media/js/mediaExplorer',
-    'mediaExplorerAvailablePane': 'cms-media/js/mediaExplorerAvailablePane',
-    'mediaExplorerTransferPane': 'cms-media/js/mediaExplorerTransferPane',
-    'transfer': 'cms-media/js/transfer',
-    'transferQueue': 'cms-media/js/transferQueue',
-    'transferMethods': 'cms-media/js/transferMethods'
+    'mediaAttachment': 'base-media/js/mediaAttachment',
+    'mediaExplorerModal': 'base-media/js/mediaExplorerModal',
+    'mediaExplorer': 'base-media/js/mediaExplorer',
+    'mediaExplorerAvailablePane': 'base-media/js/mediaExplorerAvailablePane',
+    'mediaExplorerTransferPane': 'base-media/js/mediaExplorerTransferPane',
+    'transfer': 'base-media/js/transfer',
+    'transferQueue': 'base-media/js/transferQueue',
+    'transferMethods': 'base-media/js/transferMethods'
   },
   shim: {}
 });

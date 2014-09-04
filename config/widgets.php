@@ -1,6 +1,6 @@
 <?php
 /**
- * Bureau Media
+ * Base Media
  *
  * Copyright (c) 2013-2014 Atelier Disko - All rights reserved.
  *
@@ -11,9 +11,9 @@
  */
 
 use lithium\g11n\Message;
-use cms_core\extensions\cms\Widgets;
-use cms_media\models\Media;
-use cms_media\models\MediaVersions;
+use base_core\extensions\cms\Widgets;
+use base_media\models\Media;
+use base_media\models\MediaVersions;
 
 extract(Message::aliases());
 
@@ -28,7 +28,7 @@ Widgets::register('media', function() use ($t) {
 	return [
 		'title' => $t('Media'),
 		'url' => [
-			'controller' => 'media', 'library' => 'cms_media', 'admin' => true, 'action' => 'index'
+			'controller' => 'media', 'library' => 'base_media', 'admin' => true, 'action' => 'index'
 		],
 		'data' => [
 			$t('Items') => $media,

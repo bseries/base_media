@@ -12,7 +12,7 @@
 define([
   'jquery',
   'handlebars',
-  'text!cms-media/js/templates/transferQueueItem.hbs',
+  'text!base-media/js/templates/transferQueueItem.hbs',
 ],
 function(
    $,

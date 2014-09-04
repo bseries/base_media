@@ -13,7 +13,7 @@ define([
   'jquery',
   'router',
   'handlebars',
-  'text!cms-media/js/templates/mediaExplorerAvailableItem.hbs',
+  'text!base-media/js/templates/mediaExplorerAvailableItem.hbs',
 ],
 function(
   $,

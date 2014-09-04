@@ -1,6 +1,6 @@
 <?php
 /**
- * Bureau Media
+ * Base Media
  *
  * Copyright (c) 2013-2014 Atelier Disko - All rights reserved.
  *
@@ -10,9 +10,9 @@
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 
-namespace cms_media\controllers;
+namespace base_media\controllers;
 
-use cms_media\models\Media;
+use base_media\models\Media;
 use cms_social\models\Vimeo;
 use lithium\core\Libraries;
 use temporary\Manager as Temporary;
@@ -20,14 +20,14 @@ use lithium\analysis\Logger;
 use li3_flash_message\extensions\storage\FlashMessage;
 use jsend\Response as JSendResponse;
 use Exception;
-use cms_core\extensions\net\http\InternalServerErrorException;
+use base_core\extensions\net\http\InternalServerErrorException;
 use lithium\g11n\Message;
 
-class MediaController extends \cms_core\controllers\BaseController {
+class MediaController extends \base_core\controllers\BaseController {
 
-	protected $_model = '\cms_media\models\Media';
+	protected $_model = '\base_media\models\Media';
 
-	use \cms_core\controllers\AdminEditTrait;
+	use \base_core\controllers\AdminEditTrait;
 
 	public function admin_api_view() {
 		$item = Media::find('first', ['conditions' => ['id' => $this->request->id]]);
@@ -215,7 +215,7 @@ class MediaController extends \cms_core\controllers\BaseController {
 			$file->save();
 			$file->makeVersions();
 
-			return $this->redirect(['action' => 'index', 'library' => 'cms_media']);
+			return $this->redirect(['action' => 'index', 'library' => 'base_media']);
 		}
 		$data = Media::find('all', ['order' => ['modified' => 'DESC']]);
 		return compact('data');
@@ -229,14 +229,14 @@ class MediaController extends \cms_core\controllers\BaseController {
 
 		FlashMessage::write('Successfully deleted.', ['level' => 'success']);
 
-		$this->redirect(['action' => 'index', 'library' => 'cms_media']);
+		$this->redirect(['action' => 'index', 'library' => 'base_media']);
 	}
 
 	public function admin_regenerate_versions() {
 		set_time_limit(60 * 5);
 		Media::regenerateVersions();
 
-		$this->redirect(['action' => 'index', 'library' => 'cms_media']);
+		$this->redirect(['action' => 'index', 'library' => 'base_media']);
 	}
 }
 

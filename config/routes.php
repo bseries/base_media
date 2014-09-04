@@ -1,6 +1,6 @@
 <?php
 /**
- * Bureau Media
+ * Base Media
  *
  * Copyright (c) 2013-2014 Atelier Disko - All rights reserved.
  *
@@ -17,45 +17,45 @@ $persist = ['persist' => ['admin', 'controller']];
 // media
 Router::connect(
 	'/admin/api/media/{:id:([0-9]+|__ID__)}',
-	['controller' => 'media', 'action' => 'api_view', 'library' => 'cms_media', 'admin' => true],
+	['controller' => 'media', 'action' => 'api_view', 'library' => 'base_media', 'admin' => true],
 	$persist
 );
 Router::connect(
 	'/admin/api/media',
-	['controller' => 'media', 'action' => 'api_index', 'library' => 'cms_media', 'admin' => true],
+	['controller' => 'media', 'action' => 'api_index', 'library' => 'base_media', 'admin' => true],
 	$persist
 );
 Router::connect(
 	'/admin/api/media/transfer-preflight',
-	['controller' => 'media', 'action' => 'api_transfer_preflight', 'library' => 'cms_media', 'admin' => true]
+	['controller' => 'media', 'action' => 'api_transfer_preflight', 'library' => 'base_media', 'admin' => true]
 );
 Router::connect(
 	'/admin/api/media/transfer-meta',
-	['controller' => 'media', 'action' => 'api_transfer_meta', 'library' => 'cms_media', 'admin' => true]
+	['controller' => 'media', 'action' => 'api_transfer_meta', 'library' => 'base_media', 'admin' => true]
 );
 Router::connect(
 	'/admin/api/media/transfer',
-	['controller' => 'media', 'action' => 'api_transfer', 'library' => 'cms_media', 'admin' => true]
+	['controller' => 'media', 'action' => 'api_transfer', 'library' => 'base_media', 'admin' => true]
 );
 
 Router::connect(
 	'/admin/media/transfer',
-	['controller' => 'media', 'action' => 'transfer', 'library' => 'cms_media', 'admin' => true],
+	['controller' => 'media', 'action' => 'transfer', 'library' => 'base_media', 'admin' => true],
 	$persist
 );
 Router::connect(
 	'/admin/media',
-	['controller' => 'media', 'action' => 'index', 'library' => 'cms_media', 'admin' => true],
+	['controller' => 'media', 'action' => 'index', 'library' => 'base_media', 'admin' => true],
 	$persist
 );
 Router::connect(
 	'/admin/media/{:action}/{:id:[0-9]+}',
-	['controller' => 'media', 'library' => 'cms_media', 'admin' => true],
+	['controller' => 'media', 'library' => 'base_media', 'admin' => true],
 	$persist
 );
 Router::connect(
 	'/admin/media/{:action}/{:args}',
-	['controller' => 'media', 'library' => 'cms_media', 'admin' => true],
+	['controller' => 'media', 'library' => 'base_media', 'admin' => true],
 	$persist
 );
 

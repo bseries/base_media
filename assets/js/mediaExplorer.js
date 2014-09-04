@@ -14,7 +14,7 @@ define([
   'mediaExplorerAvailablePane',
   'mediaExplorerTransferPane',
   'handlebars',
-  'text!cms-media/js/templates/mediaExplorer.hbs',
+  'text!base-media/js/templates/mediaExplorer.hbs',
   'notify'
 ],
 function(

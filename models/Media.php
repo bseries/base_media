@@ -1,6 +1,6 @@
 <?php
 /**
- * Bureau Media
+ * Base Media
  *
  * Copyright (c) 2013-2014 Atelier Disko - All rights reserved.
  *
@@ -10,32 +10,32 @@
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 
-namespace cms_media\models;
+namespace base_media\models;
 
 use Exception;
 use mm\Mime\Type;
-use cms_media\models\MediaVersions;
-use cms_media\models\MediaAttachments;
+use base_media\models\MediaVersions;
+use base_media\models\MediaAttachments;
 use lithium\analysis\Logger;
 use Cute\Job;
 use Cute\Connection;
 use lithium\util\Collection;
 use Monolog\Logger as MonologLogger;
 use Monolog\Handler\StreamHandler;
-use cms_core\extensions\cms\Features;
+use base_core\extensions\cms\Features;
 
-class Media extends \cms_core\models\Base {
+class Media extends \base_core\models\Base {
 
-	use \cms_media\models\ChecksumTrait;
-	use \cms_media\models\UrlTrait;
-	use \cms_media\models\DownloadTrait;
-	use \cms_media\models\SchemeTrait;
-	use \cms_media\models\MediaInfoTrait;
+	use \base_media\models\ChecksumTrait;
+	use \base_media\models\UrlTrait;
+	use \base_media\models\DownloadTrait;
+	use \base_media\models\SchemeTrait;
+	use \base_media\models\MediaInfoTrait;
 
 	public $hasMany = ['MediaVersions'];
 
 	protected static $_actsAs = [
-		'cms_core\extensions\data\behavior\Timestamp'
+		'base_core\extensions\data\behavior\Timestamp'
 	];
 
 	protected $_cachedVersions = [];

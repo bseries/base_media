@@ -1,6 +1,6 @@
 <?php
 /**
- * Bureau Media
+ * Base Media
  *
  * Copyright (c) 2013-2014 Atelier Disko - All rights reserved.
  *
@@ -10,9 +10,9 @@
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 
-namespace cms_media\extensions\command;
+namespace base_media\extensions\command;
 
-use cms_media\models\Media as MediaModel;
+use base_media\models\Media as MediaModel;
 
 class Media extends \lithium\console\Command {
 

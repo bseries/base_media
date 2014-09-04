@@ -1,8 +1,8 @@
 <?php
 
-namespace cms_media\extensions\data\behavior;
+namespace base_media\extensions\data\behavior;
 
-use cms_media\models\Media;
+use base_media\models\Media;
 use lithium\util\Collection;
 
 class Coupler extends \li3_behaviors\data\model\Behavior {
@@ -95,7 +95,7 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 				};
 			} else {
 				$methods[$alias] = function($entity) use ($options, $model) {
-					// $to in this case is the model name i.e. cms_media\models\MediaAttachments.
+					// $to in this case is the model name i.e. base_media\models\MediaAttachments.
 					$to = $options['to'];
 
 					$results = $to::find('all', [

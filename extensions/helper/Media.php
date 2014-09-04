@@ -1,9 +1,9 @@
 <?php
 
-namespace cms_media\extensions\helper;
+namespace base_media\extensions\helper;
 
 use lithium\core\Environment;
-use cms_media\models\MediaVersions;
+use base_media\models\MediaVersions;
 
 // This more of a MediaVersions helper than actually a Media helper.
 // The original media versions will never be embedded into markup.

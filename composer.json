@@ -1,6 +1,6 @@
 {
-    "name": "atelierdisko/cms_media",
-    "description": "Media functionality for bureau.",
+    "name": "atelierdisko/base_media",
+    "description": "Media functionality for Bento.",
     "homepage": "http://atelierdisko.de",
     "type": "lithium-library",
     "license": "proprietary",
@@ -10,7 +10,7 @@
     },
     "require": {
         "php": ">=5.5.0",
-        "atelierdisko/cms_core": "1.2.*",
+        "atelierdisko/base_core": "1.2.*",
         "atelierdisko/cute": "0.1.*",
         "davidpersson/mm": "dev-next as 2.0.0-dev",
         "davidpersson/temporary": "1.*",
@@ -24,9 +24,6 @@
       "ext-imagick": "Enables high-quality image resizing."
     },
     "repositories": [
-      {
-        "type": "vcs",
-        "url": "git@bitbucket.org:atelierdisko/cms_core.git"
-      }
+      { "type": "vcs", "url": "git@bitbucket.org:atelierdisko/base_core.git" }
     ]
 }

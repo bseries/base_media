@@ -1,6 +1,6 @@
 <?php
 /**
- * Bureau Media
+ * Base Media
  *
  * Copyright (c) 2013-2014 Atelier Disko - All rights reserved.
  *
@@ -10,24 +10,24 @@
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 
-namespace cms_media\models;
+namespace base_media\models;
 
 use mm\Mime\Type;
 use lithium\analysis\Logger;
 use OutOfBoundsException;
 
-class MediaVersions extends \cms_core\models\Base {
+class MediaVersions extends \base_core\models\Base {
 
-	use \cms_media\models\ChecksumTrait;
-	use \cms_media\models\UrlTrait;
-	use \cms_media\models\DownloadTrait;
-	use \cms_media\models\SchemeTrait;
-	use \cms_media\models\MediaInfoTrait;
+	use \base_media\models\ChecksumTrait;
+	use \base_media\models\UrlTrait;
+	use \base_media\models\DownloadTrait;
+	use \base_media\models\SchemeTrait;
+	use \base_media\models\MediaInfoTrait;
 
 	public $belongsTo = ['Media'];
 
 	protected static $_actsAs = [
-		'cms_core\extensions\data\behavior\Timestamp'
+		'base_core\extensions\data\behavior\Timestamp'
 	];
 
 	protected static $_instructions = [];

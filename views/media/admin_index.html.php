@@ -1,6 +1,6 @@
 <?php
 
-use cms_core\extensions\cms\Features;
+use base_core\extensions\cms\Features;
 
 $this->set([
 	'page' => [
@@ -65,9 +65,9 @@ $this->set([
 					<?= ($depend = $item->depend('count')) ?: '–' ?>
 				<td class="actions">
 					<?php if (!$depend): ?>
-						<?=$this->html->link($t('delete'), ['action' => 'delete', 'id' => $item->id, 'library' => 'cms_media'], ['class' => 'button delete']) ?>
+						<?=$this->html->link($t('delete'), ['action' => 'delete', 'id' => $item->id, 'library' => 'base_media'], ['class' => 'button delete']) ?>
 					<?php endif ?>
-					<?=$this->html->link($t('open'), ['action' => 'edit', 'id' => $item->id, 'library' => 'cms_media'], ['class' => 'button']) ?>
+					<?=$this->html->link($t('open'), ['action' => 'edit', 'id' => $item->id, 'library' => 'base_media'], ['class' => 'button']) ?>
 			<?php endforeach ?>
 			</tbody>
 			</table>

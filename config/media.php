@@ -1,6 +1,6 @@
 <?php
 /**
- * Bureau Media
+ * Base Media
  *
  * Copyright (c) 2013-2014 Atelier Disko - All rights reserved.
  *
@@ -10,8 +10,8 @@
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 
-use cms_media\models\Media;
-use cms_media\models\MediaVersions;
+use base_media\models\Media;
+use base_media\models\MediaVersions;
 use lithium\core\Libraries;
 use mm\Media\Process;
 use mm\Media\Info;
@@ -21,8 +21,8 @@ use Cute\Handlers;
 // scheme is intentionally left unset. This must be added by the app
 // as we cannot provide sane defaults here.
 //
-// @see cms_media\models\Media::registerScheme()
-// @see cms_media\models\MediaVersions::registerScheme()
+// @see base_media\models\Media::registerScheme()
+// @see base_media\models\MediaVersions::registerScheme()
 
 // Original media files are not accessible through the web
 // directly - security reasons. That's why we don't give
