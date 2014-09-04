@@ -92,7 +92,7 @@ MediaVersions::registerScheme('file', [
 		if (isset($instructions['clone'])) {
 			$action = $instructions['clone'];
 
-			if (in_array($action, array('copy', 'link', 'symlink'))) {
+			if (in_array($action, ['copy', 'link', 'symlink'])) {
 				if (call_user_func($action, $source, $target)) {
 					return $target;
 				}
@@ -108,7 +108,7 @@ MediaVersions::registerScheme('file', [
 				$args = null;
 			}
 			if (method_exists($media, $method)) {
-				$result = call_user_func_array(array($media, $method), (array) $args);
+				$result = call_user_func_array([$media, $method], (array) $args);
 			} else {
 				$result = $media->passthru($method, $args);
 			}

@@ -35,10 +35,10 @@ class MediaController extends \base_core\controllers\BaseController {
 
 		$response = new JSendResponse('success', compact('file'));
 
-		$this->render(array(
+		$this->render([
 			'type' => 'json',
 			'data' => $response->to('array')
-		));
+		]);
 	}
 
 	public function admin_api_index() {
@@ -52,10 +52,10 @@ class MediaController extends \base_core\controllers\BaseController {
 		}
 		$response = new JSendResponse('success', compact('files'));
 
-		$this->render(array(
+		$this->render([
 			'type' => 'json',
 			'data' => $response->to('array')
-		));
+		]);
 	}
 
 	// Retrieve information of transfer without actually downloading the entity.
@@ -65,11 +65,11 @@ class MediaController extends \base_core\controllers\BaseController {
 		} catch (Exception $e) {
 			$response = new JSendResponse('error', $e->getMessage());
 
-			return $this->render(array(
+			return $this->render([
 				'status' => 500,
 				'type' => 'json',
 				'data' => $response->to('array')
-			));
+			]);
 		}
 
 		$item = Media::create([
@@ -82,10 +82,10 @@ class MediaController extends \base_core\controllers\BaseController {
 		];
 		$response = new JSendResponse('success', compact('file'));
 
-		$this->render(array(
+		$this->render([
 			'type' => 'json',
 			'data' => $response->to('array')
-		));
+		]);
 	}
 
 	// Same as api_transfer but without storing the result permanently plus
@@ -93,7 +93,7 @@ class MediaController extends \base_core\controllers\BaseController {
 	// processed.
 	public function admin_api_transfer_preflight() {
 		$file = [];
-		$this->render(array('type' => 'json', 'data' => compact('file')));
+		$this->render(['type' => 'json', 'data' => compact('file')]);
 	}
 
 	public function admin_api_transfer() {
@@ -102,11 +102,11 @@ class MediaController extends \base_core\controllers\BaseController {
 		} catch (Exception $e) {
 			$response = new JSendResponse('error', $e->getMessage());
 
-			return $this->render(array(
+			return $this->render([
 				'status' => 500,
 				'type' => 'json',
 				'data' => $response->to('array')
-			));
+			]);
 		}
 
 		$file = Media::create([
@@ -126,20 +126,20 @@ class MediaController extends \base_core\controllers\BaseController {
 		} catch (Exception $e) {
 			$response = new JSendResponse('error', $e->getMessage());
 
-			return $this->render(array(
+			return $this->render([
 				'status' => 500,
 				'type' => 'json',
 				'data' => $response->to('array')
-			));
+			]);
 		}
 
 		$file = $this->_export($file);
 		$response = new JSendResponse('success', compact('file'));
 
-		$this->render(array(
+		$this->render([
 			'type' => 'json',
 			'data' => $response->to('array')
-		));
+		]);
 	}
 
 	protected function _export($item) {
