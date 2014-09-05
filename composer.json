@@ -14,9 +14,10 @@
         "atelierdisko/cute": "0.1.*",
         "davidpersson/mm": "dev-next as 2.0.0-dev",
         "davidpersson/temporary": "1.*",
-        "davidpersson/li3_behaviors": "*",
-        "uor/li3_flash_message": "dev-master",
-        "unionofrad/lithium": "dev-dev",
+        "davidpersson/li3_behaviors": "1.*",
+        "uor/li3_flash_message": "dev-master as 1.0.0-dev",
+        "atelierdisko/jsend": "0.5.*",
+        "unionofrad/lithium": "dev-dev as 1.0.0-dev",
         "composer/installers": "~1.0"
     },
     "suggests": {
