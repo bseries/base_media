@@ -54,7 +54,22 @@ class Media extends \base_core\models\Base {
 		return static::$_cuteConnection;
 	}
 
-	// @fixme Make this part of higher Media/settings abstratiction.
+	// Registers a model that uses and depends on media. Bindings define
+	// how exactly the model depends on the media.
+	//
+	// In this example the 2 possible types of bindings are registered:
+	//
+	// ```
+	// Media::registerDependent('cms_post\models\Posts', [
+	//	'cover' => 'direct', 'media' => 'joined'
+	// ]);
+	// ```
+	//
+	// - For _direct_ bindings the model must have a <NAME>_media_id field.
+	//   Direct bindings can just hold one medium.
+	//
+	// - _Joined_ bindings are used to attach an arbitrary amount of media
+	//   to a model.
 	public static function registerDependent($model, array $bindings) {
 		static::$_dependent[$model] = $bindings;
 	}
