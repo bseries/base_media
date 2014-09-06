@@ -193,30 +193,6 @@ class MediaController extends \base_core\controllers\BaseController {
 	}
 
 	public function admin_index() {
-		// Handle transfer via URL or form uplaod.
-		if ($this->request->data) {
-			list($source, $title) = $this->_handleTransferRequest();
-
-			$file = Media::create([
-				'url' => $source,
-				'title' => $title,
-				// deliberately not passing extension as a hint as we want to
-				// rely on detecting the MIME type by contents of the file
-				// only.
-			]);
-
-			if ($file->can('download')) {
-				$file->url = $file->download();
-			}
-			if ($file->can('transfer')) {
-				$file->url = $file->transfer();
-			}
-
-			$file->save();
-			$file->makeVersions();
-
-			return $this->redirect(['action' => 'index', 'library' => 'base_media']);
-		}
 		$data = Media::find('all', ['order' => ['modified' => 'DESC']]);
 		return compact('data');
 	}
