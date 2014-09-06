@@ -17,8 +17,8 @@ extract(Message::aliases());
 
 Panes::register('media', [
 	'title' => $t('Media'),
-	'order' => 20,
-	'url' => ['controller' => 'media', 'action' => 'index', 'library' => 'base_media', 'admin' => true]
+	'url' => ['controller' => 'media', 'action' => 'index', 'library' => 'base_media', 'admin' => true],
+	'weight' => 80
 ]);
 
 ?>
