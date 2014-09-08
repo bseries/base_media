@@ -179,12 +179,11 @@ class MediaController extends \base_core\controllers\BaseController {
 			$source = 'file://' . $this->request->data['form']['tmp_name'];
 			$title = $this->request->data['form']['name'];
 		} else {
-			if (!is_resource($this->request->data)) {
-				throw new Exception('Received invalid data.');
-			}
+			$stream = fopen('php://input', 'r');
 			$temporary = 'file://' . Temporary::file(['context' => 'upload']);
 
-			file_put_contents($temporary, $this->request->data);
+			file_put_contents($temporary, $stream);
+			fclose($stream);
 
 			$source = $temporary;
 			$title = $this->request->query['title'];
