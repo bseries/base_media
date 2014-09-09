@@ -208,8 +208,10 @@ function($, Router, MediaExplorerModal) {
       });
 
       MediaExplorerModal.init({
-        selected: ids,
-        selectable: _this.selectable
+        'available': {
+          selected: ids,
+          selectable: _this.selectable
+        }
       });
 
       MediaExplorerModal.open();

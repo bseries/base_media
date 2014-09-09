@@ -34,18 +34,23 @@ function(
 
     this.element = $(element);
 
-    options = $.extend({
-      selectable: null,
-      selected: [],
-      // methods: ['localFile', 'localFileDrop']
+    options = $.extend(true, {
+      available: {
+        selectable: null,
+        selected: [],
+      },
+      transfer: {
+        vimeoUpload: true,
+        urlUpload: false
+      }
     }, options);
 
     // This must come before initializing the panes as they
     // rely on the HTML to be in DOM already.
     _this.element.html(Handlebars.compile(template));
 
-    this.availablePane = new AvailablePane(_this.element.find('.available'), options);
-    this.transferPane = new TransferPane(_this.element.find('.transfer'), options);
+    this.availablePane = new AvailablePane(_this.element.find('.available'), options.available);
+    this.transferPane = new TransferPane(_this.element.find('.transfer'), options.transfer);
 
     // Once an item has been transferred within the queue, add
     // it to the list of available items automatically. Item is

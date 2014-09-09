@@ -2,11 +2,14 @@ define(['jquery', 'mediaExplorer', 'modal'],
 function($, MediaExplorer, Modal) {
 
   var mediaExplorerConfig = {
-    'selectable': false
+    'available': {
+      'selectable': false
+    },
+    // 'transfer': {}
   };
 
   var init = function(options) {
-    this.mediaExplorerConfig = $.extend(this.mediaExplorerConfig, options || {});
+    this.mediaExplorerConfig = $.extend(true, this.mediaExplorerConfig, options || {});
     Modal.init();
   };
 
