@@ -22,7 +22,10 @@ trait MediaInfoTrait {
 	//        us to retrieve more meta data.
 	public function size($entity) {
 		if ($entity->exists()) {
-			return filesize($entity->url('file'));
+			if ($entity->can('relative')) {
+				return file_exists($file = $entity->url('file')) && filesize($file);
+			}
+			return;
 		}
 		if (strpos($entity->url, 'http') === 0) {
 			$curl = curl_init($entity->url);
