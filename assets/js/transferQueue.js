@@ -53,12 +53,11 @@ function(
 
       transfer.meta()
         .done(function(meta) {
-          $title.text(meta.title);
           if (meta.size) {
             $size.text(_this._formatSize(meta.size));
           }
           if (meta.title) {
-            $card.html(meta.title);
+            $title.text(meta.title);
           }
         })
         .fail(function(msg) {
@@ -73,6 +72,15 @@ function(
 
           // We assume preview is always an image.
           $preview.replaceWith($('<img />').attr('src', dataUrl).addClass($preview.attr('class')));
+        })
+        .fail(function() {
+          transfer.meta()
+            .done(function(meta) {
+              $card.html(meta.title);
+            })
+            .fail(function(msg) {
+              // Possibly already failed above and set message.
+            });
         });
 
       // Initial state.
