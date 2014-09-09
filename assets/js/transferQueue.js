@@ -55,8 +55,10 @@ function(
         .done(function(meta) {
           $title.text(meta.title);
           if (meta.size) {
-            $card.html(meta.title);
             $size.text(_this._formatSize(meta.size));
+          }
+          if (meta.title) {
+            $card.html(meta.title);
           }
         })
         .fail(function(msg) {
