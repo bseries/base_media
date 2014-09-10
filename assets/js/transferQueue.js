@@ -169,14 +169,15 @@ function(
         _this._updateStatus(transfer, 'error');
         $message.text(msg);
       });
-      // Some methods may not report progress, so we force
-      // it to be 100% on here.
-      //
-      // FIXME Do we need this here?
       run.always(function() {
-        transfer.hasRun = true;
+        // Some methods may not report progress, so we force
+        // it to be 100% on here.
         transfer.progress = 100;
         $progress.text('100%');
+        _this.element.trigger('transfer-queue:progress', [_this._calcTotalProgress()]);
+
+        // Must come after progress, as run transfers are not included.
+        transfer.hasRun = true;
       });
 
       return run;

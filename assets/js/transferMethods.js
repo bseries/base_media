@@ -310,14 +310,8 @@ function(
       var transfer = new Transfer();
 
       transfer.run = function() {
-        var dfr = _this._transfer(id)
-          .done(function() {
-            dfr.notify('progress', transfer.progress = 100);
-          });
-
-        dfr.notify('progress', transfer.progress = 0);
-
-        return dfr.promise();
+        // Does not report progress.
+        return _this._transfer(id).promise();
       };
       transfer.meta = function() {
         var dfr = new $.Deferred();
