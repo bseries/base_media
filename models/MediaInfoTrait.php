@@ -22,8 +22,8 @@ trait MediaInfoTrait {
 	//        us to retrieve more meta data.
 	public function size($entity) {
 		if ($entity->exists()) {
-			if ($entity->can('relative')) {
-				return file_exists($file = $entity->url('file')) && filesize($file);
+			if ($entity->can('relative') && file_exists($file = $entity->url('file'))) {
+				return filesize($file);
 			}
 			return;
 		}
