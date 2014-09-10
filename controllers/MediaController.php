@@ -143,7 +143,9 @@ class MediaController extends \base_core\controllers\BaseController {
 	}
 
 	protected function _export($item) {
-		$result = $item->data();
+		$result = $item->data() + [
+			'depend' => $item->depend('count')
+		];
 
 		$scheme = $this->request->is('ssl') ? 'https' : 'http';
 

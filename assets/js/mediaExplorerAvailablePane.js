@@ -13,14 +13,19 @@ define([
   'jquery',
   'router',
   'handlebars',
+  'moment',
   'text!base-media/js/templates/mediaExplorerAvailableItem.hbs',
 ],
 function(
   $,
   Router,
   Handlebars,
+  Moment,
   itemTemplate
 ) {
+
+  Moment.locale($('html').attr('lang'));
+  itemTemplate = Handlebars.compile(itemTemplate);
 
   //
   // Available Items Pane
@@ -43,7 +48,11 @@ function(
 
     this.selected = options.selected || [];
 
-    this.template = Handlebars.compile(itemTemplate);
+    this.template = function(data) {
+      return itemTemplate($.extend(data, {
+        created: Moment(data.created).format('l')
+      }));
+    };
 
     if (_this.selectable) {
       _this.element.find('.confirm').removeClass('hide');
@@ -77,6 +86,7 @@ function(
             $items.prepend($el);
           });
           _this.sort();
+          // FIXME Implement "loading" state.
       });
     };
 

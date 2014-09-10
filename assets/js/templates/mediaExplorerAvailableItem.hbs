@@ -6,6 +6,10 @@
 	<img class="preview" src="{{versions.fix2admin.url}}">
 	<div class="meta">
 		<span class="title">{{title}}</span>
+		<span class="created">{{created}}</span>
+		{{#if depend}}
+			/ <span class="depend">{{depend}} depending</span>
+		{{/if}}
 	</div>
 </article>
 
