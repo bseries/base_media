@@ -310,18 +310,12 @@ function(
       var transfer = new Transfer();
 
       transfer.run = function() {
-        // Need to wrap as its just a promise.
-        // Fake progress.
-
-        var dfr = new $.Deferred();
-        var r = _this._transfer(id)
-          .done(dfr.resolve)
-          .fail(dfr.reject);
+        var dfr = _this._transfer(id)
+          .done(function() {
+            dfr.notify('progress', transfer.progress = 100);
+          });
 
         dfr.notify('progress', transfer.progress = 0);
-        dfr.done(function() {
-          dfr.notify('progress', transfer.progress = 100);
-        });
 
         return dfr.promise();
       };
@@ -348,14 +342,22 @@ function(
     });
 
     this._transfer = function(id) {
-       return Router.match('media:transfer', {'title': id})
-        .then(function(url) {
-          return $.ajax({
-            type: 'POST',
-            url: url,
-            data: 'vimeo_id=' + id
-          });
+      var dfr = new $.Deferred();
+
+      Router.match('media:transfer', {'title': id}).done(function(_url) {
+        $.ajax({
+          type: 'POST',
+          url: _url,
+          data: 'vimeo_id=' + id
+        }).done(function(data) {
+          dfr.resolve(data.data.file);
+        }).fail(function(res) {
+          dfr.reject(res.responseJSON.message);
         });
+
+      });
+
+      return dfr;
     };
   };
 
