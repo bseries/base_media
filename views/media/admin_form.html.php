@@ -25,7 +25,7 @@ $edit = $this->request()->params['action'] == 'edit';
 			</div>
 		</div>
 
-		<div class="grid-row grid-row-last">
+		<div class="grid-row">
 			<?php $versions = $item->versions() ?>
 			<h1 class="h-gamma">
 				<?= $t('Versions') ?>
