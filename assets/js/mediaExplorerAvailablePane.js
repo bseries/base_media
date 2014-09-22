@@ -14,6 +14,8 @@ define([
   'router',
   'handlebars',
   'moment',
+  'dataGrid',
+  'underscore',
   'text!base-media/js/templates/mediaExplorerAvailableItem.hbs',
 ],
 function(
@@ -21,6 +23,8 @@ function(
   Router,
   Handlebars,
   Moment,
+  DataGrid,
+  _,
   itemTemplate
 ) {
 
@@ -48,72 +52,90 @@ function(
 
     this.selected = options.selected || [];
 
-    this.template = function(data) {
-      return itemTemplate($.extend(data, {
-        created: Moment(data.created).format('l')
-      }));
-    };
+    var currentSearchXhr;
+
+    this.grid = new DataGrid(_this.element.find('.items'), {
+
+      ensure: function() {
+        return _this.selected;
+      },
+
+      sorters: [
+        function(a, b) { // First sort newest to top.
+          return Moment(b.created).unix() - Moment(a.created).unix();
+        },
+        function(a, b) { // Then sort selected to top.
+          var aIsSelected = $.inArray(a.id, _this.selected) !== -1;
+          var bIsSelected = $.inArray(b.id, _this.selected) !== -1;
+
+          if (aIsSelected && bIsSelected) {
+            return 0;
+          }
+          if (aIsSelected) {
+            return -1;
+          }
+          return 1;
+        },
+      ],
+
+      renderItem: function(item) {
+        var $item = $(itemTemplate($.extend(item, {
+          created: Moment(item.created).format('l')
+        })));
+
+        if ($.inArray(item.id, _this.selected) !== -1) {
+          $item.addClass('selected');
+        }
+        return $item.get(0).outerHTML;
+      },
+
+      index: function(page) {
+        var dfr = new $.Deferred();
+
+        Router.match('media:index', {page: page})
+          .then(function(url) {
+            $.getJSON(url).done(function(data) {
+              dfr.resolve(data.data.files, data.data.meta);
+            });
+          });
+
+        return dfr.promise();
+      },
+
+      view: function(id) {
+        var dfr = new $.Deferred();
+
+        Router.match('media:view', {id: id})
+          .then(function(url) {
+            $.getJSON(url).done(function(data) {
+              dfr.resolve(data.data.file);
+            });
+          });
+
+        return dfr.promise();
+      },
+
+      search: function(q, page) {
+        var dfr = new $.Deferred();
+
+        Router.match('media:search', {q: q, page: page})
+          .then(function(url) {
+            if (currentSearchXhr) {
+              currentSearchXhr.abort();
+            }
+            currentSearchXhr = $.getJSON(url).done(function(data) {
+              dfr.resolve(data.data.files, data.data.meta);
+            });
+          });
+
+        return dfr.promise();
+      }
+
+    });
 
     if (_this.selectable) {
       _this.element.find('.confirm').removeClass('hide');
     }
-
-    this.insert = function(data) {
-      _this.element.find('.items').prepend(_this.template(data));
-    };
-
-    this.items = function(selector) {
-      return _this.element.find('.item' + (selector || ''));
-    };
-
-    // Populates existing available files.
-    // Preset selected.
-    this.populate = function() {
-      return Router.match('media:index')
-        .then(function(url) {
-          return $.getJSON(url);
-        })
-        .then(function(data) {
-          var $items = _this.element.find('.items');
-
-          // Returned data is nested under "files" key.
-          $.each(data.data.files, function() {
-            var $el = $(_this.template(this));
-
-            if ($.inArray($el.data('id'), _this.selected) !== -1) {
-              $el.addClass('selected');
-            }
-            $items.prepend($el);
-          });
-          _this.sort();
-          // FIXME Implement "loading" state.
-      });
-    };
-
-    this.sort = function() {
-      var items = _this.items().get();
-
-      // Sort already selected items to top.
-      items.sort(function(x, y) {
-        var $x = $(x);
-        var $y = $(y);
-
-        if ($x.hasClass('selected') && $y.hasClass('selected')) {
-          // Sub sort by id descending; lower ids come first.
-          if ($x.data('id') > $y.data('id')) {
-            return -1;
-          }
-          return 1;
-        }
-        if ($x.hasClass('selected')) {
-          return -1;
-        }
-        return 1;
-      });
-
-      // Replace in place.
-      _this.element.find('.items').html(items);
-    };
 
     this.handleSelection = function() {
       // Signals outer world that we're cancelling.
@@ -134,12 +156,7 @@ function(
       // Passes an array of selected item ids via :selected event.
       _this.element.on('click', '.confirm', function(ev) {
         ev.preventDefault();
-        var ids = [];
-
-        _this.items('.selected').each(function(k, el) {
-          ids.push($(el).data('id'));
-        });
-        _this.element.trigger('media-explorer:selected', [ids]);
+        _this.element.trigger('media-explorer:selected', [_this.selected]);
       });
 
       // Marks an item as selected when clicked on it by assinging class.
@@ -147,15 +164,25 @@ function(
         $this = $(this);
 
         if (_this.selectable === 1) {
-          _this.items().removeClass('selected');
+          _this.selected = [$this.data('id')]; // Replace
+          _this.grid.$items().removeClass('selected');
           $this.addClass('selected');
+
         } else if (_this.selectable === true) {
+          if ($.inArray($this.data('id'), _this.selected) === -1) {
+            _this.selected.push($this.data('id'));
+          }
           $this.toggleClass('selected');
+
         } else if (_this.selectable > 1) {
-          var current = _this.items('.selected').length;
+          var current = _this.selected.length;
 
           if ($this.hasClass('selected') || current < _this.selectable) {
+            if ($.inArray($this.data('id'), _this.selected) === -1) {
+              _this.selected.push($this.data('id'));
+            }
             $this.toggleClass('selected');
+
           } else if (current >= _this.selectable) {
             // FIXME Notify user that items must be deselected first to select new ones.
           }
@@ -165,27 +192,14 @@ function(
 
     // Filters existing files using dead simple search.
     this.bindAvailableFilter = function() {
-      var $search = _this.element.parent().find('.search');
-
-      $search.on('keyup', function() {
-        var val = $(this).val();
-
-        _this.items().each(function() {
-          var $item = $(this);
-          var haystack = $item.data('type') + '|' + $item.find('.title').text();
-
-          if (haystack.indexOf(val) !== -1) {
-            $item.removeClass('hide');
-          } else {
-            $item.addClass('hide');
-          }
-        });
-      });
+      _this.element.parent().find('.search').on('keyup', _.debounce(function() {
+        _this.grid.search($(this).val());
+      }, 100));
     };
 
     // Further Initialization.
     this.bindAvailableFilter();
-    this.populate();
+    this.grid.init();
     this.handleSelection();
   };
 });

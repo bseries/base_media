@@ -21,8 +21,13 @@ Router::connect(
 	$persist
 );
 Router::connect(
-	'/admin/api/media',
+	'/admin/api/media/page:{:page}',
 	['controller' => 'media', 'action' => 'api_index', 'library' => 'base_media', 'admin' => true],
+	$persist
+);
+Router::connect(
+	'/admin/api/media/search/{:q}/page:{:page}',
+	['controller' => 'media', 'action' => 'api_search', 'library' => 'base_media', 'admin' => true],
 	$persist
 );
 Router::connect(

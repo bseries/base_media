@@ -54,6 +54,34 @@ class Media extends \base_core\models\Base {
 		return static::$_cuteConnection;
 	}
 
+	public static function search($q, array $query = []) {
+		$meta = [
+			'total' => null
+		];
+		$results = static::find('all', [
+			'conditions' => [
+				'or' => [
+					'type' => ['LIKE' => "%{$q}%"],
+					'mime_type' => ['LIKE' => "%{$q}%"],
+					'title' => ['LIKE' => "%{$q}%"]
+
+				]
+			]
+		] + $query);
+
+		$meta['total'] = static::find('count', [
+			'conditions' => [
+				'or' => [
+					'type' => ['LIKE' => "%{$q}%"],
+					'mime_type' => ['LIKE' => "%{$q}%"],
+					'title' => ['LIKE' => "%{$q}%"]
+
+				]
+			]
+		]);
+		return [$results, $meta];
+	}
+
 	// Registers a model that uses and depends on media. Bindings define
 	// how exactly the model depends on the media.
 	//

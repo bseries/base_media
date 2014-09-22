@@ -70,7 +70,6 @@ function(
       $queue.addClass('with-items');
     });
 
-
     // Handle interaction with main action buttons.
     $cancel.on('click', function(ev) {
       ev.preventDefault();

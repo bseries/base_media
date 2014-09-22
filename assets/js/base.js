@@ -7,7 +7,8 @@ requirejs.config({
     'mediaExplorerTransferPane': 'base-media/js/mediaExplorerTransferPane',
     'transfer': 'base-media/js/transfer',
     'transferQueue': 'base-media/js/transferQueue',
-    'transferMethods': 'base-media/js/transferMethods'
+    'transferMethods': 'base-media/js/transferMethods',
+    'dataGrid': 'base-media/js/dataGrid'
   },
   shim: {}
 });

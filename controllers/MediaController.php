@@ -31,6 +31,10 @@ class MediaController extends \base_core\controllers\BaseController {
 
 	public function admin_api_view() {
 		$item = Media::find('first', ['conditions' => ['id' => $this->request->id]]);
+
+		if (!$item) {
+			// Bail out.
+		}
 		$file = $this->_export($item);
 
 		$response = new JSendResponse('success', compact('file'));
@@ -42,7 +46,12 @@ class MediaController extends \base_core\controllers\BaseController {
 	}
 
 	public function admin_api_index() {
+		$page = $this->request->page ?: 1;
+		$perPage = 2;
+
 		$media = Media::find('all', [
+			'page' => $page,
+			'limit' => $perPage,
 			'order' => ['created' => 'DESC']
 		]);
 
@@ -50,12 +59,44 @@ class MediaController extends \base_core\controllers\BaseController {
 		foreach ($media as $item) {
 			$files[] = $this->_export($item);
 		}
-		$response = new JSendResponse('success', compact('files'));
+		$response = new JSendResponse('success', compact('files') + [
+			'meta' => [
+				'total' => Media::find('count')
+			]
+		]);
 
 		$this->render([
 			'type' => 'json',
 			'data' => $response->to('array')
 		]);
+	}
+
+	public function admin_api_search() {
+		$page = $this->request->page ?: 1;
+		$perPage = 10;
+		$q = $this->request->q ?: null;
+
+		list($media, $meta) = Media::search($q, [
+			'page' => $page,
+			'limit' => $perPage,
+			'order' => ['created' => 'DESC']
+		]);
+
+		$files = [];
+		foreach ($media as $item) {
+			$files[] = $this->_export($item);
+		}
+		$response = new JSendResponse('success', compact('files') + [
+			'meta' => [
+				'total' => $meta['total']
+			]
+		]);
+
+		$this->render([
+			'type' => 'json',
+			'data' => $response->to('array')
+		]);
+
 	}
 
 	// Retrieve information of transfer without actually downloading the entity.
@@ -143,7 +184,7 @@ class MediaController extends \base_core\controllers\BaseController {
 	}
 
 	protected function _export($item) {
-		$result = $item->data() + [
+		$result = ['id' => (integer) $item->id] + $item->data() + [
 			'depend' => $item->depend('count')
 		];
 
@@ -194,7 +235,7 @@ class MediaController extends \base_core\controllers\BaseController {
 	}
 
 	public function admin_index() {
-		$data = Media::find('all', ['order' => ['modified' => 'DESC']]);
+		$data = Media::find('all', ['order' => ['created' => 'DESC']]);
 		return compact('data');
 	}
 
