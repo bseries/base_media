@@ -47,7 +47,7 @@ class MediaController extends \base_core\controllers\BaseController {
 
 	public function admin_api_index() {
 		$page = $this->request->page ?: 1;
-		$perPage = 2;
+		$perPage = 20;
 
 		$media = Media::find('all', [
 			'page' => $page,
@@ -73,7 +73,7 @@ class MediaController extends \base_core\controllers\BaseController {
 
 	public function admin_api_search() {
 		$page = $this->request->page ?: 1;
-		$perPage = 10;
+		$perPage = 20;
 		$q = $this->request->q ?: null;
 
 		list($media, $meta) = Media::search($q, [

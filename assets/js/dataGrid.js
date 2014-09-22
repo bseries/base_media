@@ -48,6 +48,7 @@ function(
       var html = '';
       var data = [];
 
+      // Only arrays are sortable.
       $.each(_this.data, function() {
         data.push(this);
       });
@@ -60,7 +61,7 @@ function(
       });
 
       if (data.length < _this.total && data.length > 0) {
-        html = html + '<a href="#more" class="load-more">more</a>';
+        html = html + '<div class="load-more"><a href="#more" class="button large">load more</a></div>';
       }
       _this.$element.html(html);
 
@@ -73,6 +74,8 @@ function(
     });
 
     this.init = function() {
+      _this.$element.html('<p class="loading">loading…</p>');
+
       var main = new $.Deferred();
       var pool = [];
       var req;
@@ -134,6 +137,8 @@ function(
     };
 
     this.search = function(q) {
+      _this.$element.html('<p class="loading">loading…</p>');
+
       if (!q) {
         return _this.init();
       }
@@ -157,5 +162,10 @@ function(
       return dfr.promise();
     };
 
+    this.insert = function(item) {
+      _this.data[item.id] = item;
+      _this.total++;
+      _this.render();
+    };
   };
 });

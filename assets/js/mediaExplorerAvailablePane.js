@@ -62,7 +62,7 @@ function(
 
       sorters: [
         function(a, b) { // First sort newest to top.
-          return Moment(b.created).unix() - Moment(a.created).unix();
+          return Moment(a.created).unix() - Moment(b.created).unix();
         },
         function(a, b) { // Then sort selected to top.
           var aIsSelected = $.inArray(a.id, _this.selected) !== -1;
@@ -79,7 +79,7 @@ function(
       ],
 
       renderItem: function(item) {
-        var $item = $(itemTemplate($.extend(item, {
+        var $item = $(itemTemplate($.extend(_.clone(item), {
           created: Moment(item.created).format('l')
         })));
 
@@ -137,6 +137,10 @@ function(
       _this.element.find('.confirm').removeClass('hide');
     }
 
+    this.insert = function(item) {
+      _this.grid.insert(item);
+    };
+
     this.handleSelection = function() {
       // Signals outer world that we're cancelling.
       _this.element.on('click', '.cancel', function(ev) {
@@ -161,16 +165,21 @@ function(
 
       // Marks an item as selected when clicked on it by assinging class.
       _this.element.on('click', '.item', function() {
-        $this = $(this);
+        var $this = $(this);
+        var id = $this.data('id');
 
         if (_this.selectable === 1) {
-          _this.selected = [$this.data('id')]; // Replace
+          _this.selected = [id]; // Replace
           _this.grid.$items().removeClass('selected');
           $this.addClass('selected');
 
         } else if (_this.selectable === true) {
-          if ($.inArray($this.data('id'), _this.selected) === -1) {
-            _this.selected.push($this.data('id'));
+          if ($this.hasClass('selected')) {
+            _this.selected.splice(_this.selected.indexOf(id), 1);
+          } else {
+            if ($.inArray(id, _this.selected) === -1) {
+              _this.selected.push(id);
+            }
           }
           $this.toggleClass('selected');
 
@@ -178,8 +187,8 @@ function(
           var current = _this.selected.length;
 
           if ($this.hasClass('selected') || current < _this.selectable) {
-            if ($.inArray($this.data('id'), _this.selected) === -1) {
-              _this.selected.push($this.data('id'));
+            if ($.inArray(id, _this.selected) === -1) {
+              _this.selected.push(id);
             }
             $this.toggleClass('selected');
 
@@ -199,6 +208,7 @@ function(
 
     // Further Initialization.
     this.bindAvailableFilter();
+
     this.grid.init();
     this.handleSelection();
   };
