@@ -73,6 +73,7 @@ function(
     // Handle interaction with main action buttons.
     $cancel.on('click', function(ev) {
       ev.preventDefault();
+      _this.element.trigger('media-explorer:cancel');
       _this.queue.cancel();
     });
 
