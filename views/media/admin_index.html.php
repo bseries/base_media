@@ -15,7 +15,7 @@ $this->set([
 		<table>
 		<thead>
 			<tr>
-				<td><?= $t('Preview') ?>
+				<td class="media"><?= $t('Preview') ?>
 				<td class="emphasize"><?= $t('Title') ?>
 				<td><?= $t('Type') ?>
 				<td><?= $t('MIME-Type') ?>
@@ -26,9 +26,11 @@ $this->set([
 		<tbody>
 		<?php foreach ($data as $item): ?>
 		<tr>
-			<td>
+			<td class="media">
 				<?php if ($version = $item->version('fix3admin')): ?>
-					<img src="<?= $version->url() ?>" />
+					<?= $this->media->image($version, [
+						'data-media-id' => $item->id, 'alt' => 'preview'
+					]) ?>
 				<?php endif ?>
 			<td class="emphasize">
 				<?= $item->title ?>
