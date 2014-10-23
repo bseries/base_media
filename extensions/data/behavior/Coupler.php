@@ -1,30 +1,51 @@
 <?php
+/**
+ * Base Media
+ *
+ * Copyright (c) 2013-2014 Atelier Disko - All rights reserved.
+ *
+ * This software is proprietary and confidential. Redistribution
+ * not permitted. Unless required by applicable law or agreed to
+ * in writing, software distributed on an "AS IS" BASIS, WITHOUT-
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ */
 
 namespace base_media\extensions\data\behavior;
 
+use lithium\storage\Cache;
 use base_media\models\Media;
 use lithium\util\Collection;
 
 class Coupler extends \li3_behaviors\data\model\Behavior {
 
+	protected static $_defaults = [
+		'bindings' => [],
+		// The cache configuration to use or `false` to disable caching.
+		'cache' => 'default'
+	];
+
 	protected static function _filters($model, $behavior) {
 		$bindings = $behavior->config('bindings');
+		$cache = $behavior->config('cache');
 
 		// Synchronizes join table with added or updated set of items.
-		$model::applyFilter('save', function($self, $params, $chain) use ($behavior, $bindings) {
+		$model::applyFilter('save', function($self, $params, $chain) use ($behavior, $bindings, $cache) {
 			$joined = [];
+			$direct = [];
 
 			foreach ($bindings as $alias => $options) {
 				if ($options['type'] == 'direct') {
-					$alias .= '_media_id';
+					$scoped = $alias . '_media_id';
 
-					if (!isset($params['data'][$alias])) {
+					if (!isset($params['data'][$scoped])) {
 						continue;
 					}
-					if (empty($params['data'][$alias])) {
-						// Ensure we save NULL to datqbase.
-						$params['entity']->$alias = null;
+					if (empty($params['data'][$scoped])) {
+						// Ensure we save NULL to database.
+						$params['entity']->$scoped = null;
 					}
+					$direct[$alias] = $params['data'][$scoped];
+
 					// Direct bindings need no further special treatment.
 					continue;
 				}
@@ -39,9 +60,21 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 			if (!$result = $chain->next($self, $params, $chain)) {
 				return $result;
 			}
+			$id = $params['entity']->id;
 
+			foreach ($direct as $alias => $data) {
+				$to = $bindings[$alias]['to'];
+
+				if ($cache) {
+					Cache::delete($cache, 'media_coupler_' . md5($self . $id . $to));
+				}
+			}
 			foreach ($joined as $alias => $data) {
 				$to = $bindings[$alias]['to'];
+
+				if ($cache) {
+					Cache::delete($cache, 'media_coupler_' . md5($self . $id . $to));
+				}
 
 				// Rebuilt associations entirely.
 				$to::remove([
@@ -61,18 +94,23 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 		});
 
 		// Cleans up join table if an item is deleted.
-		$model::applyFilter('delete', function($self, $params, $chain) use ($bindings) {
+		$model::applyFilter('delete', function($self, $params, $chain) use ($bindings, $cache) {
 			$entity = $params['entity'];
 
 			if (!$result = $chain->next($self, $params, $chain)) {
 				return $result;
 			}
 			foreach ($bindings as $alias => $options) {
+				$to = $options['to'];
+
+				if ($cache) {
+					Cache::delete($cache, 'media_coupler_' . md5( $self . $entity->id . $to));
+				}
+
 				if ($options['type'] == 'direct') {
 					// Direct bindings need no special treatment.
 					continue;
 				}
-				$to = $options['to'];
 				$to::remove([
 					'model' => $self,
 					'foreign_key' => $entity->id
@@ -84,19 +122,42 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 
 	protected static function _methods($model, $behavior) {
 		$methods = [];
+		$cache = $behavior->config('cache');
 
 		foreach ($behavior->config('bindings') as $alias => $options) {
 			if ($options['type'] == 'direct') {
-				$methods[$alias] = function($entity) use ($options) {
+				$methods[$alias] = function($entity) use ($options, $model, $cache) {
 					// $to in this case is the field name i.e. cover_media_id.
 					$to = $options['to'];
 
-					return Media::find('first', ['conditions' => ['id' => $entity->{$to}]]);
+					if ($cache) {
+						$cacheKey = 'media_coupler_' . md5(
+							$model . $entity->id . $to
+						);
+						if ($cached = Cache::read($cache, $cacheKey)) {
+							return $cached;
+						}
+					}
+					$result = Media::find('first', ['conditions' => ['id' => $entity->{$to}]]);
+
+					if ($cache) {
+						Cache::write($cache, $cacheKey, $result, Cache::PERSIST);
+					}
+					return $result;
 				};
 			} else {
-				$methods[$alias] = function($entity) use ($options, $model) {
+				$methods[$alias] = function($entity) use ($options, $model, $cache) {
 					// $to in this case is the model name i.e. base_media\models\MediaAttachments.
 					$to = $options['to'];
+
+					if ($cache) {
+						$cacheKey = 'media_coupler_' . md5(
+							$model . $entity->id . $to
+						);
+						if ($cached = Cache::read($cache, $cacheKey)) {
+							return $cached;
+						}
+					}
 
 					$results = $to::find('all', [
 						'conditions' => [
@@ -110,7 +171,12 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 					foreach ($results as $result) {
 						$data[] = $result->media;
 					}
-					return new Collection(compact('data'));
+					$result = new Collection(compact('data'));
+
+					if ($cache) {
+						Cache::write($cache, $cacheKey, $result, Cache::PERSIST);
+					}
+					return $result;
 				};
 			}
 		}
