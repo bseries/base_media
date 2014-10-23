@@ -207,7 +207,7 @@ MediaVersions::registerAssembly('image', 'fix2admin', $fix + [
 	'fit' => [500, 500]
 ]);
 MediaVersions::registerAssembly('image', 'fix3admin', $fix + [
-	'fit' => [100, 52]
+	'fit' => [100, 42]
 ] + $fix);
 MediaVersions::registerAssembly('audio', 'flux0aadmin', [
 	'convert' => 'audio/mpeg'
