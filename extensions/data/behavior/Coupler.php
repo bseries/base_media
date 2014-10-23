@@ -134,7 +134,7 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 						$cacheKey = 'media_coupler_' . md5(
 							$model . $entity->id . $to
 						);
-						if ($cached = Cache::read($cache, $cacheKey)) {
+						if (($cached = Cache::read($cache, $cacheKey)) !== null) {
 							return $cached;
 						}
 					}
@@ -154,7 +154,7 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 						$cacheKey = 'media_coupler_' . md5(
 							$model . $entity->id . $to
 						);
-						if ($cached = Cache::read($cache, $cacheKey)) {
+						if (($cached = Cache::read($cache, $cacheKey)) !== null) {
 							return $cached;
 						}
 					}
