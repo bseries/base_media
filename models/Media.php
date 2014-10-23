@@ -17,6 +17,7 @@ use mm\Mime\Type;
 use base_media\models\MediaVersions;
 use base_media\models\MediaAttachments;
 use lithium\analysis\Logger;
+use lithium\storage\Cache;
 use Cute\Job;
 use Cute\Connection;
 use lithium\util\Collection;
@@ -37,8 +38,6 @@ class Media extends \base_core\models\Base {
 	protected static $_actsAs = [
 		'base_core\extensions\data\behavior\Timestamp'
 	];
-
-	protected $_cachedVersions = [];
 
 	protected static $_dependent = [];
 
@@ -143,22 +142,22 @@ class Media extends \base_core\models\Base {
 		return $depend;
 	}
 
+	// Simplified as versions method is cached.
 	public function version($entity, $version) {
-		if (isset($this->_cachedVersions[$entity->id][$version])) {
-			return $this->_cachedVersions[$entity->id][$version];
+		if ($results = $entity->versions()) {
+			return $results[$version];
 		}
-		return MediaVersions::first([
-			'conditions' => [
-				'media_id' => $entity->id,
-				'version' => $version
-			]
-		]);
+		return $results;
 	}
 
 	public function versions($entity) {
-		if (isset($this->_cachedVersions[$entity->id])) {
-			return $this->_cachedVersions[$entity->id];
+		$cacheKey = 'media_versions_' . md5(
+			$entity->id
+		);
+		if ($cached = Cache::read('default', $cacheKey)) {
+			return $cached;
 		}
+
 		$data = MediaVersions::all([
 			'conditions' => [
 				'media_id' => $entity->id
@@ -169,7 +168,10 @@ class Media extends \base_core\models\Base {
 		foreach ($data as $item) {
 			$results[$item->version] = $item;
 		}
-		return $this->_cachedVersions[$entity->id] = new Collection(['data' => $results]);
+		$result = new Collection(['data' => $results]);
+
+		Cache::write('default', $cacheKey, $result, Cache::PERSIST);
+		return $result;
 	}
 
 	public function makeVersions($entity) {
@@ -325,6 +327,18 @@ Media::applyFilter('save', function($self, $params, $chain) {
 	if ($entity->modified('url') && $entity->can('relative')) {
 		$entity->url = Media::relativeUrl($entity->url);
 	}
+	return $chain->next($self, $params, $chain);
+});
+
+// Invalidate cache items.
+MediaVersions::applyFilter('save', function($self, $params, $chain) {
+	$result = $chain->next($self, $params, $chain);
+
+	Cache::delete('default', 'media_versions_' . md5($params['entity']->id));
+	return $result;
+});
+MediaVersions::applyFilter('delete', function($self, $params, $chain) {
+	Cache::delete('default', 'media_versions_' . md5($params['entity']->id));
 	return $chain->next($self, $params, $chain);
 });
 
