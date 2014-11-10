@@ -281,8 +281,16 @@ class Media extends \base_core\models\Base {
 		return static::_uniqueUrl($base, $extension, ['exists' => true]);
 	}
 
-	public static function regenerateVersions() {
-		$data = static::all();
+	public static function regenerateVersions($id = null) {
+		if (!$id) {
+			$data = static::all();
+		} else {
+			$data = [static::find('first', [
+				'conditions' => [
+					'id' => $id
+				]
+			])];
+		}
 
 		foreach ($data as $item) {
 			$item->deleteVersions();

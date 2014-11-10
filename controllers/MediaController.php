@@ -235,6 +235,7 @@ class MediaController extends \base_core\controllers\BaseController {
 	}
 
 	public function admin_index() {
+		set_time_limit(60 * 5);
 		$data = Media::find('all', ['order' => ['created' => 'DESC']]);
 		return compact('data');
 	}
@@ -251,8 +252,9 @@ class MediaController extends \base_core\controllers\BaseController {
 	}
 
 	public function admin_regenerate_versions() {
+
 		set_time_limit(60 * 5);
-		Media::regenerateVersions();
+		MediaVersions::regenerateVersions($this->request->id);
 
 		$this->redirect(['action' => 'index', 'library' => 'base_media']);
 	}

@@ -54,6 +54,11 @@ Router::connect(
 	$persist
 );
 Router::connect(
+	'/admin/media/regenerate-versions/{:id:[0-9]+}',
+	['controller' => 'media', 'action' => 'regenerate_versions', 'library' => 'base_media', 'admin' => true],
+	$persist
+);
+Router::connect(
 	'/admin/media/{:action}/{:id:[0-9]+}',
 	['controller' => 'media', 'library' => 'base_media', 'admin' => true],
 	$persist
