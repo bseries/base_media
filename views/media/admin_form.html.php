@@ -59,7 +59,7 @@ $edit = $this->request()->params['action'] == 'edit';
 
 		<div class="bottom-actions">
 			<?php if ($item->exists()): ?>
-				<?= $this->html->link($t('regenerate version'), ['action' => 'regenerate_versions', 'id' => $item->id]) ?>
+				<?= $this->html->link($t('regenerate version'), ['action' => 'regenerate_versions', 'id' => $item->id, 'library' => 'base_media'], ['class' => 'button large']) ?>
 			<?php endif ?>
 			<?= $this->form->button($t('save'), ['type' => 'submit', 'class' => 'button large save']) ?>
 		</div>
