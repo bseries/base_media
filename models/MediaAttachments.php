@@ -24,6 +24,10 @@ class MediaAttachments extends \lithium\data\Model {
 		]
 	];
 
+	protected static $_actsAs = [
+		'base_attribute\extensions\data\behavior\Attribute'
+	];
+
 	public function medium($entity) {
 		return Media::find('first', [
 			'conditions' => [
