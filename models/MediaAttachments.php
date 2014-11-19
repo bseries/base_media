@@ -15,17 +15,13 @@ namespace base_media\models;
 use base_media\models\Media;
 
 // Polymorphic model.
-class MediaAttachments extends \lithium\data\Model {
+class MediaAttachments extends \base_core\models\Base {
 
 	public $belongsTo = [
 		'Media' => [
 			'to' => 'base_media\models\Media',
 			'key' => 'media_id'
 		]
-	];
-
-	protected static $_actsAs = [
-		'base_attribute\extensions\data\behavior\Attribute'
 	];
 
 	public function medium($entity) {
