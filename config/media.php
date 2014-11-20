@@ -28,13 +28,13 @@ use Cute\Handlers;
 // directly - security reasons. That's why we don't give
 // a `base` here. Always download http sources.
 Media::registerScheme('http', [
-	'base' => PROJECT_MEDIA_FILE_BASE,
 	'download' => true
 ]);
 Media::registerScheme('https', [
 	'download' => true
 ]);
 Media::registerScheme('file', [
+	'base' => PROJECT_MEDIA_FILE_BASE,
 	'relative' => true,
 	'checksum' => true,
 	'transfer' => true,
