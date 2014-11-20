@@ -28,6 +28,7 @@ use Cute\Handlers;
 // directly - security reasons. That's why we don't give
 // a `base` here. Always download http sources.
 Media::registerScheme('http', [
+	'base' => PROJECT_MEDIA_FILE_BASE,
 	'download' => true
 ]);
 Media::registerScheme('https', [
@@ -66,12 +67,15 @@ Media::registerScheme('file', [
 // then be used to generate a version.
 //
 MediaVersions::registerScheme('http', [
+	'base' => PROJECT_MEDIA_VERSIONS_HTTP_BASE,
 	'download' => true
 ]);
 MediaVersions::registerScheme('https', [
+	'base' => PROJECT_MEDIA_VERSIONS_HTTPS_BASE,
 	'download' => true
 ]);
 MediaVersions::registerScheme('file', [
+	'base' => PROJECT_MEDIA_VERSIONS_FILE_BASE,
 	'relative' => true,
 	'checksum' => true,
 	'delete' => true,
