@@ -233,6 +233,7 @@ function($, Router, MediaExplorerModal) {
 
   return {
     direct: function(element, options) {
+      options = options || {};
       var ma = new MediaAttachment();
 
       options.formBinding = 'direct';
@@ -241,6 +242,7 @@ function($, Router, MediaExplorerModal) {
       ma.init(element, options);
     },
     joined: function(element, options) {
+      options = options || {};
       var ma = new MediaAttachment();
 
       options.formBinding = 'joined';
