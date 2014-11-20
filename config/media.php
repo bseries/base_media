@@ -16,7 +16,6 @@ use lithium\core\Libraries;
 use mm\Media\Process;
 use mm\Media\Info;
 use Cute\Handlers;
-use ff\Features;
 
 // Registers Media and MediaVersions schemes. The `base` key of each
 // scheme is intentionally left unset. This must be added by the app
@@ -142,13 +141,13 @@ Handlers::register('MediaVersions::make', function($data) {
 // Configure processing of media.
 Process::config([
 	'audio' => 'SoxShell',
-	'document' => Features::enabled('imagick') ? 'Imagick' : null,
-	'image' => Features::enabled('imagick') ? 'Imagick' : 'Gd',
+	'document' => PROJECT_FEATURE_IMAGICK ? 'Imagick' : null,
+	'image' => PROJECT_FEATURE_IMAGICK ? 'Imagick' : 'Gd',
 	'video' => 'FfmpegShell'
 ]);
 Info::config([
-	'document' => Features::enabled('imagick') ? 'Imagick' : null,
-	'image' => Features::enabled('imagick') ? ['ImageBasic', 'Imagick'] : ['ImageBasic']
+	'document' => PROJECT_FEATURE_IMAGICK ? 'Imagick' : null,
+	'image' => PROJECT_FEATURE_IMAGICK ? ['ImageBasic', 'Imagick'] : ['ImageBasic']
 ]);
 
 //
@@ -169,7 +168,7 @@ Info::config([
 $sRGB  = Libraries::get('app', 'path');
 $sRGB .= '/libraries/davidpersson/mm/data/sRGB_IEC61966-2-1_black_scaled.icc';
 
-if (Features::enabled('imagick')) {
+if (PROJECT_FEATURE_IMAGICK) {
 	$fix = [
 		'convert' => 'image/png',
 		'compress' => 5.5,

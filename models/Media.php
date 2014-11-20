@@ -23,7 +23,6 @@ use Cute\Connection;
 use lithium\util\Collection;
 use Monolog\Logger as MonologLogger;
 use Monolog\Handler\StreamHandler;
-use ff\Features;
 
 class Media extends \base_core\models\Base {
 
@@ -187,7 +186,7 @@ class Media extends \base_core\models\Base {
 		// version applies for an entity. This decicison is made late
 		// in the scheme make handler.
 		foreach (MediaVersions::assemblyVersions() as $version) {
-			if (!Features::enabled('asyncProcessing')) {
+			if (!PROJECT_FEATURE_ASYNC_PROCESSING) {
 				MediaVersions::pdo()->beginTransaction();
 
 				if (MediaVersions::make($entity->id, $version)) {
