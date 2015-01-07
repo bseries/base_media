@@ -10,12 +10,12 @@
     },
     "require": {
         "php": ">=5.5.0",
-        "atelierdisko/base_core": "1.2.*",
+        "atelierdisko/base_core": "1.3.*",
         "atelierdisko/cute": "0.1.*",
         "davidpersson/mm": "dev-next as 2.0.0-dev",
         "davidpersson/temporary": "1.*",
         "davidpersson/li3_behaviors": "1.*",
-        "uor/li3_flash_message": "dev-master as 1.0.0-dev",
+        "atelierdisko/li3_flash_message": "1.0.*",
         "atelierdisko/jsend": "0.5.*",
         "unionofrad/lithium": "dev-dev as 1.0.0-dev",
         "composer/installers": "~1.0"
