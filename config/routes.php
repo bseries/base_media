@@ -11,18 +11,44 @@
  */
 
 use lithium\net\http\Router;
+use base_core\extensions\net\http\ClientRouter;
 
-$persist = ['persist' => ['admin', 'controller']];
+$persist = ['admin', 'controller'];
+$base = ['controller' => 'media', 'library' => 'base_media', 'admin' => true, 'api' => true];
 
 Router::connect(
-	'/admin/api/base-media/media/page:{:page}',
-	['controller' => 'media', 'action' => 'index', 'library' => 'base_media', 'admin' => true, 'api' => true],
-	$persist
+	'/admin/api/base-media/media/page:{:page:(\d+|__PAGE__)}',
+	$base + ['action' => 'index'],
+	compact('persist')
 );
 Router::connect(
-	'/admin/api/base-media/media/search/{:q}/page:{:page}',
-	['controller' => 'media', 'action' => 'search', 'library' => 'base_media', 'admin' => true, 'api' => true],
-	$persist
+	'/admin/api/base-media/media/search/{:q}/page:{:page:(\d+|__PAGE__)}',
+	$base + ['action' => 'search'],
+	compact('persist')
+);
+Router::connect(
+	'/admin/api/base-media/media/transfer/title{:title}',
+	$base + ['action' => 'transfer'],
+	compact('persist')
+);
+
+ClientRouter::provide('media:index',
+	$base + ['action' => 'index']
+);
+ClientRouter::provide('media:search',
+	$base + ['action' => 'search', 'q' => '__Q__', 'page' => '__PAGE__']
+);
+ClientRouter::provide('media:view',
+	$base + ['action' => 'view', 'id' => '__ID__']
+);
+ClientRouter::provide('media:transfer-preflight',
+	$base + ['action' => 'transfer_preflight']
+);
+ClientRouter::provide('media:transfer-meta',
+	$base + ['action' => 'transfer_meta']
+);
+ClientRouter::provide('media:transfer',
+	$base + ['action' => 'transfer', 'title' => '__TITLE__']
 );
 
 ?>

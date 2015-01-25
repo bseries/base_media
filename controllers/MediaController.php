@@ -229,7 +229,7 @@ class MediaController extends \base_core\controllers\BaseController {
 			fclose($stream);
 
 			$source = $temporary;
-			$title = $this->request->query['title'];
+			$title = $this->request->title;
 		}
 		return [$source, $title];
 	}
