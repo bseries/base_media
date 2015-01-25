@@ -15,12 +15,12 @@ use lithium\net\http\Router;
 $persist = ['persist' => ['admin', 'controller']];
 
 Router::connect(
-	'/admin/api/media/page:{:page}',
+	'/admin/api/base-media/media/page:{:page}',
 	['controller' => 'media', 'action' => 'index', 'library' => 'base_media', 'admin' => true, 'api' => true],
 	$persist
 );
 Router::connect(
-	'/admin/api/media/search/{:q}/page:{:page}',
+	'/admin/api/base-media/media/search/{:q}/page:{:page}',
 	['controller' => 'media', 'action' => 'search', 'library' => 'base_media', 'admin' => true, 'api' => true],
 	$persist
 );
