@@ -98,7 +98,7 @@ MediaVersions::registerScheme('file', [
 			$action = $instructions['clone'];
 
 			if (in_array($action, ['copy', 'link', 'symlink'])) {
-				if (call_user_func($action, parse_url($entity->source, PHP_URL_PATH), parse_url($target, PHP_URL_PATH))) {
+				if (call_user_func($action, parse_url($entity->url, PHP_URL_PATH), parse_url($target, PHP_URL_PATH))) {
 					return $target;
 				} else {
 					return false;
