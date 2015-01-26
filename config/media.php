@@ -16,6 +16,7 @@ use lithium\core\Libraries;
 use mm\Media\Process;
 use mm\Media\Info;
 use Cute\Handlers;
+use \Exception;
 
 // Registers Media and MediaVersions schemes. The `base` key of each
 // scheme is intentionally left unset. This must be added by the app
@@ -97,11 +98,13 @@ MediaVersions::registerScheme('file', [
 			$action = $instructions['clone'];
 
 			if (in_array($action, ['copy', 'link', 'symlink'])) {
-				if (call_user_func($action, $source, $target)) {
+				if (call_user_func($action, parse_url($entity->source, PHP_URL_PATH), parse_url($target, PHP_URL_PATH))) {
 					return $target;
+				} else {
+					return false;
 				}
 			}
-			return false;
+			throw new Exception("Invalid clone instruction action `{$action}`.");
 		}
 
 		// Process media `Process` instructions.

@@ -251,9 +251,15 @@ class MediaController extends \base_core\controllers\BaseController {
 	}
 
 	public function admin_regenerate_versions() {
-
 		set_time_limit(60 * 5);
-		Media::regenerateVersions($this->request->id);
+
+		$item = Media::find('first', [
+			'conditions' => [
+				'id' => $this->request->id
+			]
+		]);
+		$item->deleteVersions();
+		$item->makeVersions();
 
 		$this->redirect(['action' => 'index', 'library' => 'base_media']);
 	}

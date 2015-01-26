@@ -173,12 +173,22 @@ class Media extends \base_core\models\Base {
 		return $result;
 	}
 
-	public function makeVersions($entity) {
+	public function verify($entity) {
 		if (!$entity->type) {
-			throw new Exception('Entity has no type.');
+			return false;
 		}
 		if (!$entity->url) {
-			throw new Exception('Entity has no URL.');
+			return false;
+		}
+		if (parse_url($entity->url, PHP_URL_SCHEME) === 'file' && !file_exists(static::absoluteUrl($entity->url))) {
+			return false;
+		}
+		return $entity->isConsistent();
+	}
+
+	public function makeVersions($entity) {
+		if (!$entity->verify()) {
+			throw new Exception('Entity did not verify.');
 		}
 
 		// Fetch versions we need to make. We're assembling all
@@ -278,23 +288,6 @@ class Media extends \base_core\models\Base {
 		$extension = Type::guessExtension($source);
 
 		return static::_uniqueUrl($base, $extension, ['exists' => true]);
-	}
-
-	public static function regenerateVersions($id = null) {
-		if (!$id) {
-			$data = static::all();
-		} else {
-			$data = [static::find('first', [
-				'conditions' => [
-					'id' => $id
-				]
-			])];
-		}
-
-		foreach ($data as $item) {
-			$item->deleteVersions();
-			$item->makeVersions();
-		}
 	}
 }
 
