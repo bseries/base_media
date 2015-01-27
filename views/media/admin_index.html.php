@@ -8,17 +8,27 @@ $this->set([
 ]);
 
 ?>
-<article class="media-index">
+<article
+	class="use-index-table"
+	data-endpoint-sort="<?= $this->url([
+		'action' => 'index',
+		'page' => $paginator->getPages()->current,
+		'orderField' => '__ORDER_FIELD__',
+		'orderDirection' => '__ORDER_DIRECTION__'
+	]) ?>"
+>
+
 	<?php if ($data->count()): ?>
 		<table>
 		<thead>
 			<tr>
 				<td class="media"><?= $t('Preview') ?>
-				<td class="emphasize"><?= $t('Title') ?>
-				<td><?= $t('Type') ?>
-				<td><?= $t('MIME-Type') ?>
+				<td data-sort="title" class="emphasize table-sort"><?= $t('Title') ?>
+				<td data-sort="type" class="table-sort"><?= $t('Type') ?>
+				<td data-sort="mime-type" class="table-sort"><?= $t('MIME-Type') ?>
 				<td><?= $t('Size') ?>
 				<td><?= $t('# dependent') ?>
+				<td data-sort="modified" class="date table-sort desc"><?= $t('Modified') ?>
 				<td class="actions">
 		</thead>
 		<tbody>
@@ -36,6 +46,10 @@ $this->set([
 			<td><?= $version ? $version->mime_type : '–' ?>
 			<td><?= $this->number->format(round($item->size() / 1024), 'decimal') ?> kb
 			<td><?= ($depend = $item->depend('count')) ?: '–' ?>
+			<td class="date">
+				<time datetime="<?= $this->date->format($item->modified, 'w3c') ?>">
+					<?= $this->date->format($item->modified, 'date') ?>
+				</time>
 			<td class="actions">
 				<?php if (!$depend): ?>
 					<?=$this->html->link($t('delete'), ['action' => 'delete', 'id' => $item->id, 'library' => 'base_media'], ['class' => 'button delete']) ?>
@@ -47,4 +61,6 @@ $this->set([
 	<?php else: ?>
 		<div class="none-available"><?= $t('There are currently no items available, yet.') ?></div>
 	<?php endif ?>
+
+	<?=$this->view()->render(['element' => 'paging'], compact('paginator'), ['library' => 'base_core']) ?>
 </article>

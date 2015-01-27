@@ -27,6 +27,7 @@ class MediaController extends \base_core\controllers\BaseController {
 
 	protected $_model = '\base_media\models\Media';
 
+	use \base_core\controllers\AdminIndexTrait;
 	use \base_core\controllers\AdminEditTrait;
 
 	public function admin_api_view() {
@@ -232,11 +233,6 @@ class MediaController extends \base_core\controllers\BaseController {
 			$title = $this->request->title;
 		}
 		return [$source, $title];
-	}
-
-	public function admin_index() {
-		$data = Media::find('all', ['order' => ['created' => 'DESC']]);
-		return compact('data');
 	}
 
 	public function admin_delete() {
