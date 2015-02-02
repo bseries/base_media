@@ -35,11 +35,15 @@ $this->set([
 		<?php foreach ($data as $item): ?>
 		<tr>
 			<td class="media">
-				<?php if ($version = $item->version('fix3admin')): ?>
-					<?= $this->media->image($version, [
-						'data-media-id' => $item->id, 'alt' => 'preview'
-					]) ?>
-				<?php endif ?>
+				<?php
+					try {
+						if ($version = $item->version('fix3admin')) {
+							echo $this->media->image($version, [ 'data-media-id' => $item->id, 'alt' => 'preview' ]);
+						}
+					} catch (\Exception $e) {
+						$version = null;
+					}
+				?>
 			<td class="emphasize">
 				<?= $item->title ?>
 			<td><?= $version ? $version->type : '–' ?>
