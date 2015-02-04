@@ -17,15 +17,15 @@ use base_media\models\Media as MediaModel;
 class Media extends \lithium\console\Command {
 
 	public function regenerate() {
-		$this->out('Regenerating media versions...');
-		$this->out('This make take a while. Please tail the log to see generated messages.');
+		$this->out('Regenerating media versions... (this may take a while)');
+		$this->out('Note: Please tail the log to see generated messages.');
 
 		foreach (MediaModel::all() as $item) {
 			$this->out("Processing item {$item->id}...");
 			$item->deleteVersions();
 			$item->makeVersions();
 		}
-		$this->out('COMPLETED');
+		$this->out('COMPLETED, you may need to clear caches to make new media take effect.');
 	}
 
 	public function verify() {
