@@ -11,7 +11,7 @@
     "require": {
         "php": ">=5.5.0",
         "atelierdisko/base_core": "1.2.*",
-        "atelierdisko/cute": "0.1.*",
+        "atelierdisko/cute": "0.2.*@dev",
         "davidpersson/mm": "2.0.*@dev",
         "davidpersson/temporary": "1.*",
         "davidpersson/li3_behaviors": "1.*",
