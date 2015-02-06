@@ -12,7 +12,7 @@
         "php": ">=5.5.0",
         "atelierdisko/base_core": "1.2.*",
         "atelierdisko/cute": "0.1.*",
-        "davidpersson/mm": "dev-next as 2.0.0-dev",
+        "davidpersson/mm": "2.0.*@dev",
         "davidpersson/temporary": "1.*",
         "davidpersson/li3_behaviors": "1.*",
         "uor/li3_flash_message": "dev-master as 1.0.0-dev",
