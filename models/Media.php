@@ -183,6 +183,9 @@ class Media extends \base_core\models\Base {
 		if (parse_url($entity->url, PHP_URL_SCHEME) === 'file' && !file_exists(static::absoluteUrl($entity->url))) {
 			return false;
 		}
+		if (!$entity->can('checksum')) {
+			return true;
+		}
 		return $entity->isConsistent();
 	}
 

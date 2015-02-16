@@ -12,6 +12,8 @@
 
 namespace base_media\models;
 
+use Exception;
+
 trait ChecksumTrait {
 
 	// Will fail with absolute URLs and non-transitionable ones.
