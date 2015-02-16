@@ -104,7 +104,7 @@ class MediaController extends \base_core\controllers\BaseController {
 		$response = new JSendResponse('success', [
 			'transfer' => [
 				'urlUpload' => false,
-				'vimeoUpload' => class_exists('Vimeo')
+				'vimeoUpload' => class_exists('base_social\models\Vimeo')
 			]
 		]);
 		$this->render([
