@@ -12,16 +12,17 @@
 
 namespace base_media\controllers;
 
-use base_media\models\Media;
-use cms_social\models\Vimeo;
-use lithium\core\Libraries;
-use temporary\Manager as Temporary;
-use lithium\analysis\Logger;
-use li3_flash_message\extensions\storage\FlashMessage;
-use jsend\Response as JSendResponse;
 use Exception;
-use base_core\extensions\net\http\InternalServerErrorException;
+use lithium\core\Libraries;
+use lithium\analysis\Logger;
 use lithium\g11n\Message;
+use jsend\Response as JSendResponse;
+use temporary\Manager as Temporary;
+use li3_flash_message\extensions\storage\FlashMessage;
+
+use base_media\models\Media;
+use base_social\models\Vimeo;
+use base_core\extensions\net\http\InternalServerErrorException;
 
 class MediaController extends \base_core\controllers\BaseController {
 
