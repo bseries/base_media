@@ -57,8 +57,14 @@ function(
       _this.element.parents('#modal'),
       $methods.find('.file-local-drop')
     ));
-    _this.methods.push(new TransferMethods.FileUrl($methods.find('.file-url')));
-    _this.methods.push(new TransferMethods.Vimeo($methods.find('.vimeo')));
+    if (options.urlUpload) {
+      _this.methods.push(new TransferMethods.FileUrl($methods.find('.file-url')));
+      $methods.find('.file-url').removeClass('hide');
+    }
+    if (options.vimeoUpload) {
+      _this.methods.push(new TransferMethods.Vimeo($methods.find('.vimeo')));
+      $methods.find('.vimeo').removeClass('hide');
+    }
 
     // Bridge methods with queue.
     $methods.on('transfer-method:loaded', function(ev, transfer) {

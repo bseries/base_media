@@ -98,7 +98,19 @@ class MediaController extends \base_core\controllers\BaseController {
 			'type' => 'json',
 			'data' => $response->to('array')
 		]);
+	}
 
+	public function admin_api_capabilities() {
+		$response = new JSendResponse('success', [
+			'transfer' => [
+				'urlUpload' => false,
+				'vimeoUpload' => class_exists('Vimeo')
+			]
+		]);
+		$this->render([
+			'type' => 'json',
+			'data' => $response->to('array')
+		]);
 	}
 
 	// Retrieve information of transfer without actually downloading the entity.

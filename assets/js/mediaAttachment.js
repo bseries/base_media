@@ -207,16 +207,7 @@ function($, Router, MediaExplorerModal) {
         ids.push(parseInt($(el).data('id'), 10));
       });
 
-      MediaExplorerModal.init({
-        'available': {
-          selected: ids,
-          selectable: _this.selectable
-        }
-      });
-
-      MediaExplorerModal.open();
-
-      $(document).one('media-explorer:selected', function(ev, ids) {
+     $(document).one('media-explorer:selected', function(ev, ids) {
         // We rebuilt selected items completely and replace
         // the current selection with the one we get from ME.
         // Removing all existing first wont be visible as it
@@ -228,6 +219,23 @@ function($, Router, MediaExplorerModal) {
         // Wait until all items are built and appended then close ME.
         _this.append(ids).then(MediaExplorerModal.close);
       });
+
+      Router.match('media:capabilities')
+        .done(function(url) {
+          $.getJSON(url)
+          .done(function(res) {
+
+            MediaExplorerModal.init({
+              'available': {
+                selected: ids,
+                selectable: _this.selectable
+              },
+              'transfer': res.data.transfer
+            });
+
+            MediaExplorerModal.open();
+          });
+        });
     };
   }
 

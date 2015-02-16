@@ -50,5 +50,8 @@ ClientRouter::provide('media:transfer-meta',
 ClientRouter::provide('media:transfer',
 	$base + ['action' => 'transfer', 'title' => '__TITLE__']
 );
+ClientRouter::provide('media:capabilities',
+	$base + ['action' => 'capabilities']
+);
 
 ?>

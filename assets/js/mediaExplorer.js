@@ -40,7 +40,7 @@ function(
         selected: [],
       },
       transfer: {
-        vimeoUpload: true,
+        vimeoUpload: false,
         urlUpload: false
       }
     }, options);
