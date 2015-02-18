@@ -27,7 +27,7 @@ Router::connect(
 	compact('persist')
 );
 Router::connect(
-	'/admin/api/base-media/media/transfer/title{:title}',
+	'/admin/api/base-media/media/transfer/title:{:title}',
 	$base + ['action' => 'transfer'],
 	compact('persist')
 );
