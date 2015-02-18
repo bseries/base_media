@@ -231,14 +231,6 @@ MediaVersions::registerAssembly('video', 'fix3admin',
 	MediaVersions::assembly('image', 'fix3admin')
 );
 MediaVersions::registerAssembly('video', 'flux0admin', $fluxVideo + [
-	'convert' => 'video/mp4',
-	'codec:a' => 'libfaac',
-	'codec:v' => 'libx264',
-	// 'vpre' => 'libx264-ipod640',
-	'b:a' => '192k',
-	'b:v' => '512k'
-]);
-MediaVersions::registerAssembly('video', 'flux1admin', $fluxVideo + [
 	'convert' => 'video/webm',
 	'codec:v' => 'libvpx',
 	'threads' => 2, // must come after codec:v
