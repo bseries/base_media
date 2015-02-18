@@ -143,10 +143,12 @@ class Media extends \base_core\models\Base {
 
 	// Simplified as versions method is cached.
 	public function version($entity, $version) {
-		if ($results = $entity->versions()) {
-			return $results[$version];
+		$results = $entity->versions();
+
+		if (!isset($results[$version])) {
+			throw new Exception("No such version `{$version}` in versions.");
 		}
-		return $results;
+		return $results[$version];
 	}
 
 	public function versions($entity) {
