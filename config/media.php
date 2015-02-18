@@ -234,7 +234,7 @@ MediaVersions::registerAssembly('video', 'flux0admin', $fluxVideo + [
 	'convert' => 'video/mp4',
 	'codec:a' => 'libfaac',
 	'codec:v' => 'libx264',
-	'vpre' => 'libx264-ipod640',
+	// 'vpre' => 'libx264-ipod640',
 	'b:a' => '192k',
 	'b:v' => '512k'
 ]);
