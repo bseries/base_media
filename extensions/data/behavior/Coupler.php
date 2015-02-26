@@ -13,8 +13,9 @@
 namespace base_media\extensions\data\behavior;
 
 use lithium\storage\Cache;
-use base_media\models\Media;
 use lithium\util\Collection;
+use base_media\models\Media;
+use li3_behaviors\data\model\Behavior;
 
 class Coupler extends \li3_behaviors\data\model\Behavior {
 
@@ -24,7 +25,7 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 		'cache' => 'default'
 	];
 
-	protected static function _filters($model, $behavior) {
+	protected static function _filters($model, Behavior $behavior) {
 		$bindings = $behavior->config('bindings');
 		$cache = $behavior->config('cache');
 
@@ -120,7 +121,7 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 		});
 	}
 
-	protected static function _methods($model, $behavior) {
+	protected static function _methods($model, Behavior $behavior) {
 		$methods = [];
 		$cache = $behavior->config('cache');
 
