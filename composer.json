@@ -14,7 +14,7 @@
         "atelierdisko/cute": "0.2.*@dev",
         "davidpersson/mm": "2.0.*@dev",
         "davidpersson/temporary": "1.*@stable",
-        "davidpersson/li3_behaviors": "2.*@dev",
+        "davidpersson/li3_behaviors": "2.*",
         "atelierdisko/li3_flash_message": "1.0.*@beta",
         "atelierdisko/jsend": "0.5.*@stable",
         "unionofrad/lithium": "dev-dev as 1.0.0-dev",
