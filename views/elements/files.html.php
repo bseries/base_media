@@ -1,6 +1,7 @@
 <?php
 
 $edit = true;
+
 ?>
 <?php if ($edit && ($files = $item->files()) && $files->count()): ?>
 <ul class="files">

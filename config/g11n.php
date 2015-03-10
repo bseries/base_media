@@ -10,15 +10,13 @@
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 
-use lithium\g11n\Message;
-use base_core\extensions\cms\Panes;
+use lithium\g11n\Catalog;
 
-extract(Message::aliases());
-
-Panes::register('media', [
-	'title' => $t('Media', ['scope' => 'base_media']),
-	'url' => ['controller' => 'media', 'action' => 'index', 'library' => 'base_media', 'admin' => true],
-	'weight' => 80
-]);
+Catalog::config([
+	basename(dirname(__DIR__)) => [
+		'adapter' => 'Gettext',
+		'path' => dirname(__DIR__) . '/resources/g11n/po'
+	 ]
+] + Catalog::config());
 
 ?>

@@ -26,13 +26,13 @@ Widgets::register('media', function() use ($t) {
 	}
 
 	return [
-		'title' => $t('Media'),
+		'title' => $t('Media', ['scope' => 'base_media']),
 		'url' => [
 			'controller' => 'media', 'library' => 'base_media', 'admin' => true, 'action' => 'index'
 		],
 		'data' => [
-			$t('Items') => $media,
-			$t('Size') => intval($size / 1014 / 1024) . ' MB'
+			$t('Items', ['scope' => 'base_media']) => $media,
+			$t('Size', ['scope' => 'base_media']) => intval($size / 1014 / 1024) . ' MB'
 		]
 	];
 }, [

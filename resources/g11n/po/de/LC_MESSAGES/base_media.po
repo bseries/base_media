@@ -1,0 +1,107 @@
+# German translations for base_media package.
+# Copyright (C) 2015 Atelier Disko
+# This file is distributed under the same license as the base_media package.
+# Automatically generated, 2015.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: base_media 1.0\n"
+"Report-Msgid-Bugs-To: info@atelierdisko.de\n"
+"POT-Creation-Date: 2015-03-10 18:03+0100\n"
+"PO-Revision-Date: 2015-03-10 18:03+0100\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: config/panes.php:19 config/widgets.php:29
+msgid "Media"
+msgstr ""
+
+#: config/widgets.php:34
+msgid "Items"
+msgstr ""
+
+#: config/widgets.php:35 views/media/admin_form.html.php:47
+#: views/media/admin_index.html.php:35
+msgid "Size"
+msgstr ""
+
+#: controllers/MediaController.php:232
+msgid "Could not find vimeo video."
+msgstr ""
+
+#: controllers/MediaController.php:258
+msgid "Successfully deleted."
+msgstr ""
+
+#: views/media/admin_form.html.php:13
+msgid "untitled"
+msgstr ""
+
+#: views/media/admin_form.html.php:14 views/media/admin_index.html.php:12
+msgid "media"
+msgstr ""
+
+#: views/media/admin_form.html.php:37
+msgid "Versions"
+msgstr ""
+
+#: views/media/admin_form.html.php:43
+msgid "Version"
+msgstr ""
+
+#: views/media/admin_form.html.php:44
+msgid "URL"
+msgstr ""
+
+#: views/media/admin_form.html.php:45 views/media/admin_index.html.php:33
+msgid "Type"
+msgstr ""
+
+#: views/media/admin_form.html.php:46 views/media/admin_index.html.php:34
+msgid "MIME-Type"
+msgstr ""
+
+#: views/media/admin_form.html.php:48
+msgid "Status"
+msgstr ""
+
+#: views/media/admin_form.html.php:60 views/media/admin_index.html.php:67
+msgid "open"
+msgstr ""
+
+#: views/media/admin_form.html.php:68
+msgid "regenerate versions"
+msgstr ""
+
+#: views/media/admin_form.html.php:70
+msgid "save"
+msgstr ""
+
+#: views/media/admin_index.html.php:31
+msgid "Preview"
+msgstr ""
+
+#: views/media/admin_index.html.php:32
+msgid "Title"
+msgstr ""
+
+#: views/media/admin_index.html.php:36
+msgid "# dependent"
+msgstr ""
+
+#: views/media/admin_index.html.php:37
+msgid "Modified"
+msgstr ""
+
+#: views/media/admin_index.html.php:65
+msgid "delete"
+msgstr ""
+
+#: views/media/admin_index.html.php:72
+msgid "There are currently no items available, yet."
+msgstr ""

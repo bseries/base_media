@@ -229,7 +229,7 @@ class MediaController extends \base_core\controllers\BaseController {
 		} elseif (!empty($this->request->data['vimeo_id'])) {
 			$source = 'vimeo://' . $this->request->data['vimeo_id'];
 			if (!$item = Vimeo::first($this->request->data['vimeo_id'])) {
-				throw new Exception($t('Could not find vimeo video.'));
+				throw new Exception($t('Could not find vimeo video.', ['scope' => 'base_media']));
 			}
 			$title = $item->title;
 		} elseif (!empty($this->request->data['form']['tmp_name'])) {
@@ -249,12 +249,15 @@ class MediaController extends \base_core\controllers\BaseController {
 	}
 
 	public function admin_delete() {
+		extract(Message::aliases());
 		$item = Media::find($this->request->id);
 
 		$item->delete();
 		$item->deleteVersions();
 
-		FlashMessage::write('Successfully deleted.', ['level' => 'success']);
+		FlashMessage::write($t('Successfully deleted.', ['scope' => 'base_media']), [
+			'level' => 'success'
+		]);
 
 		$this->redirect(['action' => 'index', 'library' => 'base_media']);
 	}
