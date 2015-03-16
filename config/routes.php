@@ -14,22 +14,24 @@ use lithium\net\http\Router;
 use base_core\extensions\net\http\ClientRouter;
 
 $persist = ['admin', 'controller'];
+$defaults = ['type' => 'json'];
+
 $base = ['controller' => 'media', 'library' => 'base_media', 'admin' => true, 'api' => true];
 
 Router::connect(
 	'/admin/api/base-media/media/page:{:page:(\d+|__PAGE__)}',
 	$base + ['action' => 'index'],
-	compact('persist')
+	compact('persist', 'defaults')
 );
 Router::connect(
 	'/admin/api/base-media/media/search/{:q}/page:{:page:(\d+|__PAGE__)}',
 	$base + ['action' => 'search'],
-	compact('persist')
+	compact('persist', 'defaults')
 );
 Router::connect(
 	'/admin/api/base-media/media/transfer/title:{:title}',
 	$base + ['action' => 'transfer'],
-	compact('persist')
+	compact('persist', 'defaults')
 );
 
 ClientRouter::provide('media:index',
