@@ -25,6 +25,9 @@ Widgets::register('media', function() use ($t, $tn) {
 		$size += $item->size();
 	}
 	$formatNiceBytes = function($size) use ($t, $tn) {
+		if (!$size) {
+			return $t('0 Bytes', ['scope' => 'base_media']);
+		}
 		switch (true) {
 			case $size < 1024:
 				return $tn('{:count} Byte', '{:count} Bytes', [
