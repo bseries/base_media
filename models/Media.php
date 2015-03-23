@@ -47,7 +47,9 @@ class Media extends \base_core\models\Base {
 			$log = new MonologLogger(PROJECT_NAME);
 			$log->pushHandler(new StreamHandler(PROJECT_PATH . '/log/app.log'));
 
-			return static::$_cuteConnection = new Connection($log, PROJECT_NAME);
+			return static::$_cuteConnection = new Connection(
+				$log, PROJECT_NAME . '_' . PROJECT_CONTEXT
+			);
 		}
 		return static::$_cuteConnection;
 	}
