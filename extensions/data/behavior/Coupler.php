@@ -25,6 +25,15 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 		'cache' => 'default'
 	];
 
+	protected static function _config($model, Behavior $behavior, array $config, array $defaults) {
+		$config += $defaults;
+
+		if (PROJECT_DEBUG) {
+			$config['cache'] = false;
+		}
+		return $config;
+	}
+
 	protected static function _filters($model, Behavior $behavior) {
 		$bindings = $behavior->config('bindings');
 		$cache = $behavior->config('cache');
