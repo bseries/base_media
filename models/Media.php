@@ -345,6 +345,9 @@ MediaVersions::applyFilter('save', function($self, $params, $chain) {
 	return $result;
 });
 MediaVersions::applyFilter('delete', function($self, $params, $chain) {
+	$entity = $params['entity'];
+
+	$entity->deleteVersions();
 	Cache::delete('default', 'media_versions_' . md5($params['entity']->id));
 	return $chain->next($self, $params, $chain);
 });
