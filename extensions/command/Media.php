@@ -17,11 +17,25 @@ use base_media\models\MediaVersions;
 
 class Media extends \lithium\console\Command {
 
-	public function regenerate() {
+	/**
+	 * Regenerates selected media versions.
+	 *
+	 * Use the type parameter to select versions. By default `'all'`, use
+	 * `'id:<ID>'` to select a single media entity.
+	 *
+	 * @param string $type
+	 */
+	public function regenerate($type = 'all') {
 		$this->out('Regenerating media versions... (this may take a while)');
 		$this->out('Note: Please tail the log to see generated messages.');
 
-		foreach (MediaModel::all() as $item) {
+		$conditions = [];
+
+		if (strpos($type, 'id:') === 0) {
+			$conditions['id'] = explode(':', $type)[1];
+		}
+
+		foreach (MediaModel::find('all', compact('conditions')) as $item) {
 			$this->out("Processing item {$item->id}...");
 			$item->deleteVersions();
 			$item->makeVersions();
