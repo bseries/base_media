@@ -148,7 +148,8 @@ class Media extends \base_core\models\Base {
 		$results = $entity->versions();
 
 		if (!isset($results[$version])) {
-			throw new Exception("No such version `{$version}` in versions.");
+			$message = "No such version `{$version}` in versions for media item `{$entity->id}`.";
+			throw new Exception($messsage);
 		}
 		return $results[$version];
 	}
