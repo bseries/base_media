@@ -170,6 +170,7 @@ class MediaVersions extends \base_core\models\Base {
 		$entity->url = $result;
 		$entity->status = 'processed';
 
+		Cache::delete('default', 'media_versions_' . md5($mediaId));
 		return $entity->save();
 	}
 
