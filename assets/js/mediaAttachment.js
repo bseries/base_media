@@ -218,7 +218,13 @@ function($, Router, MediaExplorerModal) {
 
         // Wait until all items are built and appended then close ME.
         _this.append(ids).then(MediaExplorerModal.close);
-      });
+     });
+     $(document).one('media-explorer:cancel', function(ev) {
+        $(document).off('media-explorer:selected');
+     });
+     $(document).one('modal:isClosing', function(ev) {
+        $(document).off('media-explorer:selected');
+     });
 
       Router.match('media:capabilities')
         .done(function(url) {
