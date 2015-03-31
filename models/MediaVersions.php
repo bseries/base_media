@@ -13,6 +13,7 @@
 namespace base_media\models;
 
 use mm\Mime\Type;
+use lithium\storage\Cache;
 use lithium\analysis\Logger;
 use OutOfBoundsException;
 
