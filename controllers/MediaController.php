@@ -21,7 +21,7 @@ use temporary\Manager as Temporary;
 use li3_flash_message\extensions\storage\FlashMessage;
 
 use base_media\models\Media;
-use base_social\models\Vimeo;
+use base_media\models\RemoteMedia;
 use base_core\extensions\net\http\InternalServerErrorException;
 
 class MediaController extends \base_core\controllers\BaseController {
@@ -103,8 +103,7 @@ class MediaController extends \base_core\controllers\BaseController {
 	public function admin_api_capabilities() {
 		$response = new JSendResponse('success', [
 			'transfer' => [
-				'urlUpload' => false,
-				'vimeoUpload' => class_exists('base_social\models\Vimeo')
+				'urlUpload' => true
 			]
 		]);
 		$this->render([
@@ -218,23 +217,23 @@ class MediaController extends \base_core\controllers\BaseController {
 		return $result;
 	}
 
-	// @fixme Use Transfer handlers.
 	protected function _handleTransferRequest() {
 		Logger::write('debug', 'Handling transfer request.');
 		extract(Message::aliases());
 
 		if (!empty($this->request->data['url'])) {
-			$source = $this->request->data['url'];
-			$title = basename($source);
-		} elseif (!empty($this->request->data['vimeo_id'])) {
-			$source = 'vimeo://' . $this->request->data['vimeo_id'];
-			if (!$item = Vimeo::first($this->request->data['vimeo_id'])) {
-				throw new Exception($t('Could not find vimeo video.', ['scope' => 'base_media']));
-			}
+			// Will throw an exception itself if URL is no supported.
+			$item = RemoteMedia::createFromUrl($this->request->data['url']);
+
+			// Need internal URL format so that registered schemes match.
+			$source = $item->url(['internal' => true]);
 			$title = $item->title;
+			$preview = $item->thumbnailUrl;
+
 		} elseif (!empty($this->request->data['form']['tmp_name'])) {
 			$source = 'file://' . $this->request->data['form']['tmp_name'];
 			$title = $this->request->data['form']['name'];
+			$preview = null;
 		} else {
 			$stream = fopen('php://input', 'r');
 			$temporary = 'file://' . Temporary::file(['context' => 'upload']);
@@ -244,8 +243,9 @@ class MediaController extends \base_core\controllers\BaseController {
 
 			$source = $temporary;
 			$title = $this->request->title;
+			$preview = null;
 		}
-		return [$source, $title];
+		return [$source, $title, $preview];
 	}
 
 	public function admin_delete() {

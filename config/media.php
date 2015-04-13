@@ -12,9 +12,12 @@
 
 use base_media\models\Media;
 use base_media\models\MediaVersions;
+use base_media\models\RemoteMedia;
 use lithium\core\Libraries;
+use lithium\analyis\Logger;
 use mm\Media\Process;
 use mm\Media\Info;
+use mm\Mime\Type;
 use Cute\Handlers;
 use \Exception;
 
@@ -41,6 +44,15 @@ Media::registerScheme('file', [
 	'transfer' => true,
 	'delete' => true
 ]);
+
+// Allows storing `vimeo://[ID]` style URLs but allow
+// grouping the file by video type.
+foreach (RemoteMedia::providers() as $provider) {
+	Media::registerScheme($provider['name'], [
+		'mime_type' => $provider['mime_type'],
+		'type' => $provider['type']
+	]);
+}
 
 // ### Media Version Schemes
 //
@@ -129,6 +141,59 @@ MediaVersions::registerScheme('file', [
 	}
 ]);
 
+foreach (RemoteMedia::providers() as $provider) {
+	if ($provider['type'] !== 'video') {
+		// The handler below works for video only.
+		continue;
+	}
+
+	// Uses Vimeo's thumbnail and generates our local versions off it. Will
+	// not store/link versions for the video files themselves as those cannot
+	// be reached through the Vimeo API. This handler doesn't actually make the
+	// files itself but uses a generic file make handler to do so.
+	MediaVersions::registerScheme($provider['name'], [
+		'make' => function($entity) {
+			// No video versions for this vimeo video are made. Frontend
+			// code should use the Vimeo ID of the Media-Entity to load
+			// the actual video.
+			if ($assembly = MediaVersions::assembly('video', $entity->version)) {
+				if (isset($assembly['convert'])) {
+					if (Type::guessName($assembly['convert']) === 'video') {
+						return null;
+					}
+				} else {
+					$message  = 'Cannot reliably determine if this is a video version; fallback';
+					$message .= 'to heuristics.';
+					Logger::debug($message);
+
+					if (strpos($entity->version, 'flux') !== false) {
+						return null;
+					}
+				}
+			}
+			// URL is in <PROVIDER>://<ID> form
+			$covert = RemoteMedia::provider($entity->url)->convertToExternalUrl;
+			$ext = RemoteMedia::createFromUrl($convert($entity->url));
+
+			// This changes the scheme of the entity, thus it capabilities.
+			$entity->url = $ext->thumbnailUrl;
+
+			if (!$entity->can('download')) {
+				$message  = "Can't download video poster URL `{$entity->url}`. ";
+				$message .= "You need to register a http scheme with downloading enabled to do so.";
+				throw new Exception($message);
+			}
+			$entity->url = $entity->download();
+
+			$handler = MediaVersions::registeredScheme('file', 'make');
+			return $handler($entity);
+		}
+	]);
+}
+
+//
+// ### Handlers
+//
 // Wire cute handler to make function.
 Handlers::register('MediaVersions::make', function($data) {
 	if (MediaVersions::pdo()->inTransaction()) {
@@ -145,6 +210,9 @@ Handlers::register('MediaVersions::make', function($data) {
 	return false;
 });
 
+//
+// ### Process Adapter Configuration
+//
 // Configure processing of media.
 Process::config([
 	'audio' => 'SoxShell',

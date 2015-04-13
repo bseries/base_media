@@ -297,6 +297,7 @@ class Media extends \base_core\models\Base {
 
 		return static::_uniqueUrl($base, $extension, ['exists' => true]);
 	}
+
 }
 
 // Filter running before saving.

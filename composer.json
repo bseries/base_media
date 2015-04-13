@@ -17,7 +17,7 @@
         "davidpersson/li3_behaviors": "2.*",
         "atelierdisko/li3_flash_message": "1.0.*@beta",
         "atelierdisko/jsend": "0.5.*@stable",
-        "essence/essence": "2.5.*",
+        "essence/essence": "dev-master#6003534d115d9e840255d085c62ef025cfe8fc6a",
         "unionofrad/lithium": "dev-dev as 1.0.0-dev",
         "composer/installers": "1.0.*@stable"
     },

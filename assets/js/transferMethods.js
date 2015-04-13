@@ -214,9 +214,9 @@ function(
   };
 
   //
-  // File URL Method
+  // URL Method
   //
-  TransferMethods.FileUrl = function(element) {
+  TransferMethods.Url = function(element) {
     var _this = this;
 
     this.element = $(element);
@@ -264,6 +264,20 @@ function(
         return dfr.promise();
       };
 
+      // Must come after transfer.meta.
+      transfer.preview = function() {
+        var dfr = new $.Deferred();
+
+        transfer.meta().done(function(meta) {
+          if (meta.preview) {
+            dfr.resolve(meta.preview);
+          } else {
+            dfr.reject();
+          }
+        });
+        return dfr;
+      };
+
       _this.element.trigger('transfer-method:loaded', [transfer]);
       $input.val('');
     });
@@ -285,73 +299,6 @@ function(
         });
 
         return dfr;
-    };
-  };
-
-  //
-  // Vimeo (ID) Method
-  //
-  // FIXME Preview Image via HEAD Request?
-  TransferMethods.Vimeo = function(element) {
-    var _this = this;
-
-    this.element = $(element);
-
-    var $ok = _this.element.find('.confirm');
-    var $input = _this.element.find('input');
-
-    $input.on('keyup focusout', function(ev) {
-      $ok.prop('disabled', !this.validity.valid || !this.value);
-    });
-
-    $ok.on('click', function(ev) {
-      ev.preventDefault();
-      var id = $input.val();
-      var transfer = new Transfer();
-
-      transfer.run = function() {
-        // Does not report progress.
-        return _this._transfer(id).promise();
-      };
-      transfer.meta = function() {
-        var dfr = new $.Deferred();
-
-        Router.match('media:transfer-meta').done(function(_url) {
-          $.ajax({
-            type: 'POST',
-            url: _url,
-            data: 'vimeo_id=' + id
-          }).done(function(data) {
-            dfr.resolve(data.data.file);
-          }).fail(function(res) {
-            transfer.isFailed = true;
-            dfr.reject(res.responseJSON.message);
-          });
-        });
-        return dfr;
-      };
-
-      _this.element.trigger('transfer-method:loaded', [transfer]);
-      $input.val('');
-    });
-
-    this._transfer = function(id) {
-      var dfr = new $.Deferred();
-
-      Router.match('media:transfer', {'title': id}).done(function(_url) {
-        $.ajax({
-          type: 'POST',
-          url: _url,
-          data: 'vimeo_id=' + id
-        }).done(function(data) {
-          dfr.resolve(data.data.file);
-        }).fail(function(res) {
-          dfr.reject(res.responseJSON.message);
-        });
-
-      });
-
-      return dfr;
     };
   };
 

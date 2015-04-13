@@ -30,7 +30,6 @@ function(
     this.element = $(element);
 
     options = $.extend({
-      vimeoUpload: false,
       urlUpload: false
     }, options);
 
@@ -58,12 +57,8 @@ function(
       $methods.find('.file-local-drop')
     ));
     if (options.urlUpload) {
-      _this.methods.push(new TransferMethods.FileUrl($methods.find('.file-url')));
-      $methods.find('.file-url').removeClass('hide');
-    }
-    if (options.vimeoUpload) {
-      _this.methods.push(new TransferMethods.Vimeo($methods.find('.vimeo')));
-      $methods.find('.vimeo').removeClass('hide');
+      _this.methods.push(new TransferMethods.Url($methods.find('.url')));
+      $methods.find('.url').removeClass('hide');
     }
 
     // Bridge methods with queue.
