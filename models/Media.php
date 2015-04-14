@@ -314,11 +314,14 @@ Media::applyFilter('save', function($self, $params, $chain) {
 	$entity->type = $entity->can('type') ?: Type::guessName($entity->url);
 	$entity->mime_type = $entity->can('mime_type') ?: Type::guessType($entity->url);
 
+	Cache::delete('default', 'media_versions_' . md5($entity->id));
 	return $chain->next($self, $params, $chain);
 });
 
 Media::applyFilter('delete', function($self, $params, $chain) {
 	$entity = $params['entity'];
+
+	Cache::delete('default', 'media_versions_' . md5($entity->id));
 
 	if ($entity->can('delete')) {
 		Logger::debug("Deleting corresponding URL `{$entity->url}` of media.");
@@ -336,21 +339,6 @@ Media::applyFilter('save', function($self, $params, $chain) {
 	if ($entity->modified('url') && $entity->can('relative')) {
 		$entity->url = Media::relativeUrl($entity->url);
 	}
-	return $chain->next($self, $params, $chain);
-});
-
-// Invalidate cache items.
-MediaVersions::applyFilter('save', function($self, $params, $chain) {
-	$result = $chain->next($self, $params, $chain);
-
-	Cache::delete('default', 'media_versions_' . md5($params['entity']->id));
-	return $result;
-});
-MediaVersions::applyFilter('delete', function($self, $params, $chain) {
-	$entity = $params['entity'];
-
-	$entity->deleteVersions();
-	Cache::delete('default', 'media_versions_' . md5($params['entity']->id));
 	return $chain->next($self, $params, $chain);
 });
 
