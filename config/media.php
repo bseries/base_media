@@ -172,7 +172,7 @@ foreach (RemoteMedia::providers() as $provider) {
 				}
 			}
 			// URL is in <PROVIDER>://<ID> form
-			$covert = RemoteMedia::provider($entity->url)->convertToExternalUrl;
+			$convert = RemoteMedia::provider($entity->url)['convertToExternalUrl'];
 			$ext = RemoteMedia::createFromUrl($convert($entity->url));
 
 			// This changes the scheme of the entity, thus it capabilities.

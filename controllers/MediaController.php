@@ -115,7 +115,7 @@ class MediaController extends \base_core\controllers\BaseController {
 	// Retrieve information of transfer without actually downloading the entity.
 	public function admin_api_transfer_meta() {
 		try {
-			list($source, $title) = $this->_handleTransferRequest();
+			list($source, $title, $preview) = $this->_handleTransferRequest();
 		} catch (Exception $e) {
 			$response = new JSendResponse('error', $e->getMessage());
 
@@ -132,7 +132,8 @@ class MediaController extends \base_core\controllers\BaseController {
 		]);
 		$file = [
 			'size' => $item->size(),
-			'title' => $item->title
+			'title' => $item->title,
+			'preview' => $preview
 		];
 		$response = new JSendResponse('success', compact('file'));
 

@@ -30,8 +30,8 @@ class RemoteMedia extends \base_core\models\Base {
 					preg_match('#vimeo\.com/(\d{8})#', $url, $matches);
 					return 'vimeo://' . $matches[1];
 				},
-				'convertToExternalUrl' => function($url) {
-					return 'https://vimeo.com/' . parse_url($url, PHP_URL_PATH);
+					'convertToExternalUrl' => function($url) {
+					return 'https://vimeo.com/' . parse_url($url, PHP_URL_HOST);
 				},
 				'type' => 'video',
 				'mime_type' => 'application/x-vimeo',
@@ -44,7 +44,7 @@ class RemoteMedia extends \base_core\models\Base {
 					return 'youtube://' . $vars['v'];
 				},
 				'convertToExternalUrl' => function($url) {
-					return 'https://www.youtube.com/watch?v=' . parse_url($url, PHP_URL_PATH);
+					return 'https://www.youtube.com/watch?v=' . parse_url($url, PHP_URL_HOST);
 				},
 				'type' => 'video',
 				'mime_type' => 'application/x-youtube',
@@ -74,7 +74,7 @@ class RemoteMedia extends \base_core\models\Base {
 			if (is_string($provider['matcher']) && preg_match($provider['matcher'], $url)) {
 				return $provider;
 			}
-			if (is_callable($proivder['matcher']) && $proivder['matcher']($url)) {
+			if (is_callable($provider['matcher']) && $provider['matcher']($url)) {
 				return $provider;
 			}
 		}
@@ -86,7 +86,7 @@ class RemoteMedia extends \base_core\models\Base {
 			'internal' => false
 		];
 		if ($options['internal']) {
-			$method = static::provider($entity->url)->convertToInternalUrl;
+			$method = static::provider($entity->url)['convertToInternalUrl'];
 			return $method($entity->url);
 		}
 		return $entity->url;

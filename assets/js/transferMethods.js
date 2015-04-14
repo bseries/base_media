@@ -244,7 +244,7 @@ function(
 
         dfr.notify('progress', transfer.progress = 0);
         dfr.done(function() {
-          result.notify('progress', transfer.progress = 100);
+          dfr.notify('progress', transfer.progress = 100);
         });
 
         return dfr.promise();
@@ -258,7 +258,7 @@ function(
             url: _url,
             data: 'url=' + url
           }).done(function(data) {
-            dfr.resolve(data.file);
+            dfr.resolve(data.data.file);
           });
         });
         return dfr.promise();
@@ -285,7 +285,7 @@ function(
     this._transfer = function(url) {
       var dfr = new $.Deferred();
 
-       Router.match('media:transfer', {'title': ''})
+       Router.match('media:transfer', {'title': 'undefined'})
         .then(function(_url) {
           $.ajax({
             type: 'POST',
