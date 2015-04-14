@@ -32,7 +32,12 @@ class Media extends \lithium\console\Command {
 		$conditions = [];
 
 		if (strpos($type, 'id:') === 0) {
-			$conditions['id'] = explode(':', $type)[1];
+			if (preg_match('/id:(\d+)-(\d+)/', $type, $matches)) {
+				$conditions[] = 'id >= ' . $matches[1];
+				$conditions[] = 'id <= ' . $matches[2];
+			} else {
+				$conditions['id'] = explode(':', $type)[1];
+			}
 		}
 
 		foreach (MediaModel::find('all', compact('conditions')) as $item) {
