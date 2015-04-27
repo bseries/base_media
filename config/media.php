@@ -247,9 +247,7 @@ if (PROJECT_FEATURE_IMAGICK) {
 	$fix = [
 		'convert' => 'image/png',
 		'compress' => 5.5,
-		// FIXME Reenable once imagick doesn't segfault applying the profile
-		// on PDFs anymore.
-		// 'colorProfile' => $sRGB,
+		'colorProfile' => $sRGB,
 		'colorDepth' => 8,
 		'strip' => ['xmp', '8bim', 'app1', 'app12', 'exif'],
 	];
