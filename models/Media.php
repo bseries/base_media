@@ -196,7 +196,9 @@ class Media extends \base_core\models\Base {
 
 	public function makeVersions($entity) {
 		if (!$entity->verify()) {
-			throw new Exception('Entity did not verify.');
+			$message  = "Media with id `{$entity->id}` and URL `{$entity->url}` did not verify. ";
+			$message .= "This might be caused by a checksum mismatch or a missing file.";
+			throw new Exception($message);
 		}
 
 		// Fetch versions we need to make. We're assembling all
