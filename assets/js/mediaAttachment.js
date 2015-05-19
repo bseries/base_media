@@ -157,7 +157,8 @@ function($, Router, MediaExplorerModal) {
       _this.inputs().each(function(k, el) {
         var value = $(el).val();
 
-        if (value !== '0') { // Prevent 0 ids to be added.
+        // Prevent 0/null ids to be added.
+        if (value !== '0' && value !== '') {
           ids.push(value);
         }
       });
