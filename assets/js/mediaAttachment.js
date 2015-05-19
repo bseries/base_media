@@ -97,9 +97,10 @@ function($, Router, MediaExplorerModal) {
     // It is assumed there is/was an initial state of inputs that didn't
     // need any further adaption.
     this.keepSynced = function() {
-      _this.elements.selected.on('DOMSubtreeModified', function() {
+      var observer = new MutationObserver(function() {
         var inputs = _this.inputs();
         var items = _this.items();
+
         if (_this.formBinding === 'direct') {
           // Signaling the backend to attach, update or detach the item works
           // for single attachments by using a single hidde input. When this
@@ -114,28 +115,33 @@ function($, Router, MediaExplorerModal) {
             $(inputs.get(0)).val('');
           }
         } else {
-            // Multi attachments use different markup than single ones. The
-            // backend will always detach any attachment first than attach
-            // the ones provided by inputs. That's why we cannot use empty
-            // values but need to remove all inputs for detachment. Name
-            // pattern i.e. 'media[1][id]'.
-            //
-            // FIXME Make first part of input name customizable.
+          // Multi attachments use different markup than single ones. The
+          // backend will always detach any attachment first than attach
+          // the ones provided by inputs. That's why we cannot use empty
+          // values but need to remove all inputs for detachment. Name
+          // pattern i.e. 'media[1][id]'.
+          //
+          // FIXME Make first part of input name customizable.
 
-            if (items.length) {
-              // Must rebuild array of inputs entirely.
+          if (items.length) {
+            // Must rebuild array of inputs entirely.
 
-              inputs.remove();
-              items.each(function(index, el) {
-                var id = $(el).data('id');
+            inputs.remove();
+            items.each(function(index, el) {
+              var id = $(el).data('id');
 
-                var html = '<input type="hidden" name="media[' + id +  '][id]" value="' + id + '">';
-                _this.element.append(html);
-              });
-            } else {
-              inputs.remove();
-            }
+              var html = '<input type="hidden" name="media[' + id +  '][id]" value="' + id + '">';
+              _this.element.append(html);
+            });
+          } else {
+            inputs.remove();
+          }
         }
+      });
+
+      observer.observe(_this.elements.selected.get(0), {
+        childList: true,
+        subtree: true
       });
     };
 
