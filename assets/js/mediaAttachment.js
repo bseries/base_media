@@ -84,7 +84,7 @@ function($, Router, MediaExplorerModal) {
     // Returns a current live list of all inputs.
     // Needed as that may change during runtime.
     this.inputs = function() {
-        return _this.element.find('input[name*=id]');
+      return _this.element.find('input[name*=id]');
     };
 
     // Returns a current live list of all items.
@@ -198,7 +198,7 @@ function($, Router, MediaExplorerModal) {
 
     this.buildSelectedItemHtml = function(item) {
       var wrap = $('<article class="media-item" style="background-image: url(' + item.versions.fix2admin.url + ');">');
-      var button = $('<a href="#" class="remove-item">×</a>');
+      var button = $('<a href="#remove" class="remove-item">×</a>');
       wrap.append(button);
 
       button.on('click', function(ev) {
