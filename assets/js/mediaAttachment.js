@@ -62,8 +62,11 @@ function($, Router, MediaExplorerModal) {
 
       _this.populate().done(function() {
         _this.elements.selected.addClass('populated');
+
+        // Needs to come after population, otherwise mutations
+        // are triggered initially.
+        _this.keepSynced();
       });
-      _this.keepSynced();
 
       _this.elements.select.on('click', function(ev) {
         ev.preventDefault();
