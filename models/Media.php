@@ -18,6 +18,7 @@ use base_media\models\MediaVersions;
 use base_media\models\MediaAttachments;
 use lithium\analysis\Logger;
 use lithium\storage\Cache;
+use lithium\core\Libraries;
 use Cute\Job;
 use Cute\Connection;
 use lithium\util\Collection;
@@ -45,8 +46,6 @@ class Media extends \base_core\models\Base {
 			]
 		]
 	];
-
-	protected static $_dependent = [];
 
 	protected static $_cuteConnection;
 
@@ -90,32 +89,14 @@ class Media extends \base_core\models\Base {
 		return [$results, $meta];
 	}
 
-	// Registers a model that uses and depends on media. Bindings define
-	// how exactly the model depends on the media.
-	//
-	// In this example the 2 possible types of bindings are registered:
-	//
-	// ```
-	// Media::registerDependent('cms_post\models\Posts', [
-	//	'cover' => 'direct', 'media' => 'joined'
-	// ]);
-	// ```
-	//
-	// - For _direct_ bindings the model must have a <NAME>_media_id field.
-	//   Direct bindings can just hold one medium.
-	//
-	// - _Joined_ bindings are used to attach an arbitrary amount of media
-	//   to a model.
-	public static function registerDependent($model, array $bindings) {
-		static::$_dependent[$model] = $bindings;
-	}
-
 	// Finds out which other records depend on a given media entity.
 	// Type can either be count or all.
+	//
+	// Do not use in performance criticial parts.
 	public function depend($entity, $type) {
 		$depend = $type === 'count' ? 0 : [];
 
-		foreach (static::$_dependent as $model => $bindings) {
+		foreach (static::_dependent() as $model => $bindings) {
 			foreach ($bindings as $alias => $binding) {
 				if ($binding === 'direct') {
 					$results = $model::find($type, [
@@ -150,6 +131,31 @@ class Media extends \base_core\models\Base {
 		}
 		return $depend;
 	}
+
+	protected static function _dependent() {
+		$models = Libraries::locate('models');
+		$results = [];
+
+		foreach ($models as $model) {
+			// Check if we can call hasBehavior() indirectly.
+			if (!is_a($model, '\base_core\models\Base', true)) {
+				continue;
+			}
+			$model::key(); // Hack to activate behaviors.
+
+			if (!$model::hasBehavior('Coupler')) {
+				continue;
+			}
+			$bindings = [];
+
+			foreach ($model::behavior('Coupler')->config('bindings') as $field => $config) {
+				$bindings[$field] = $config['type'];
+			}
+			$results[$model] = $bindings;
+		}
+		return $results;
+	}
+
 
 	// Simplified as versions method is cached.
 	public function version($entity, $version) {
@@ -308,6 +314,10 @@ class Media extends \base_core\models\Base {
 		return static::_uniqueUrl($base, $extension, ['exists' => true]);
 	}
 
+	// @deprecated
+	public static function registerDependent($model, array $bindings) {
+		trigger_error("Media::registerDependent() is deprecated.", E_USER_DEPRECATED);
+	}
 }
 
 // Filter running before saving.
