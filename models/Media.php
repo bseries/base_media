@@ -156,7 +156,6 @@ class Media extends \base_core\models\Base {
 		return $results;
 	}
 
-
 	// Simplified as versions method is cached.
 	public function version($entity, $version) {
 		$results = $entity->versions();
@@ -356,7 +355,7 @@ Media::applyFilter('delete', function($self, $params, $chain) {
 Media::applyFilter('save', function($self, $params, $chain) {
 	$entity = $params['entity'];
 
-	if ($entity->modified('url') && $entity->can('relative')) {
+	if (($entity->modified('url') || !$entity->exists()) && $entity->can('relative')) {
 		$entity->url = Media::relativeUrl($entity->url);
 	}
 	return $chain->next($self, $params, $chain);

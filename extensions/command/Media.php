@@ -66,10 +66,12 @@ class Media extends \lithium\console\Command {
 				'title' => 'DUMMY'
 			]
 		])->delete();
-
 		ini_set('memory_limit','500M');
+
+		$this->out('Clearing media versions...');
 		MediaVersions::find('all')->delete();
 
+		$this->out('Creating dummy media from file...');
 		copy(
 			PROJECT_PATH . '/assets/app/img/dummy/01.jpg',
 			$file = PROJECT_MEDIA_FILE_BASE . '/' . uniqid('dummy_') . '.jpg'
