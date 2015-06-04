@@ -11,7 +11,7 @@ David Persson for Atelier Disko (david@atelierdisko.de).
 
 Copyright & License
 -------------------
-This library is Copyright (c) 2013-2014 Atelier Disko - All rights reserved.
+This library is Copyright (c) 2013 Atelier Disko - All rights reserved.
 
 -- This software is proprietary and confidential. Redistributions   --
 -- not permitted. Unless required by applicable law or agreed to    --
