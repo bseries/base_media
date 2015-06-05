@@ -16,7 +16,7 @@ use Exception;
 use lithium\core\Libraries;
 use lithium\analysis\Logger;
 use lithium\g11n\Message;
-use jsend\Response as JSendResponse;
+use AD\jsend\Response as JSendResponse;
 use temporary\Manager as Temporary;
 use li3_flash_message\extensions\storage\FlashMessage;
 
