@@ -20,6 +20,7 @@ class Media extends \lithium\template\Helper {
 		'image' => 'image'
 	];
 
+	// Generates image tag HTML for a given medium path.
 	public function image($path, array $options = []) {
 		$path = $this->url($path);
 
@@ -35,10 +36,12 @@ class Media extends \lithium\template\Helper {
 		});
 	}
 
+	// Generates video tag HTML for a given medium path.
 	public function video($path) {
 		$path = $this->url($path);
 	}
 
+	// Returns the full URL for a medium path.
 	public function url($path) {
 		if (is_object($path)) {
 			return $path->url($this->_context->request()->is('ssl') ? 'https' : 'http');
@@ -49,12 +52,14 @@ class Media extends \lithium\template\Helper {
 		return $this->base() . $path;
 	}
 
+	// Returns the base for given scheme..
 	public function base($scheme = null) {
 		$scheme = $scheme ?: $this->_context->request()->is('ssl') ? 'https' : 'http';
 		return MediaVersions::base($scheme);
 	}
 
-	// Works in tandem with media-attachment.js
+	// Generates form field HTML so that media-attachment.js can
+	// hook into it.
 	public function field($name, array $options = []) {
 		extract(Message::aliases());
 
