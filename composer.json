@@ -19,7 +19,7 @@
         "atelierdisko/jsend": "1.0.*@beta",
         "essence/essence": "dev-master#6003534d115d9e840255d085c62ef025cfe8fc6a",
         "unionofrad/lithium": "1.0.*@dev",
-        "composer/installers": "1.0.*@stable"
+        "composer/installers": "1.*@stable"
     },
     "suggests": {
       "beanstalkd": "Enables async processing when uploading media.",
