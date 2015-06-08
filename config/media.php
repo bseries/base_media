@@ -13,6 +13,7 @@
 use base_media\models\Media;
 use base_media\models\MediaVersions;
 use base_media\models\RemoteMedia;
+use lithium\storage\Cache;
 use lithium\core\Libraries;
 use lithium\analyis\Logger;
 use mm\Media\Process;
@@ -211,18 +212,36 @@ Handlers::register('MediaVersions::make', function($data) {
 });
 
 //
-// ### Process Adapter Configuration
+// ### Setup MM
 //
-// Configure processing of media.
+$mm = PROJECT_PATH . '/app/libraries/davidpersson/mm';
+
+Type::config('magic', [
+	'adapter' => 'Fileinfo'
+]);
+if ($cached = Cache::read('default', 'mime_type_glob')) {
+	Type::config('glob', [
+		'adapter' => 'Memory'
+	]);
+	foreach ($cached as $item) {
+		Type::$glob->register($item);
+	}
+} else {
+	Type::config('glob', [
+		'adapter' => 'Freedesktop',
+		'file' => $mm . '/data/glob.db'
+	]);
+	Cache::write('default', 'mime_type_glob', Type::$glob->to('array'));
+}
+Info::config([
+	'document' => PROJECT_FEATURE_IMAGICK ? 'Imagick' : null,
+	'image' => PROJECT_FEATURE_IMAGICK ? ['ImageBasic', 'Imagick'] : ['ImageBasic']
+]);
 Process::config([
 	'audio' => 'SoxShell',
 	'document' => PROJECT_FEATURE_IMAGICK ? 'Imagick' : null,
 	'image' => PROJECT_FEATURE_IMAGICK ? 'Imagick' : 'Gd',
 	'video' => 'FfmpegShell'
-]);
-Info::config([
-	'document' => PROJECT_FEATURE_IMAGICK ? 'Imagick' : null,
-	'image' => PROJECT_FEATURE_IMAGICK ? ['ImageBasic', 'Imagick'] : ['ImageBasic']
 ]);
 
 //
