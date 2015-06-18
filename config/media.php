@@ -148,14 +148,14 @@ foreach (RemoteMedia::providers() as $provider) {
 		continue;
 	}
 
-	// Uses Vimeo's thumbnail and generates our local versions off it. Will
+	// Uses provider's thumbnail and generates our local versions off it. Will
 	// not store/link versions for the video files themselves as those cannot
-	// be reached through the Vimeo API. This handler doesn't actually make the
+	// be reached through most provider APIs. This handler doesn't actually make the
 	// files itself but uses a generic file make handler to do so.
 	MediaVersions::registerScheme($provider['name'], [
 		'make' => function($entity) {
-			// No video versions for this vimeo video are made. Frontend
-			// code should use the Vimeo ID of the Media-Entity to load
+			// No video versions for this video are made. Frontend
+			// code should use the provider video ID of the Media-Entity to load
 			// the actual video.
 			if ($assembly = MediaVersions::assembly('video', $entity->version)) {
 				if (isset($assembly['convert'])) {
