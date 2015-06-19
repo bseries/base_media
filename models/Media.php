@@ -134,7 +134,9 @@ class Media extends \base_core\models\Base {
 	}
 
 	protected static function _dependent() {
-		$models = Libraries::locate('models');
+		$models = array_filter(Libraries::locate('models'), function($v) {
+			return strpos($v, 'Trait') === false;
+		});
 		$results = [];
 
 		foreach ($models as $model) {
