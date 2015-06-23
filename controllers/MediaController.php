@@ -12,17 +12,18 @@
 
 namespace base_media\controllers;
 
-use Exception;
-use lithium\core\Libraries;
-use lithium\analysis\Logger;
-use lithium\g11n\Message;
 use AD\jsend\Response as JSendResponse;
-use temporary\Manager as Temporary;
-use li3_flash_message\extensions\storage\FlashMessage;
-
+use Exception;
+use base_core\extensions\net\http\InternalServerErrorException;
 use base_media\models\Media;
 use base_media\models\RemoteMedia;
-use base_core\extensions\net\http\InternalServerErrorException;
+use li3_flash_message\extensions\storage\FlashMessage;
+use lithium\analysis\Logger;
+use lithium\core\Libraries;
+use lithium\g11n\Message;
+use temporary\Manager as Temporary;
+use base_core\security\Gate;
+use base_core\extensions\net\http\NotFoundException;
 
 class MediaController extends \base_core\controllers\BaseController {
 
@@ -32,10 +33,18 @@ class MediaController extends \base_core\controllers\BaseController {
 	use \base_core\controllers\AdminEditTrait;
 
 	public function admin_api_view() {
-		$item = Media::find('first', ['conditions' => ['id' => $this->request->id]]);
+		$query = [
+			'conditions' => [
+				'id' => $this->request->id
+			]
+		];
+		if (!Gate::check('users')) {
+			$query['conditions']['owner_id'] = Gate::user(true, 'id');
+		}
+		$item = Media::find('first', $query);
 
 		if (!$item) {
-			// Bail out.
+			throw new NotFoundException();
 		}
 		$file = $this->_export($item);
 
@@ -51,11 +60,16 @@ class MediaController extends \base_core\controllers\BaseController {
 		$page = $this->request->page ?: 1;
 		$perPage = 20;
 
-		$media = Media::find('all', [
+		$query = [
 			'page' => $page,
 			'limit' => $perPage,
 			'order' => ['created' => 'DESC']
-		]);
+		];
+		if (!Gate::check('users')) {
+			$query['conditions']['owner_id'] = Gate::user(true, 'id');
+		}
+
+		$media = Media::find('all', $query);
 
 		$files = [];
 		foreach ($media as $item) {
@@ -165,6 +179,7 @@ class MediaController extends \base_core\controllers\BaseController {
 		}
 
 		$file = Media::create([
+			'owner_id' => Gate::user(true, 'id'),
 			'url' => $source,
 			'title' => $title
 		]);
@@ -251,7 +266,18 @@ class MediaController extends \base_core\controllers\BaseController {
 
 	public function admin_delete() {
 		extract(Message::aliases());
-		$item = Media::find($this->request->id);
+
+		$query = [
+			'conditions' => [
+				'id' => $this->request->id
+			]
+		];
+		if (!Gate::check('users')) {
+			$query['conditions']['owner_id'] = Gate::user(true, 'id');
+		}
+		if (!$item = Media::find('first', $query)) {
+			throw new NotFoundException();
+		}
 
 		$item->delete();
 		$item->deleteVersions();
@@ -259,7 +285,6 @@ class MediaController extends \base_core\controllers\BaseController {
 		FlashMessage::write($t('Successfully deleted.', ['scope' => 'base_media']), [
 			'level' => 'success'
 		]);
-
 		$this->redirect(['action' => 'index', 'library' => 'base_media']);
 	}
 

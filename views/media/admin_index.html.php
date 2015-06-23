@@ -36,6 +36,9 @@ $this->set([
 				<td><?= $t('Size') ?>
 				<td><?= $t('# dependent') ?>
 				<td data-sort="modified" class="date table-sort desc"><?= $t('Modified') ?>
+				<?php if ($useOwner): ?>
+					<td class="user"><?= $t('Owner') ?>
+				<?php endif ?>
 				<td class="actions">
 					<?= $this->form->field('search', [
 						'type' => 'search',
@@ -68,6 +71,10 @@ $this->set([
 				<time datetime="<?= $this->date->format($item->modified, 'w3c') ?>">
 					<?= $this->date->format($item->modified, 'date') ?>
 				</time>
+			<?php if ($useOwner): ?>
+				<td class="user">
+					<?= $item->owner()->name ?>
+			<?php endif ?>
 			<td class="actions">
 				<?php if (!$depend): ?>
 					<?=$this->html->link($t('delete'), ['action' => 'delete', 'id' => $item->id, 'library' => 'base_media'], ['class' => 'button delete']) ?>
