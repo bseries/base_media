@@ -10,6 +10,8 @@
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 
+namespace base_media\config;
+
 use base_core\extensions\cms\Settings;
 
 Settings::register('media.allowRegenerateVersions', false);
