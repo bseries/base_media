@@ -10,6 +10,8 @@
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 
+namespace base_media\config;
+
 use base_media\models\Media;
 use base_media\models\MediaVersions;
 use base_media\models\RemoteMedia;
@@ -20,7 +22,7 @@ use mm\Media\Process;
 use mm\Media\Info;
 use mm\Mime\Type;
 use Cute\Handlers;
-use \Exception;
+use Exception;
 
 // Registers Media and MediaVersions schemes. The `base` key of each
 // scheme is intentionally left unset. This must be added by the app
