@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: base_media 1.0\n"
 "Report-Msgid-Bugs-To: info@atelierdisko.de\n"
-"POT-Creation-Date: 2015-03-10 18:03+0100\n"
+"POT-Creation-Date: 2015-07-09 14:44+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,26 +16,57 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: config/panes.php:19 config/widgets.php:29
+#: config/panes.php:21 config/widgets.php:63 extensions/helper/Media.php:82
 msgid "Media"
 msgstr ""
 
-#: config/widgets.php:34
+#: config/widgets.php:31
+msgid "0 Bytes"
+msgstr ""
+
+#: config/widgets.php:35
+msgid "{:count} Byte"
+msgid_plural "{:count} Bytes"
+msgstr[0] ""
+msgstr[1] ""
+
+#: config/widgets.php:40
+msgid "{:count} KB"
+msgstr ""
+
+#: config/widgets.php:45
+msgid "{:count} MB"
+msgstr ""
+
+#: config/widgets.php:50
+msgid "{:count} GB"
+msgstr ""
+
+#: config/widgets.php:55
+msgid "{:count} TB"
+msgstr ""
+
+#: config/widgets.php:68
 msgid "Items"
 msgstr ""
 
-#: config/widgets.php:35 views/media/admin_form.html.php:47
-#: views/media/admin_index.html.php:35
+#: config/widgets.php:69 views/media/admin_form.html.php:47
+#: views/media/admin_index.html.php:36
 msgid "Size"
 msgstr ""
 
-#: controllers/MediaController.php:232
-msgid "Could not find vimeo video."
+#: controllers/MediaController.php:259
+msgid "Successfully deleted."
 msgstr ""
 
-#: controllers/MediaController.php:258
-msgid "Successfully deleted."
+#: extensions/helper/Media.php:76
+msgid "Medium"
+msgstr ""
+
+#: extensions/helper/Media.php:96
+msgid "select"
 msgstr ""
 
 #: views/media/admin_form.html.php:13
@@ -58,11 +89,11 @@ msgstr ""
 msgid "URL"
 msgstr ""
 
-#: views/media/admin_form.html.php:45 views/media/admin_index.html.php:33
+#: views/media/admin_form.html.php:45 views/media/admin_index.html.php:34
 msgid "Type"
 msgstr ""
 
-#: views/media/admin_form.html.php:46 views/media/admin_index.html.php:34
+#: views/media/admin_form.html.php:46 views/media/admin_index.html.php:35
 msgid "MIME-Type"
 msgstr ""
 
@@ -70,7 +101,7 @@ msgstr ""
 msgid "Status"
 msgstr ""
 
-#: views/media/admin_form.html.php:60 views/media/admin_index.html.php:67
+#: views/media/admin_form.html.php:60 views/media/admin_index.html.php:75
 msgid "open"
 msgstr ""
 
@@ -82,26 +113,30 @@ msgstr ""
 msgid "save"
 msgstr ""
 
-#: views/media/admin_index.html.php:31
+#: views/media/admin_index.html.php:32
 msgid "Preview"
 msgstr ""
 
-#: views/media/admin_index.html.php:32
+#: views/media/admin_index.html.php:33
 msgid "Title"
 msgstr ""
 
-#: views/media/admin_index.html.php:36
+#: views/media/admin_index.html.php:37
 msgid "# dependent"
 msgstr ""
 
-#: views/media/admin_index.html.php:37
+#: views/media/admin_index.html.php:38
 msgid "Modified"
 msgstr ""
 
-#: views/media/admin_index.html.php:65
+#: views/media/admin_index.html.php:43
+msgid "Filter"
+msgstr ""
+
+#: views/media/admin_index.html.php:73
 msgid "delete"
 msgstr ""
 
-#: views/media/admin_index.html.php:72
+#: views/media/admin_index.html.php:80
 msgid "There are currently no items available, yet."
 msgstr ""

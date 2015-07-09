@@ -7,101 +7,136 @@ msgid ""
 msgstr ""
 "Project-Id-Version: base_media 1.0\n"
 "Report-Msgid-Bugs-To: info@atelierdisko.de\n"
-"POT-Creation-Date: 2015-03-10 18:03+0100\n"
-"PO-Revision-Date: 2015-03-10 18:03+0100\n"
-"Last-Translator: Automatically generated\n"
+"POT-Creation-Date: 2015-07-09 14:44+0200\n"
+"PO-Revision-Date: 2015-07-09 14:46+0100\n"
+"Last-Translator: David Persson <davidpersson@gmx.de>\n"
 "Language-Team: none\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 1.5.7\n"
 
-#: config/panes.php:19 config/widgets.php:29
+#: config/panes.php:21 config/widgets.php:63 extensions/helper/Media.php:82
 msgid "Media"
-msgstr ""
+msgstr "Medien"
 
-#: config/widgets.php:34
+#: config/widgets.php:31
+msgid "0 Bytes"
+msgstr "0 Bytes"
+
+#: config/widgets.php:35
+msgid "{:count} Byte"
+msgid_plural "{:count} Bytes"
+msgstr[0] "{:count} Byte"
+msgstr[1] "{:count} Bytes"
+
+#: config/widgets.php:40
+msgid "{:count} KB"
+msgstr "{:count} KB"
+
+#: config/widgets.php:45
+msgid "{:count} MB"
+msgstr "{:count} MB"
+
+#: config/widgets.php:50
+msgid "{:count} GB"
+msgstr "{:count} GB"
+
+#: config/widgets.php:55
+msgid "{:count} TB"
+msgstr "{:count} TB"
+
+#: config/widgets.php:68
 msgid "Items"
-msgstr ""
+msgstr "Elemente"
 
-#: config/widgets.php:35 views/media/admin_form.html.php:47
-#: views/media/admin_index.html.php:35
+#: config/widgets.php:69 views/media/admin_form.html.php:47
+#: views/media/admin_index.html.php:36
 msgid "Size"
-msgstr ""
+msgstr "Größe"
 
-#: controllers/MediaController.php:232
-msgid "Could not find vimeo video."
-msgstr ""
-
-#: controllers/MediaController.php:258
+#: controllers/MediaController.php:259
 msgid "Successfully deleted."
-msgstr ""
+msgstr "Erfolgreich gelöscht."
+
+#: extensions/helper/Media.php:76
+msgid "Medium"
+msgstr "Medium"
+
+#: extensions/helper/Media.php:96
+msgid "select"
+msgstr "auswählen"
 
 #: views/media/admin_form.html.php:13
 msgid "untitled"
-msgstr ""
+msgstr "ohne Titel"
 
 #: views/media/admin_form.html.php:14 views/media/admin_index.html.php:12
 msgid "media"
-msgstr ""
+msgstr "Medien"
 
 #: views/media/admin_form.html.php:37
 msgid "Versions"
-msgstr ""
+msgstr "Versionen"
 
 #: views/media/admin_form.html.php:43
 msgid "Version"
-msgstr ""
+msgstr "Version"
 
 #: views/media/admin_form.html.php:44
 msgid "URL"
-msgstr ""
+msgstr "URL"
 
-#: views/media/admin_form.html.php:45 views/media/admin_index.html.php:33
+#: views/media/admin_form.html.php:45 views/media/admin_index.html.php:34
 msgid "Type"
-msgstr ""
+msgstr "Art"
 
-#: views/media/admin_form.html.php:46 views/media/admin_index.html.php:34
+#: views/media/admin_form.html.php:46 views/media/admin_index.html.php:35
 msgid "MIME-Type"
-msgstr ""
+msgstr "MIME-Typ"
 
 #: views/media/admin_form.html.php:48
 msgid "Status"
-msgstr ""
+msgstr "Status"
 
-#: views/media/admin_form.html.php:60 views/media/admin_index.html.php:67
+#: views/media/admin_form.html.php:60 views/media/admin_index.html.php:75
 msgid "open"
-msgstr ""
+msgstr "öffnen"
 
 #: views/media/admin_form.html.php:68
 msgid "regenerate versions"
-msgstr ""
+msgstr "Versionen neu generieren"
 
 #: views/media/admin_form.html.php:70
 msgid "save"
-msgstr ""
-
-#: views/media/admin_index.html.php:31
-msgid "Preview"
-msgstr ""
+msgstr "speichern"
 
 #: views/media/admin_index.html.php:32
-msgid "Title"
-msgstr ""
+msgid "Preview"
+msgstr "Vorschau"
 
-#: views/media/admin_index.html.php:36
-msgid "# dependent"
-msgstr ""
+#: views/media/admin_index.html.php:33
+msgid "Title"
+msgstr "Titel"
 
 #: views/media/admin_index.html.php:37
+msgid "# dependent"
+msgstr "# abhängig"
+
+#: views/media/admin_index.html.php:38
 msgid "Modified"
-msgstr ""
+msgstr "Bearbeitet"
 
-#: views/media/admin_index.html.php:65
+#: views/media/admin_index.html.php:43
+msgid "Filter"
+msgstr "Filter"
+
+#: views/media/admin_index.html.php:73
 msgid "delete"
-msgstr ""
+msgstr "löschen"
 
-#: views/media/admin_index.html.php:72
+#: views/media/admin_index.html.php:80
 msgid "There are currently no items available, yet."
-msgstr ""
+msgstr "Es sind noch keine Elemente verfügbar."
