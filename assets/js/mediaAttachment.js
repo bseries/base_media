@@ -198,7 +198,13 @@ function($, Router, MediaExplorerModal) {
     };
 
     this.buildSelectedItemHtml = function(item) {
-      var wrap = $('<article class="media-item" style="background-image: url(' + item.versions.fix2admin.url + ');">');
+      var wrap = $('<article class="media-item">');
+
+      if (item.versions) {
+        wrap.css('background-image', 'url(' + item.versions.fix2admin.url + ')');
+      } else {
+        wrap.addClass('no-visual');
+      }
       var button = $('<a href="#remove" class="remove-item">×</a>');
       wrap.append(button);
 
