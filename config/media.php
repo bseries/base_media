@@ -96,6 +96,14 @@ MediaVersions::registerScheme('file', [
 	'checksum' => true,
 	'delete' => true,
 	'make' => function($entity) {
+		// Check if we can process the source at all. If not
+		// always skip. Needed to support generic files.
+		$name = Type::guessName($entity->url);
+		$adapters = Process::config();
+
+		if (!isset($adapters[$name])) {
+			return null; // Skip.
+		}
 		$media = Process::factory(['source' => $entity->url]);
 		$target = MediaVersions::generateTargetUrl($entity->url, $entity->version);
 
