@@ -3,7 +3,11 @@
 	data-id="{{id}}"
 	data-type="{{type}}"
 >
-	<img class="preview" src="{{versions.fix2admin.url}}">
+	{{#if versions}}
+		<img class="preview" src="{{versions.fix2admin.url}}">
+	{{else}}
+		<div class="preview preview--dummy"></div>
+	{{/if}}
 	<div class="meta">
 		<span class="title">{{title}}</span>
 		<span class="created">{{created}}</span>
