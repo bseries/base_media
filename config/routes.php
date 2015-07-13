@@ -37,7 +37,7 @@ Router::connect(
 );
 
 ClientRouter::provide('media:index',
-	$base + ['action' => 'index']
+	$base + ['action' => 'index', 'page' => '__PAGE__']
 );
 ClientRouter::provide('media:search',
 	$base + ['action' => 'search', 'q' => '__Q__', 'page' => '__PAGE__']
