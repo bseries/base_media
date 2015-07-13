@@ -1,5 +1,9 @@
 <article 
-	class="item no-visual" 
+	{{#if versions}}
+		class="item" 
+	{{else}}
+		class="item no-visual" 
+	{{/if}}
 	data-id="{{id}}"
 	data-type="{{type}}"
 >
