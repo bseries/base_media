@@ -32,8 +32,6 @@ $this->set([
 				<td class="media"><?= $t('Preview') ?>
 				<td data-sort="title" class="emphasize table-sort"><?= $t('Title') ?>
 				<td data-sort="type" class="table-sort"><?= $t('Type') ?>
-				<td data-sort="mime-type" class="table-sort"><?= $t('MIME-Type') ?>
-				<td><?= $t('Size') ?>
 				<td><?= $t('# dependent') ?>
 				<td data-sort="modified" class="date table-sort desc"><?= $t('Modified') ?>
 				<?php if ($useOwner): ?>
@@ -64,8 +62,6 @@ $this->set([
 			<td class="emphasize">
 				<?= $item->title ?>
 			<td><?= $version ? $version->type : '–' ?>
-			<td><?= $version ? $version->mime_type : '–' ?>
-			<td><?= $this->number->format(round($item->size() / 1024), 'decimal') ?> kb
 			<td><?= ($depend = $item->depend('count')) ?: '–' ?>
 			<td class="date">
 				<time datetime="<?= $this->date->format($item->modified, 'w3c') ?>">

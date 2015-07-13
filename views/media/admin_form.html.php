@@ -39,11 +39,33 @@ $edit = $this->request()->params['action'] == 'edit';
 
 
 		<div class="grid-row">
+			<h1 class="h-gamma">
+				<?= $t('Original') ?>
+			</h1>
 			<div class="grid-column-left">
 				<?= $this->media->image($item->version('fix2admin')) ?>
 			</div>
 			<div class="grid-column-right">
 				<?=$this->form->field('title', ['class' => 'use-for-title']) ?>
+
+				<?=$this->form->field('type', [
+					'label' => $t('Type'),
+					'value' => $item->type,
+					'disabled' => true
+				]) ?>
+
+				<?=$this->form->field('mime_type', [
+					'label' => $t('MIME-Type'),
+					'value' => $item->mime_type,
+					'disabled' => true
+				]) ?>
+
+				<?=$this->form->field('size', [
+					'label' => $t('Size'),
+					'value' => $this->number->format(round($item->size() / 1024), 'decimal') . ' KB',
+					'disabled' => true
+				]) ?>
+
 			</div>
 		</div>
 
