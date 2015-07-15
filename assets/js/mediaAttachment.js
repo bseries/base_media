@@ -200,7 +200,7 @@ function($, Router, MediaExplorerModal) {
     this.buildSelectedItemHtml = function(item) {
       var wrap = $('<article class="media-item">');
 
-      if (item.versions) {
+      if (item.versions.fix2admin) {
         wrap.css('background-image', 'url(' + item.versions.fix2admin.url + ')');
       } else {
         wrap.addClass('no-visual');

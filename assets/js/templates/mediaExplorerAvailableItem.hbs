@@ -1,5 +1,5 @@
 <article 
-	{{#if versions}}
+	{{#if versions.fix2admin}}
 		class="item" 
 	{{else}}
 		class="item no-visual" 
@@ -7,7 +7,7 @@
 	data-id="{{id}}"
 	data-type="{{type}}"
 >
-	{{#if versions}}
+	{{#if versions.fix2admin}}
 		<img class="preview" src="{{versions.fix2admin.url}}">
 	{{else}}
 		<div class="preview"></div>
