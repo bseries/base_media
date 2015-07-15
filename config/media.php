@@ -17,7 +17,7 @@ use base_media\models\MediaVersions;
 use base_media\models\RemoteMedia;
 use lithium\storage\Cache;
 use lithium\core\Libraries;
-use lithium\analyis\Logger;
+use lithium\analysis\Logger;
 use mm\Media\Process;
 use mm\Media\Info;
 use mm\Mime\Type;
@@ -99,24 +99,20 @@ MediaVersions::registerScheme('file', [
 		// Check if we can process the source at all. If not
 		// always skip. Needed to support generic files.
 		$name = Type::guessName($entity->url);
-		$adapters = Process::config();
-
-		if (!isset($adapters[$name])) {
-			return null; // Skip.
-		}
-		$media = Process::factory(['source' => $entity->url]);
-		$target = MediaVersions::generateTargetUrl($entity->url, $entity->version);
 
 		// There may i.e. not be a flux0 version for an image type.
-		if (!$instructions = MediaVersions::assembly($media->name(), $entity->version)) {
+		if (!$instructions = MediaVersions::assembly($name, $entity->version)) {
+			Logger::debug("No instructions for type `{$name}` and version `{$entity->version}`.");
 			return null; // Skip.
 		};
+		$target = MediaVersions::generateTargetUrl($entity->url, $entity->version);
 
 		if (!is_dir(dirname($target))) {
 			mkdir(dirname($target), 0777, true);
 		}
 
-		// Process builtin instructions.
+		// Process builtin instructions. Clone works shortcircuits media processing
+		// we can even clone media that does not have any processing adapter.
 		if (isset($instructions['clone'])) {
 			$action = $instructions['clone'];
 
@@ -129,6 +125,13 @@ MediaVersions::registerScheme('file', [
 			}
 			throw new Exception("Invalid clone instruction action `{$action}`.");
 		}
+
+		if (!isset(Process::config()[$name])) {
+			Logger::debug("Missing media process adapter for `{$name}`.");
+			return null; // Skip.
+		}
+		$media = Process::factory(['source' => $entity->url]);
+
 
 		// Process media `Process` instructions.
 		// This part may throw exceptions which are catched by the callee.
