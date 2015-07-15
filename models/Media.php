@@ -164,7 +164,10 @@ class Media extends \base_core\models\Base {
 		$results = $entity->versions();
 
 		if (!isset($results[$version])) {
-			$message = "No such version `{$version}` in versions for media item `{$entity->id}`.";
+			$message  = "No media version `{$version}` available for media {$entity->type} ";
+			$message .= "with id `{$entity->id}` and title `{$entity->title}`. ";
+			$message .= "You might have misspelled the version or expect a version that ";
+			$message .= "is only available for i.e. videos.";
 			throw new Exception($message);
 		}
 		return $results[$version];
