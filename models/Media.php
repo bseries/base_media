@@ -13,6 +13,7 @@
 namespace base_media\models;
 
 use Exception;
+use OutOfBoundsException;
 use mm\Mime\Type;
 use base_media\models\MediaVersions;
 use base_media\models\MediaAttachments;
@@ -159,6 +160,10 @@ class Media extends \base_core\models\Base {
 		return $results;
 	}
 
+	public function hasVersion($entity, $version) {
+		return isset($entity->versions()[$version]);
+	}
+
 	// Simplified as versions method is cached.
 	public function version($entity, $version) {
 		$results = $entity->versions();
@@ -168,7 +173,7 @@ class Media extends \base_core\models\Base {
 			$message .= "with id `{$entity->id}` and title `{$entity->title}`. ";
 			$message .= "You might have misspelled the version or expect a version that ";
 			$message .= "is only available for i.e. videos.";
-			throw new Exception($message);
+			throw new OutOfBoundsException($message);
 		}
 		return $results[$version];
 	}

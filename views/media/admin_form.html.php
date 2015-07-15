@@ -43,7 +43,11 @@ $edit = $this->request()->params['action'] == 'edit';
 				<?= $t('Original') ?>
 			</h1>
 			<div class="grid-column-left">
+			<?php if ($item->hasVersion('fix2admin')): ?>
 				<?= $this->media->image($item->version('fix2admin')) ?>
+			<?php else: ?>
+				<div class="none-available"><?= $t('No preview available.') ?></div>
+			<?php endif ?>
 			</div>
 			<div class="grid-column-right">
 				<?=$this->form->field('title', ['class' => 'use-for-title']) ?>
