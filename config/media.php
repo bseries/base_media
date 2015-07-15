@@ -244,14 +244,16 @@ if ($cached = Cache::read('default', 'mime_type_glob')) {
 	Cache::write('default', 'mime_type_glob', Type::$glob->to('array'));
 }
 Info::config([
-	'document' => PROJECT_FEATURE_IMAGICK ? 'Imagick' : null,
-	'image' => PROJECT_FEATURE_IMAGICK ? ['ImageBasic', 'Imagick'] : ['ImageBasic']
+	'image' => PROJECT_FEATURE_IMAGICK ? ['ImageBasic', 'Imagick'] : ['ImageBasic'],
+	'document' => PROJECT_FEATURE_GHOSTSCRIPT ? 'Imagick' : null,
+	'video' => PROJECT_FEATURE_FFMPEG ? 'FfmpegShell' : null,
+	'audio' => PROJECT_FEATURE_SOX ? 'SoxShell' : null
 ]);
 Process::config([
-	'audio' => 'SoxShell',
-	'document' => PROJECT_FEATURE_IMAGICK ? 'Imagick' : null,
 	'image' => PROJECT_FEATURE_IMAGICK ? 'Imagick' : 'Gd',
-	'video' => 'FfmpegShell'
+	'document' => PROJECT_FEATURE_GHOSTSCRIPT ? 'Imagick' : null,
+	'video' => PROJECT_FEATURE_FFMPEG ? 'FfmpegShell' : null,
+	'audio' => PROJECT_FEATURE_SOX ? 'SoxShell' : null
 ]);
 
 //
@@ -286,38 +288,38 @@ if (PROJECT_FEATURE_IMAGICK) {
 		'compress' => 5.5
 	];
 }
-$fluxAudio = [
-	'sampleRate' => 48000,
-	'channels' => 2
-];
-$fluxVideo = [
-	'fit' => [680, 470], // 1280x720 hd, 640x480, 680x470
-	'threads' => 2, // 0 to auto-select number of threads
-	'ar' => 48000,
-	// 'faststart' => true
-];
 
-MediaVersions::registerAssembly('document', 'fix2admin', $fix + [
-	'fit' => [500, 500]
-]);
-MediaVersions::registerAssembly('document', 'fix3admin', $fix + [
-	'fit' => [100, 52]
-]);
+if (PROJECT_FEATURE_GHOSTSCRIPT) {
+	MediaVersions::registerAssembly('document', 'fix2admin', $fix + [
+		'fit' => [500, 500]
+	]);
+	MediaVersions::registerAssembly('document', 'fix3admin', $fix + [
+		'fit' => [100, 52]
+	]);
+}
 MediaVersions::registerAssembly('document', 'flux0admin', [
 	'clone' => 'symlink'
 ]);
+
 MediaVersions::registerAssembly('image', 'fix2admin', $fix + [
 	'fit' => [500, 500]
 ]);
 MediaVersions::registerAssembly('image', 'fix3admin', $fix + [
 	'fit' => [100, 42]
 ] + $fix);
-MediaVersions::registerAssembly('audio', 'flux0aadmin', [
-	'convert' => 'audio/mpeg'
-] + $fluxAudio);
-MediaVersions::registerAssembly('audio', 'flux0badmin', [
-	'convert' => 'audio/ogg'
-] + $fluxAudio);
+
+if (PROJECT_FEATURE_SOX) {
+	$fluxAudio = [
+		'sampleRate' => 48000,
+		'channels' => 2
+	];
+	MediaVersions::registerAssembly('audio', 'flux0aadmin', [
+		'convert' => 'audio/mpeg'
+	] + $fluxAudio);
+	MediaVersions::registerAssembly('audio', 'flux0badmin', [
+		'convert' => 'audio/ogg'
+	] + $fluxAudio);
+}
 
 MediaVersions::registerAssembly('video', 'fix2admin',
 	MediaVersions::assembly('image', 'fix2admin')
@@ -325,19 +327,28 @@ MediaVersions::registerAssembly('video', 'fix2admin',
 MediaVersions::registerAssembly('video', 'fix3admin',
 	MediaVersions::assembly('image', 'fix3admin')
 );
-MediaVersions::registerAssembly('video', 'flux0admin', $fluxVideo + [
-	'convert' => 'video/webm',
-	'codec:v' => 'libvpx',
-	'threads' => 2, // must come after codec:v
-	'b:v' => '1024k', // video bitrate
-	'maxrate' => '1024k',
-	'bufsize' => '2048k', // twice the maxrate, overshooting
-	'qmin' => 10, // fixing broken behavior since ffmpeg 0.9
-	'qmax' => 42, // -- * --
-	'quality' => 'good', // rec. good in combination with cpu-used 0
-	'cpu-used' => 0, // speed for quality, lower = better quality
-	'codec:a' => 'libvorbis',
-	'b:a' => '192k' // audio bitrate
-]);
+
+if (PROJECT_FEATURE_FFMPEG) {
+	$fluxVideo = [
+		'fit' => [680, 470], // 1280x720 hd, 640x480, 680x470
+		'threads' => 2, // 0 to auto-select number of threads
+		'ar' => 48000,
+		// 'faststart' => true
+	];
+	MediaVersions::registerAssembly('video', 'flux0admin', $fluxVideo + [
+		'convert' => 'video/webm',
+		'codec:v' => 'libvpx',
+		'threads' => 2, // must come after codec:v
+		'b:v' => '1024k', // video bitrate
+		'maxrate' => '1024k',
+		'bufsize' => '2048k', // twice the maxrate, overshooting
+		'qmin' => 10, // fixing broken behavior since ffmpeg 0.9
+		'qmax' => 42, // -- * --
+		'quality' => 'good', // rec. good in combination with cpu-used 0
+		'cpu-used' => 0, // speed for quality, lower = better quality
+		'codec:a' => 'libvorbis',
+		'b:a' => '192k' // audio bitrate
+	]);
+}
 
 ?>
