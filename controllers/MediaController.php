@@ -14,7 +14,10 @@ namespace base_media\controllers;
 
 use AD\jsend\Response as JSendResponse;
 use Exception;
+use base_core\extensions\cms\Settings;
 use base_core\extensions\net\http\InternalServerErrorException;
+use base_core\extensions\net\http\NotFoundException;
+use base_core\security\Gate;
 use base_media\models\Media;
 use base_media\models\RemoteMedia;
 use li3_flash_message\extensions\storage\FlashMessage;
@@ -22,8 +25,6 @@ use lithium\analysis\Logger;
 use lithium\core\Libraries;
 use lithium\g11n\Message;
 use temporary\Manager as Temporary;
-use base_core\security\Gate;
-use base_core\extensions\net\http\NotFoundException;
 
 class MediaController extends \base_core\controllers\BaseController {
 
@@ -38,7 +39,7 @@ class MediaController extends \base_core\controllers\BaseController {
 				'id' => $this->request->id
 			]
 		];
-		if (!Gate::check('users')) {
+		if (Settings::read('security.checkOwner') && !Gate::checkRight('users')) {
 			$query['conditions']['owner_id'] = Gate::user(true, 'id');
 		}
 		$item = Media::find('first', $query);
@@ -65,10 +66,9 @@ class MediaController extends \base_core\controllers\BaseController {
 			'limit' => $perPage,
 			'order' => ['created' => 'DESC']
 		];
-		if (!Gate::check('users')) {
+		if (Settings::read('security.checkOwner') && !Gate::checkRight('users')) {
 			$query['conditions']['owner_id'] = Gate::user(true, 'id');
 		}
-
 		$media = Media::find('all', $query);
 
 		$files = [];
@@ -92,11 +92,16 @@ class MediaController extends \base_core\controllers\BaseController {
 		$perPage = 20;
 		$q = $this->request->q ?: null;
 
-		list($media, $meta) = Media::search($q, [
+		$query = [
 			'page' => $page,
 			'limit' => $perPage,
 			'order' => ['created' => 'DESC']
-		]);
+		];
+		if (Settings::read('security.checkOwner') && !Gate::checkRight('users')) {
+			$query['conditions']['owner_id'] = Gate::user(true, 'id');
+		}
+		list($media, $meta) = Media::search($q, $query);
+
 
 		$files = [];
 		foreach ($media as $item) {
