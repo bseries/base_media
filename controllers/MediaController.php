@@ -277,7 +277,7 @@ class MediaController extends \base_core\controllers\BaseController {
 				'id' => $this->request->id
 			]
 		];
-		if (!Gate::check('users')) {
+		if (Settings::read('security.checkOwner') && !Gate::checkRight('users')) {
 			$query['conditions']['owner_id'] = Gate::user(true, 'id');
 		}
 		if (!$item = Media::find('first', $query)) {
