@@ -36,7 +36,7 @@ class Media extends \base_core\models\Base {
 
 	public $hasMany = ['MediaVersions'];
 
-	protected static $_actsAs = [
+	public $actsAs = [
 		'base_core\extensions\data\behavior\Ownable',
 		'base_core\extensions\data\behavior\Timestamp',
 		'base_core\extensions\data\behavior\Searchable' => [
