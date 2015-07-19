@@ -27,7 +27,7 @@ class MediaVersions extends \base_core\models\Base {
 
 	public $belongsTo = ['Media'];
 
-	public $actsAs = [
+	protected $_actsAs = [
 		'base_core\extensions\data\behavior\Timestamp'
 	];
 
