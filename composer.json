@@ -16,7 +16,7 @@
         "atelierdisko/cute": "0.2.*@stable",
         "davidpersson/mm": "2.0.*@beta",
         "davidpersson/temporary": "1.*@stable",
-        "davidpersson/li3_behaviors": "2.*",
+        "davidpersson/li3_behaviors": "2.0.0-alpha2",
         "atelierdisko/li3_flash_message": "1.0.*@beta",
         "atelierdisko/jsend": "1.0.*@beta",
         "essence/essence": "dev-master#6003534d115d9e840255d085c62ef025cfe8fc6a",
