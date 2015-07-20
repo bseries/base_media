@@ -34,13 +34,23 @@ class Media extends \base_core\models\Base {
 	use \base_media\models\SchemeTrait;
 	use \base_media\models\MediaInfoTrait;
 
-	public $hasMany = ['MediaVersions'];
+	public $hasMany = [
+		'MediaVersions'
+	];
+
+	public $belongsTo = [
+		'Owner' => [
+			'to' => 'base_core\models\Users',
+			'key' => 'owner_id'
+		]
+	];
 
 	protected $_actsAs = [
 		'base_core\extensions\data\behavior\Ownable',
 		'base_core\extensions\data\behavior\Timestamp',
 		'base_core\extensions\data\behavior\Searchable' => [
 			'fields' => [
+				'Owner.name',
 				'type',
 				'mime_type',
 				'title',
