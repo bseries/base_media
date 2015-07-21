@@ -65,7 +65,7 @@ Widgets::register('media', function() use ($t, $tn) {
 			'controller' => 'media', 'library' => 'base_media', 'admin' => true, 'action' => 'index'
 		],
 		'data' => [
-			$t('Items', ['scope' => 'base_media']) => $media,
+			$t('Total', ['scope' => 'base_media']) => $media,
 			$t('Size', ['scope' => 'base_media']) => $formatNiceBytes($size)
 		]
 	];
