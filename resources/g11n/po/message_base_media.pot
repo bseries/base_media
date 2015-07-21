@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: base_media 1.0\n"
 "Report-Msgid-Bugs-To: info@atelierdisko.de\n"
-"POT-Creation-Date: 2015-07-09 14:44+0200\n"
+"POT-Creation-Date: 2015-07-21 14:11+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -49,7 +49,7 @@ msgid "{:count} TB"
 msgstr ""
 
 #: config/widgets.php:68
-msgid "Items"
+msgid "Total"
 msgstr ""
 
 #: config/widgets.php:69 views/media/admin_form.html.php:47

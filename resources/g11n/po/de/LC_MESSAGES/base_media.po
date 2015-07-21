@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: base_media 1.0\n"
 "Report-Msgid-Bugs-To: info@atelierdisko.de\n"
-"POT-Creation-Date: 2015-07-09 14:44+0200\n"
-"PO-Revision-Date: 2015-07-09 14:46+0100\n"
+"POT-Creation-Date: 2015-07-21 14:11+0200\n"
+"PO-Revision-Date: 2015-07-21 14:11+0100\n"
 "Last-Translator: David Persson <davidpersson@gmx.de>\n"
 "Language-Team: none\n"
 "Language: de\n"
@@ -49,8 +49,8 @@ msgid "{:count} TB"
 msgstr "{:count} TB"
 
 #: config/widgets.php:68
-msgid "Items"
-msgstr "Elemente"
+msgid "Total"
+msgstr "Gesamt"
 
 #: config/widgets.php:69 views/media/admin_form.html.php:47
 #: views/media/admin_index.html.php:36
@@ -140,3 +140,6 @@ msgstr "löschen"
 #: views/media/admin_index.html.php:80
 msgid "There are currently no items available, yet."
 msgstr "Es sind noch keine Elemente verfügbar."
+
+#~ msgid "Items"
+#~ msgstr "Elemente"
