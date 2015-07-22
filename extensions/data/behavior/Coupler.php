@@ -55,17 +55,18 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 						$params['entity']->$scoped = null;
 					}
 					$direct[$alias] = $params['data'][$scoped];
-
-					// Direct bindings need no further special treatment.
-					continue;
+				} else {
+					// Prevent mistakenly commiting data to item (i.e. for document based databases).
+					if (isset($params['data'][$alias])) {
+						$joined[$alias] = $params['data'][$alias];
+						unset($params['data'][$alias]);
+					} else {
+						// When all joined are removed the alias data might not even be set
+						// anymore. Signal empty data == entire removal for code further down
+						// the road.
+						$joined[$alias] = [];
+					}
 				}
-				if (!isset($params['data'][$alias])) {
-					continue;
-				}
-
-				// Prevent mistakenly commiting data to item (i.e. for document based databases).
-				$joined[$alias] = $params['data'][$alias];
-				unset($params['data'][$alias]);
 			}
 			if (!$result = $chain->next($self, $params, $chain)) {
 				return $result;
