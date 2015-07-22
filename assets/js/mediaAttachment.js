@@ -84,7 +84,7 @@ function($, Router, MediaExplorerModal) {
     // Returns a current live list of all inputs.
     // Needed as that may change during runtime.
     this.inputs = function() {
-      return _this.element.find('input[name*=id]');
+      return _this.element.find('input');
     };
 
     // Returns a current live list of all items.
@@ -98,7 +98,6 @@ function($, Router, MediaExplorerModal) {
     // need any further adaption.
     this.keepSynced = function() {
       var observer = new MutationObserver(function() {
-        var inputs = _this.inputs();
         var items = _this.items();
 
         if (_this.formBinding === 'direct') {
@@ -108,11 +107,11 @@ function($, Router, MediaExplorerModal) {
           // submit. Name pattern i.e. 'cover_media_id'.
 
           if (items.length === 1) {
-            $(inputs.get(0)).val(
+            $(_this.inputs().get(0)).val(
                $(items.get(0)).data('id')
             );
           } else {
-            $(inputs.get(0)).val('');
+            $(_this.inputs().get(0)).val('');
           }
         } else {
           // Multi attachments use different markup than single ones. The
@@ -125,8 +124,8 @@ function($, Router, MediaExplorerModal) {
 
           if (items.length) {
             // Must rebuild array of inputs entirely.
+            _this.inputs().remove();
 
-            inputs.remove();
             items.each(function(index, el) {
               var id = $(el).data('id');
 
@@ -134,7 +133,7 @@ function($, Router, MediaExplorerModal) {
               _this.element.append(html);
             });
           } else {
-            inputs.remove();
+            _this.inputs().remove();
           }
         }
       });
