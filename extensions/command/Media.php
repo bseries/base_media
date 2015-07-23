@@ -41,11 +41,16 @@ class Media extends \lithium\console\Command {
 		}
 
 		foreach (MediaModel::find('all', compact('conditions')) as $item) {
-			$this->out("Processing item {$item->id}...");
-			$item->deleteVersions();
-			$item->makeVersions();
+			$this->out("Processing media item `{$item->id}` (`{$item->title}`)...", [
+				'nl' => false
+			]);
+			$result = $item->deleteVersions() && $item->makeVersions();
+			$this->out($result ? 'OK' : 'FAILED');
+
 		}
-		$this->out('COMPLETED, you may need to clear caches to make new media take effect.');
+		$this->out('COMPLETED:');
+		$this->out('- you may need to clear caches to make new media take effect');
+		$this->out('- chmod the media directories to make them accessible to the web user');
 	}
 
 	public function verify() {
