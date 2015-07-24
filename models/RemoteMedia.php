@@ -30,7 +30,7 @@ class RemoteMedia extends \base_core\models\Base {
 					preg_match('#vimeo\.com/(\d{8})#', $url, $matches);
 					return 'vimeo://' . $matches[1];
 				},
-					'convertToExternalUrl' => function($url) {
+				'convertToExternalUrl' => function($url) {
 					return 'https://vimeo.com/' . parse_url($url, PHP_URL_HOST);
 				},
 				'type' => 'video',
