@@ -56,16 +56,19 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 					}
 					$direct[$alias] = $params['data'][$scoped];
 				} else {
-					// Prevent mistakenly commiting data to item (i.e. for document based databases).
-					if (isset($params['data'][$alias])) {
-						$joined[$alias] = $params['data'][$alias];
-						unset($params['data'][$alias]);
-					} else {
+					if (!isset($params['data'][$alias])) {
+						continue;
+					}
+					if (!empty($params['data'][$alias]['_delete'])) {
 						// When all joined are removed the alias data might not even be set
 						// anymore. Signal empty data == entire removal for code further down
 						// the road.
 						$joined[$alias] = [];
+					} else {
+						$joined[$alias] = $params['data'][$alias];
 					}
+					// Prevent mistakenly commiting data to item (i.e. for document based databases).
+					unset($params['data'][$alias]);
 				}
 			}
 			if (!$result = $chain->next($self, $params, $chain)) {

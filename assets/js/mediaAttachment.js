@@ -134,6 +134,9 @@ function($, Router, MediaExplorerModal) {
             });
           } else {
             _this.inputs().remove();
+
+            var html = '<input type="hidden" name="media[_delete]" value="1">';
+            _this.element.append(html);
           }
         }
       });
