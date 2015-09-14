@@ -91,7 +91,7 @@ class Media extends \lithium\template\Helper {
 		return sprintf($this->_strings['mediaAttachmentField'],
 			'media-attachment use-media-attachment-' . $options['attachment'],
 			$values,
-			$this->_context->form->label($name, $options['label']),
+			$options['label'] ? $this->_context->form->label($name, $options['label']) : null,
 			'<div class="selected"></div>',
 			$this->_context->html->link($t('select', ['scope' => 'base_media']), '#', [
 				'class' => 'button select'
