@@ -19,7 +19,7 @@
         "davidpersson/li3_behaviors": "2.0.x-dev",
         "atelierdisko/li3_flash_message": "1.0.*@beta",
         "atelierdisko/jsend": "1.0.*@beta",
-        "essence/essence": "3.0.*",
+        "mpratt/embera": "1.8.*",
         "unionofrad/lithium": "1.0.*@dev",
         "composer/installers": "1.*@stable"
     },

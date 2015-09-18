@@ -17,7 +17,7 @@
 
 namespace base_media\models;
 
-use Essence\Essence;
+use Embera\Embera;
 use Exception;
 
 class RemoteMedia extends \base_core\models\Base {
@@ -61,11 +61,19 @@ class RemoteMedia extends \base_core\models\Base {
 		if (!static::provider($url)) {
 			throw new Exception("Remote media `{$url}` not supported.");
 		}
-		$essence = new Essence();
+		$client = new Embera([
+			'allow' => array_keys(static::providers())
+		]);
+		$results = $client->getUrlInfo($url);
 
-		if (!$item = $essence->extract($url)) {
-			throw new Exception("Failed to extract oEmbed meta from external media `{$url}`.");
+		if (!$results || $client->errors) {
+			$message  = "Failed to extract oEmbed meta from external media `{$url}`.\n";
+			$message .= "Client results: " . var_export($results) . "\n";
+			$message .= "Client errors: " . var_export($client->errors);
+			throw new Exception($message);
 		}
+		$item = current($results);
+
 		return static::create([
 			'title' => $item->title,
 			'url' => $item->url,
