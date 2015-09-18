@@ -83,7 +83,7 @@ class Media extends \lithium\console\Command {
 
 		$this->out('Creating dummy media from file...');
 		copy(
-			PROJECT_PATH . '/assets/app/img/dummy/01.jpg',
+			PROJECT_PATH . '/assets/app/img/dummy.jpg',
 			$file = PROJECT_MEDIA_FILE_BASE . '/' . uniqid('dummy_') . '.jpg'
 		);
 
