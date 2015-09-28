@@ -78,7 +78,7 @@ class MediaVersions extends \base_core\models\Base {
 			return false;
 		}
 		$assembly = static::$_instructions[$type][$version];
-		return is_callable($assembly) ? $assemble($source) : $assembly;
+		return is_callable($assembly) ? $assembly($source) : $assembly;
 	}
 
 	// Returns all available versions.
