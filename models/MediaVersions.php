@@ -48,7 +48,7 @@ class MediaVersions extends \base_core\models\Base {
 
 	public static function generateTargetUrl($source, $version) {
 		$base = static::base('file') . '/' . $version;
-		$instructions = static::assembly(Type::guessName($source), $version);
+		$instructions = static::assembly($source, $version);
 
 		if (isset($instructions['clone'])) {
 			// Guess from source filename or contents.
@@ -67,33 +67,18 @@ class MediaVersions extends \base_core\models\Base {
 		static::$_instructions[$type][$version] = $instructions;
 	}
 
-	// Returns the assembly instructions for a specific media type and version.
-	public static function assembly($type, $version = null) {
-		if ($type === true) {
-			if ($version !== null) {
-				$results = [];
+	// Returns the assembly instructions for a specific media entity URL (its type) and a version.
+	public static function assembly($source, $version) {
+		$type = Type::guessName($source);
 
-				foreach (static::$_instructions as $type => $assemblies) {
-					foreach ($assemblies as $v => $assembly) {
-						if ($version === $v) {
-							$results[] = $assembly;
-						}
-					}
-				}
-				return $results;
-			}
-			return static::$_instructions;
-		}
 		if (!isset(static::$_instructions[$type])) {
-			return [];
-		}
-		if (!$version) {
-			return static::$_instructions[$type];
+			return false;
 		}
 		if (!isset(static::$_instructions[$type][$version])) {
 			return false;
 		}
-		return static::$_instructions[$type][$version];
+		$assembly = static::$_instructions[$type][$version];
+		return is_callable($assembly) ? $assemble($source) : $assembly;
 	}
 
 	// Returns all available versions.

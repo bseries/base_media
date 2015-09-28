@@ -106,7 +106,7 @@ MediaVersions::registerScheme('file', [
 		$name = Type::guessName($entity->url);
 
 		// There may i.e. not be a flux0 version for an image type.
-		if (!$instructions = MediaVersions::assembly($name, $entity->version)) {
+		if (!$instructions = MediaVersions::assembly($entity->url, $entity->version)) {
 			Logger::debug("No instructions for type `{$name}` and version `{$entity->version}`.");
 			return null; // Skip.
 		};
