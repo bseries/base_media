@@ -117,6 +117,7 @@ MediaVersions::registerScheme('file', [
 
 			$instructions['convert'] = 'image/gif';
 			unset(
+				$instructions['background'],
 				$instructions['interlace'],
 				$instructions['compress']
 			);
