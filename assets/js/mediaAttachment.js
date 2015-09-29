@@ -176,35 +176,35 @@ function($, Router, MediaExplorerModal) {
     // using just the id of each item. Also keeps
     // order sequence.
     this.append = function(ids) {
-      var dfr = new $.Deferred();
-
-      // Preload async but append synchronous to keep order.
-      var map = {};
-      var dfrs = [];
-
-      $.each(ids, function(k, id) {
-        var dfr = Router.match('media:view', {'id': id})
-          .then(function(url) {
-            return $.getJSON(url);
-          })
-          .then(function(data) {
-            map[id] = _this.buildSelectedItemHtml(data.data.file);
+      if (ids.length === 0) {
+        return (new $.Deferred()).resolve();
+      }
+      // We batch retrieval of metadata for performance reasons.
+      return Router.match('media:view-batch')
+        .then(function(url) {
+          return $.post(url, {ids: ids});
+        })
+        .then(function(data) {
+          // Append synchronous to keep order.
+          $.each(ids, function(k, id) {
+            // 1. Check if returned data contains requested ID and do not use it
+            //    blindly.
+            // 2. We iterate over our set of ids as the returned data is not
+            //    necessarily order in the order of ids we provided.
+            // 3. Implicitly updates inputes as we add the item and modify the
+            //    subtree. See keepSynced().
+            if (id in data.data.files) {
+              _this.elements.selected.append(
+                _this._buildSelectedItemHtml(data.data.files[id])
+              );
+            } else {
+              throw new Error('Incomplete API response, id ' + id + ' missing.');
+            }
           });
-
-        dfrs.push(dfr);
-      });
-      $.when.apply($, dfrs).then(function() {
-        $.each(ids, function(k, id) {
-          // Implicitly updates inputes as we add
-          // the item and modify the subtree. See keepSynced().
-          _this.elements.selected.append(map[id]);
         });
-        dfr.resolve();
-      });
-      return dfr;
     };
 
-    this.buildSelectedItemHtml = function(item) {
+    this._buildSelectedItemHtml = function(item) {
       var wrap = $('<article class="media-item">');
 
       if (item.versions.fix2admin) {

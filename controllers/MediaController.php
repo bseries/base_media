@@ -62,15 +62,26 @@ class MediaController extends \base_core\controllers\BaseController {
 		]);
 	}
 
+	// Handles pages index as well as batch view when
+	// an array of indexes is POSTed.
 	public function admin_api_index() {
-		$page = $this->request->page ?: 1;
-		$perPage = 20;
+		if ($this->request->is('post')) {
+			$query = [
+				'conditions' => [
+					'id' => $this->request->data['ids']
+				],
+				'order' => ['id' => 'ASC']
+			];
+		} else {
+			$page = $this->request->page ?: 1;
+			$perPage = 20;
 
-		$query = [
-			'page' => $page,
-			'limit' => $perPage,
-			'order' => ['created' => 'DESC']
-		];
+			$query = [
+				'page' => $page,
+				'limit' => $perPage,
+				'order' => ['created' => 'DESC']
+			];
+		}
 		if (Settings::read('security.checkOwner') && !Gate::checkRight('users')) {
 			$query['conditions']['owner_id'] = Gate::user(true, 'id');
 		}
@@ -78,7 +89,7 @@ class MediaController extends \base_core\controllers\BaseController {
 
 		$files = [];
 		foreach ($media as $item) {
-			$files[] = $this->_export($item);
+			$files[$item->id] = $this->_export($item);
 		}
 		$response = new JSendResponse('success', compact('files') + [
 			'meta' => [
@@ -110,7 +121,7 @@ class MediaController extends \base_core\controllers\BaseController {
 
 		$files = [];
 		foreach ($media as $item) {
-			$files[] = $this->_export($item);
+			$files[$item->id] = $this->_export($item);
 		}
 		$response = new JSendResponse('success', compact('files') + [
 			'meta' => [

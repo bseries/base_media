@@ -26,6 +26,11 @@ $defaults = ['type' => 'json'];
 $base = ['controller' => 'media', 'library' => 'base_media', 'admin' => true, 'api' => true];
 
 Router::connect(
+	'/admin/api/base-media/media',
+	$base + ['action' => 'index'],
+	compact('persist', 'defaults')
+);
+Router::connect(
 	'/admin/api/base-media/media/page:{:page:(\d+|__PAGE__)}',
 	$base + ['action' => 'index'],
 	compact('persist', 'defaults')
@@ -39,6 +44,10 @@ Router::connect(
 	'/admin/api/base-media/media/transfer/title:{:title}',
 	$base + ['action' => 'transfer'],
 	compact('persist', 'defaults')
+);
+
+ClientRouter::provide('media:view-batch',
+	$base + ['action' => 'index']
 );
 
 ClientRouter::provide('media:index',
