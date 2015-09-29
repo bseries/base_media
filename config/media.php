@@ -137,6 +137,13 @@ MediaVersions::registerScheme('file', [
 		}
 		$media = Process::factory(['source' => $entity->url]);
 
+		// Reformat instructions so we never convert animated GIFs.
+		if (Info::factory(['source' => $entity->url])->get('isAnimated')) {
+			unset(
+				$instructions['convert'],
+				$instructions['compress']
+			);
+		}
 
 		// Process media `Process` instructions.
 		// This part may throw exceptions which are catched by the callee.
