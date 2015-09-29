@@ -137,10 +137,13 @@ MediaVersions::registerScheme('file', [
 		}
 		$media = Process::factory(['source' => $entity->url]);
 
-		// Reformat instructions so we never convert animated GIFs.
+		// Reformat instructions so we do not loose animations.
 		if (Info::factory(['source' => $entity->url])->get('isAnimated')) {
+			Logger::debug("Detected source `{$entity->url}` as animated.");
+
+			$instructions['convert'] = 'image/gif';
 			unset(
-				$instructions['convert'],
+				$instructions['interlace'],
 				$instructions['compress']
 			);
 		}

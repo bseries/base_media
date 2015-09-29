@@ -17,10 +17,11 @@
 
 namespace base_media\models;
 
-use mm\Mime\Type;
-use lithium\storage\Cache;
-use lithium\analysis\Logger;
+use Exception;
 use OutOfBoundsException;
+use lithium\analysis\Logger;
+use lithium\storage\Cache;
+use mm\Mime\Type;
 
 class MediaVersions extends \base_core\models\Base {
 
