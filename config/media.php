@@ -110,7 +110,20 @@ MediaVersions::registerScheme('file', [
 			Logger::debug("No instructions for type `{$name}` and version `{$entity->version}`.");
 			return null; // Skip.
 		};
-		$target = MediaVersions::generateTargetUrl($entity->url, $entity->version);
+
+		// Reformat instructions so we do not loose animations.
+		if (Info::factory(['source' => $entity->url])->get('isAnimated')) {
+			Logger::debug("Detected source `{$entity->url}` as animated.");
+
+			$instructions['convert'] = 'image/gif';
+			unset(
+				$instructions['interlace'],
+				$instructions['compress']
+			);
+		}
+
+		// Create target.
+		$target = MediaVersions::generateTargetUrl($entity->url, $entity->version, $instructions);
 
 		if (!is_dir(dirname($target))) {
 			mkdir(dirname($target), 0777, true);
@@ -136,17 +149,6 @@ MediaVersions::registerScheme('file', [
 			return null; // Skip.
 		}
 		$media = Process::factory(['source' => $entity->url]);
-
-		// Reformat instructions so we do not loose animations.
-		if (Info::factory(['source' => $entity->url])->get('isAnimated')) {
-			Logger::debug("Detected source `{$entity->url}` as animated.");
-
-			$instructions['convert'] = 'image/gif';
-			unset(
-				$instructions['interlace'],
-				$instructions['compress']
-			);
-		}
 
 		// Process media `Process` instructions.
 		// This part may throw exceptions which are catched by the callee.

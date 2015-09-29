@@ -47,9 +47,8 @@ class MediaVersions extends \base_core\models\Base {
 		return Media::find('first', ['conditions' => ['id' => $entity->media_id]]);
 	}
 
-	public static function generateTargetUrl($source, $version) {
+	public static function generateTargetUrl($source, $version, array $instructions) {
 		$base = static::base('file') . '/' . $version;
-		$instructions = static::assembly($source, $version);
 
 		if (isset($instructions['clone'])) {
 			// Guess from source filename or contents.
