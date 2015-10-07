@@ -44,7 +44,7 @@ class Media extends \lithium\template\Helper {
 	// Returns the full URL for a medium path.
 	public function url($path) {
 		if (is_object($path)) {
-			return $path->url($this->_context->request()->is('ssl') ? 'https' : 'http');
+			return $path->url($this->_context->request());
 		}
 		if (strpos($path, '://') !== false) {
 			return $path;
