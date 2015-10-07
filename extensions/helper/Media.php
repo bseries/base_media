@@ -52,10 +52,9 @@ class Media extends \lithium\template\Helper {
 		return $this->base() . $path;
 	}
 
-	// Returns the base for given scheme..
+	// Returns the base for given scheme.
 	public function base($scheme = null) {
-		$scheme = $scheme ?: $this->_context->request()->is('ssl') ? 'https' : 'http';
-		return MediaVersions::base($scheme);
+		return MediaVersions::base($scheme ?: $this->_context->request());
 	}
 
 	// Generates form field HTML so that media-attachment.js can
