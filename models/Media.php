@@ -33,10 +33,10 @@ use Monolog\Handler\StreamHandler;
 
 class Media extends \base_core\models\Base {
 
-	use \base_media\models\ChecksumTrait;
-	use \base_media\models\UrlTrait;
-	use \base_media\models\DownloadTrait;
 	use \base_core\models\SchemeTrait;
+	use \base_core\models\UrlTrait;
+	use \base_core\models\UrlChecksumTrait;
+	use \base_core\models\UrlDownloadTrait;
 	use \base_media\models\MediaInfoTrait;
 
 	public $hasMany = [
