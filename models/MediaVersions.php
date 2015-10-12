@@ -69,7 +69,12 @@ class MediaVersions extends \base_core\models\Base {
 
 	// Returns the assembly instructions for a specific media entity URL (its type) and a version.
 	public static function assembly($source, $version) {
-		$type = Type::guessName($source);
+		if (in_array($source, ['image', 'video', 'audio', 'document', 'generic'])) {
+			$type = $source;
+		} else {
+			$type = Type::guessName($source);
+		}
+
 
 		if (!isset(static::$_instructions[$type])) {
 			return false;
