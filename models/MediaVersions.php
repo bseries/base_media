@@ -28,7 +28,7 @@ class MediaVersions extends \base_core\models\Base {
 	use \base_media\models\ChecksumTrait;
 	use \base_media\models\UrlTrait;
 	use \base_media\models\DownloadTrait;
-	use \base_media\models\SchemeTrait;
+	use \base_core\models\SchemeTrait;
 	use \base_media\models\MediaInfoTrait;
 
 	public $belongsTo = ['Media'];
@@ -37,10 +37,21 @@ class MediaVersions extends \base_core\models\Base {
 		'base_core\extensions\data\behavior\Timestamp'
 	];
 
-	protected static $_instructions = [];
-
 	public static $enum = [
 		'status' => ['unknown', 'processing', 'processed', 'error']
+	];
+
+	protected static $_instructions = [];
+
+	protected static $_defaultScheme = [
+		'base' => false,
+		'relative' => false,
+		'delete' => false,
+		'download' => false,
+		'transfer' => false,
+		'checksum' => false,
+		'mime_type' => null,
+		'type' => null
 	];
 
 	public function media($entity) {
