@@ -67,15 +67,10 @@ trait SchemeTrait {
 	//
 	// $scheme may either be a string, an array of available schemes or
 	// an \lithium\net\http\Request object, to auto negotatiate the best
-	// possible HTTP scheme. Will always prefer HTTPS over HTTP if
-	// available.
+	// possible HTTP scheme.
 	public static function base($scheme) {
 		if (is_object($scheme)) {
-			$available = ['https'];
-
-			if ($scheme->is('ssl')) {
-				$available[] = 'http';
-			}
+			$available = [$scheme->is('ssl') ? 'https' : 'http'];
 		} else {
 			$available = (array) $scheme;
 		}
