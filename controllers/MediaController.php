@@ -247,13 +247,11 @@ class MediaController extends \base_core\controllers\BaseController {
 			'depend' => $item->depend('count')
 		];
 
-		$scheme = $this->request->is('ssl') ? 'https' : 'http';
-
 		if ($versions = $item->versions()) {
 			foreach ($versions as $name => $version) {
 				try {
 					$result['versions'][$name] = [
-						'url' => $version->url($scheme)
+						'url' => $version->url($this->request)
 					];
 				} catch (Exception $e) {
 					Logger::notice("Failed to export media version {$version->id}.");
