@@ -190,7 +190,11 @@ class MediaController extends \base_core\controllers\BaseController {
 		try {
 			list($source, $title) = $this->_handleTransferRequest();
 		} catch (Exception $e) {
-			$response = new JSendResponse('error', $e->getMessage());
+			$message  = "Exception while handling transfer:\n";
+			$message .= "exception: " . ((string) $e);
+			Logger::debug($message);
+
+			$response = new JSendResponse('error', 'Error while handling transfer.');
 
 			return $this->render([
 				'status' => 500,
@@ -215,7 +219,12 @@ class MediaController extends \base_core\controllers\BaseController {
 			$file->save();
 			$file->makeVersions();
 		} catch (Exception $e) {
-			$response = new JSendResponse('error', $e->getMessage());
+			$message  = "Exception while saving transfer:\n";
+			$message .= "with media entity: " . var_export($file->data(), true) . "\n";
+			$message .= "exception: " . ((string) $e);
+			Logger::debug($message);
+
+			$response = new JSendResponse('error', 'Error while saving transfer.');
 
 			return $this->render([
 				'status' => 500,
