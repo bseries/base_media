@@ -55,6 +55,20 @@ trait MediaInfoTrait {
 			return $name ? null : [];
 		}
 	}
+
+	public function orientation($entity) {
+		$width  = $entity->info('width');
+		$height = $entity->info('height');
+
+		// This method is available to all kinds of media.
+		if (!is_integer($width) || !is_integer($height)) {
+			return null;
+		}
+		if ($width === $height) {
+			return 'square';
+		}
+		return $width > $height ? 'landscape' : 'portrait';
+	}
 }
 
 ?>
