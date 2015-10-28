@@ -271,8 +271,8 @@ if ($cached = Cache::read('default', 'mime_type_glob')) {
 Info::config([
 	'image' => PROJECT_FEATURE_IMAGICK ? ['ImageBasic', 'Imagick'] : ['ImageBasic'],
 	'document' => PROJECT_FEATURE_GHOSTSCRIPT ? 'Imagick' : null,
-	'video' => PROJECT_FEATURE_FFMPEG ? 'FfmpegShell' : null,
-	'audio' => PROJECT_FEATURE_SOX ? 'SoxShell' : null
+	'video' => null,
+	'audio' => ['NewWave']
 ]);
 Process::config([
 	'image' => PROJECT_FEATURE_IMAGICK ? 'Imagick' : 'Gd',
