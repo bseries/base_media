@@ -115,8 +115,10 @@ MediaVersions::registerScheme('file', [
 			return null; // Skip.
 		};
 
-		// Reformat instructions so we do not loose animations.
-		if (Info::factory(['source' => $entity->url])->get('isAnimated')) {
+		// Reformat instructions so we do not loose animations. Must protect with
+		// image pre-condition as videos might also get here and there are no
+		// video media info adapters.
+		if ($name === 'image' && Info::factory(['source' => $entity->url])->get('isAnimated')) {
 			Logger::debug("Detected source `{$entity->url}` as animated.");
 
 			$instructions['convert'] = 'image/gif';
