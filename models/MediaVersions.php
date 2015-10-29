@@ -177,11 +177,12 @@ class MediaVersions extends \base_core\models\Base {
 		$entity->url = $result;
 		$entity->status = 'processed';
 
-		Cache::delete('default', 'media_versions_' . md5($mediaId));
+		Cache::delete('default', 'media_' . $mediaId . '_versions');
 		return $entity->save();
 	}
 
 	public function updateStatus($entity, $status) {
+		Cache::delete('default', 'media_' . $entity->media_id . '_versions');
 		return $entity->save(compact('status'), ['whitelist' => ['status']]);
 	}
 }

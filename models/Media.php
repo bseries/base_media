@@ -205,9 +205,8 @@ class Media extends \base_core\models\Base {
 	}
 
 	public function versions($entity) {
-		$cacheKey = 'media_versions_' . md5(
-			$entity->id
-		);
+		$cacheKey = 'media_' . $entity->id . '_versions';
+
 		if ($cached = Cache::read('default', $cacheKey)) {
 			return $cached;
 		}
@@ -316,6 +315,8 @@ class Media extends \base_core\models\Base {
 	}
 
 	public function deleteVersions($entity) {
+		Cache::delete('default', 'media_' . $entity->id . '_versions');
+
 		foreach ($entity->versions() as $version) {
 			if (!$version->delete()) {
 				return false;
