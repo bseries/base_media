@@ -50,7 +50,10 @@ $edit = $this->request()->params['action'] == 'edit';
 			<?php endif ?>
 			</div>
 			<div class="grid-column-right">
-				<?=$this->form->field('title', ['class' => 'use-for-title']) ?>
+				<?=$this->form->field('title', [
+					'label' => $t('Title'),
+					'class' => 'use-for-title'
+				]) ?>
 
 				<?=$this->form->field('type', [
 					'label' => $t('Type'),
