@@ -179,18 +179,14 @@ MediaVersions::registerScheme('file', [
 	}
 ]);
 
+// Register remote video and image media providers.
 foreach (RemoteMedia::providers() as $provider) {
-	if ($provider['type'] !== 'video') {
-		// The handler below works for video only.
-		continue;
-	}
-
-	// Uses provider's thumbnail and generates our local versions off it. Will
-	// not store/link versions for the video files themselves as those cannot
-	// be reached through most provider APIs. This handler doesn't actually make the
-	// files itself but uses a generic file make handler to do so.
-	MediaVersions::registerScheme($provider['name'], [
-		'make' => function($entity) {
+	if ($provider['type'] === 'video') {
+		// Uses provider's thumbnail and generates our local versions off it. Will
+		// not store/link versions for the video files themselves as those cannot
+		// be reached through most provider APIs. This handler doesn't actually make the
+		// files itself but uses a generic file make handler to do so.
+		$make = function($entity) {
 			// No video versions for this video are made. Frontend
 			// code should use the provider video ID of the Media-Entity to load
 			// the actual video.
@@ -225,8 +221,26 @@ foreach (RemoteMedia::providers() as $provider) {
 
 			$handler = MediaVersions::registeredScheme('file', 'make');
 			return $handler($entity);
-		}
-	]);
+		};
+	} elseif ($provider['type'] === 'image') {
+		$make = function($entity) {
+			// This changes the scheme of the entity, thus it capabilities.
+			$entity->url = $ext->thumbnailUrl;
+
+			if (!$entity->can('download')) {
+				$message  = "Can't download image URL `{$entity->url}`. ";
+				$message .= "You need to register a http scheme with downloading enabled to do so.";
+				throw new Exception($message);
+			}
+			$entity->url = $entity->download();
+
+			$handler = MediaVersions::registeredScheme('file', 'make');
+			return $handler($entity);
+		};
+	} else {
+		continue;
+	}
+	MediaVersions::registerScheme($provider['name'], ['make' => $make]);
 }
 
 //

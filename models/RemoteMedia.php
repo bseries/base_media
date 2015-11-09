@@ -26,6 +26,7 @@ class RemoteMedia extends \base_core\models\Base {
 		'connection' => false
 	];
 
+	// A provider is either an image or video provider.
 	public static function providers() {
 		return [
 			'vimeo' => [
@@ -39,7 +40,7 @@ class RemoteMedia extends \base_core\models\Base {
 					return 'https://vimeo.com/' . parse_url($url, PHP_URL_HOST);
 				},
 				'type' => 'video',
-				'mime_type' => 'application/x-vimeo',
+				'mime_type' => 'application/x-vimeo'
 			],
 			'youtube' => [
 				'name' => 'youtube',
@@ -52,7 +53,20 @@ class RemoteMedia extends \base_core\models\Base {
 					return 'https://www.youtube.com/watch?v=' . parse_url($url, PHP_URL_HOST);
 				},
 				'type' => 'video',
-				'mime_type' => 'application/x-youtube',
+				'mime_type' => 'application/x-youtube'
+			],
+			'instagram' => [
+				'name' => 'instagram',
+				'matcher' => '#instagram#',
+				'convertToInternalUrl' => function($url) {
+					preg_match('#instagram\.com/p/([a-z0-9]+)/?#i', $url, $matches);
+					return 'instagram://' . $matches[1];
+				},
+				'convertToExternalUrl' => function($url) {
+					return 'https://instagram.com/p/' . parse_url($url, PHP_URL_HOST);
+				},
+				'type' => 'image',
+				'mime_type' => 'application/x-instagram'
 			]
 		];
 	}
