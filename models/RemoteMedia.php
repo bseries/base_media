@@ -59,8 +59,10 @@ class RemoteMedia extends \base_core\models\Base {
 				'name' => 'instagram',
 				'matcher' => '#instagram#',
 				'convertToInternalUrl' => function($url) {
-					preg_match('#instagram\.com/p/([a-z0-9]+)/?#i', $url, $matches);
-					return 'instagram://' . $matches[1];
+					// Instagram works with shortcodes instead of IDs, these are
+					// only present in the links.
+					preg_match('#instagr(\.am|am\.com)/p/([^/]+)/?#i', $url, $matches);
+					return 'instagram://' . $matches[2];
 				},
 				'convertToExternalUrl' => function($url) {
 					return 'https://instagram.com/p/' . parse_url($url, PHP_URL_HOST);
