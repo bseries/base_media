@@ -329,6 +329,25 @@ class MediaController extends \base_core\controllers\BaseController {
 
 		$this->redirect(['action' => 'index', 'library' => 'base_media']);
 	}
+
+	public function admin_clean() {
+		extract(Message::aliases());
+
+		Media::pdo()->beginTransaction();
+
+		if (Media::clean()) {
+			Media::pdo()->commit();
+			FlashMessage::write($t('Successfully cleaned media.', ['scope' => 'base_media']), [
+				'level' => 'success'
+			]);
+		} else {
+			Media::pdo()->rollback();
+			FlashMessage::write($t('Failed to clean media.', ['scope' => 'base_media']), [
+				'level' => 'error'
+			]);
+		}
+		return $this->redirect($this->request->referer());
+	}
 }
 
 ?>

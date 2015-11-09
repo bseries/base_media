@@ -58,6 +58,11 @@ class Media extends \lithium\console\Command {
 		$this->out('- chmod the media directories to make them accessible to the web user');
 	}
 
+	public function clean() {
+		$this->out('Cleaning media...');
+		$this->out(MediaModel::clean() ? 'OK' : 'FAILED');
+	}
+
 	public function verify() {
 		$this->out('Verifying media...');
 

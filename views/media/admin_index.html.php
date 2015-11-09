@@ -25,6 +25,10 @@ $this->set([
 	]) ?>"
 >
 
+	<div class="top-actions">
+		<?= $this->html->link($t('delete all unused media files'), ['action' => 'clean'], ['class' => 'button delete']) ?>
+	</div>
+
 	<?php if ($data->count()): ?>
 		<table>
 		<thead>

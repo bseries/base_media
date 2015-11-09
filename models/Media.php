@@ -186,6 +186,18 @@ class Media extends \base_core\models\Base {
 		return $results;
 	}
 
+	public static function clean() {
+		foreach (static::find('all') as $item) {
+			if ($item->depend('count') > 0) {
+				continue;
+			}
+			if (!$item->delete()) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public function hasVersion($entity, $version) {
 		return isset($entity->versions()[$version]);
 	}
