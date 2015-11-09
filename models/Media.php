@@ -261,6 +261,7 @@ class Media extends \base_core\models\Base {
 			$message .= "This might be caused by a checksum mismatch or a missing file.";
 			throw new Exception($message);
 		}
+		$selfTransaction = !MediaVersions::pdo()->inTransaction();
 
 		// Fetch versions we need to make. We're assembling all
 		// possible version strings as we don't know if a certain
@@ -268,12 +269,18 @@ class Media extends \base_core\models\Base {
 		// in the scheme make handler.
 		foreach (MediaVersions::assemblyVersions() as $version) {
 			if (!PROJECT_FEATURE_ASYNC_PROCESSING) {
-				MediaVersions::pdo()->beginTransaction();
+				if ($selfTransaction) {
+					MediaVersions::pdo()->beginTransaction();
+				}
 
 				if (MediaVersions::make($entity->id, $version)) {
-					MediaVersions::pdo()->commit();
+					if ($selfTransaction) {
+						MediaVersions::pdo()->commit();
+					}
 				} else {
-					MediaVersions::pdo()->rollback();
+					if ($selfTransaction) {
+						MediaVersions::pdo()->rollback();
+					}
 					return false;
 				}
 				continue;
