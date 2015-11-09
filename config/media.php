@@ -179,68 +179,61 @@ MediaVersions::registerScheme('file', [
 	}
 ]);
 
-// Register remote video and image media providers.
+//
+// Remote Media Providers Processing Make Handlers
+//
+$makeRemoteImage = function($entity) {
+	// URL is in <PROVIDER>://<ID> form
+	$convert = RemoteMedia::provider($entity->url)['convertToExternalUrl'];
+	$ext = RemoteMedia::createFromUrl($convert($entity->url));
+
+	// This changes the scheme of the entity, thus it capabilities.
+	$entity->url = $ext->thumbnailUrl;
+
+	if (!$entity->can('download')) {
+		$message  = "Can't download image/poster URL `{$entity->url}`. ";
+		$message .= "You need to register a http scheme with downloading enabled to do so.";
+		throw new Exception($message);
+	}
+	$entity->url = $entity->download();
+
+	$handler = MediaVersions::registeredScheme('file', 'make');
+	return $handler($entity);
+};
+
+// Uses provider's thumbnail and generates our local versions off it. Will
+// not store/link versions for the video files themselves as those cannot
+// be reached through most provider APIs. This handler doesn't actually make the
+// files itself but uses a generic file make handler to do so.
+$makeRemoteVideo = function($entity) use ($makeRemoteImage) {
+	// No video versions for this video are made. Frontend
+	// code should use the provider video ID of the Media-Entity to load
+	// the actual video.
+	if ($assembly = MediaVersions::assembly('video', $entity->version)) {
+		if (isset($assembly['convert'])) {
+			if (Type::guessName($assembly['convert']) === 'video') {
+				return null;
+			}
+		} else {
+			$message  = 'Cannot reliably determine if this is a video version; fallback';
+			$message .= 'to heuristics.';
+			Logger::debug($message);
+
+			if (strpos($entity->version, 'flux') !== false) {
+				return null;
+			}
+		}
+	}
+	return $makeRemoteImage($entity);
+};
+
+// Register remote video and image media providers only.
 foreach (RemoteMedia::providers() as $provider) {
 	if ($provider['type'] === 'video') {
-		// Uses provider's thumbnail and generates our local versions off it. Will
-		// not store/link versions for the video files themselves as those cannot
-		// be reached through most provider APIs. This handler doesn't actually make the
-		// files itself but uses a generic file make handler to do so.
-		$make = function($entity) {
-			// No video versions for this video are made. Frontend
-			// code should use the provider video ID of the Media-Entity to load
-			// the actual video.
-			if ($assembly = MediaVersions::assembly('video', $entity->version)) {
-				if (isset($assembly['convert'])) {
-					if (Type::guessName($assembly['convert']) === 'video') {
-						return null;
-					}
-				} else {
-					$message  = 'Cannot reliably determine if this is a video version; fallback';
-					$message .= 'to heuristics.';
-					Logger::debug($message);
-
-					if (strpos($entity->version, 'flux') !== false) {
-						return null;
-					}
-				}
-			}
-			// URL is in <PROVIDER>://<ID> form
-			$convert = RemoteMedia::provider($entity->url)['convertToExternalUrl'];
-			$ext = RemoteMedia::createFromUrl($convert($entity->url));
-
-			// This changes the scheme of the entity, thus it capabilities.
-			$entity->url = $ext->thumbnailUrl;
-
-			if (!$entity->can('download')) {
-				$message  = "Can't download video poster URL `{$entity->url}`. ";
-				$message .= "You need to register a http scheme with downloading enabled to do so.";
-				throw new Exception($message);
-			}
-			$entity->url = $entity->download();
-
-			$handler = MediaVersions::registeredScheme('file', 'make');
-			return $handler($entity);
-		};
+		MediaVersions::registerScheme($provider['name'], ['make' => $makeRemoteVideo]);
 	} elseif ($provider['type'] === 'image') {
-		$make = function($entity) {
-			// This changes the scheme of the entity, thus it capabilities.
-			$entity->url = $ext->thumbnailUrl;
-
-			if (!$entity->can('download')) {
-				$message  = "Can't download image URL `{$entity->url}`. ";
-				$message .= "You need to register a http scheme with downloading enabled to do so.";
-				throw new Exception($message);
-			}
-			$entity->url = $entity->download();
-
-			$handler = MediaVersions::registeredScheme('file', 'make');
-			return $handler($entity);
-		};
-	} else {
-		continue;
+		MediaVersions::registerScheme($provider['name'], ['make' => $makeRemoteImage]);
 	}
-	MediaVersions::registerScheme($provider['name'], ['make' => $make]);
 }
 
 //
