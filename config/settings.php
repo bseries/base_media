@@ -19,6 +19,12 @@ namespace base_media\config;
 
 use base_core\extensions\cms\Settings;
 
+// If enabled will keep animated images as is and not potentially
+// convert them into a static image format.
+Settings::register('media.keepAnimatedImages', false);
+
+// Enable triggering of regeneration of media versions through
+// the admin.
 Settings::register('media.allowRegenerateVersions', false);
 
 ?>

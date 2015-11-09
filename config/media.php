@@ -17,6 +17,7 @@
 
 namespace base_media\config;
 
+use base_core\extensions\cms\Settings;
 use base_media\models\Media;
 use base_media\models\MediaVersions;
 use base_media\models\RemoteMedia;
@@ -115,18 +116,20 @@ MediaVersions::registerScheme('file', [
 			return null; // Skip.
 		};
 
-		// Reformat instructions so we do not loose animations. Must protect with
-		// image pre-condition as videos might also get here and there are no
-		// video media info adapters.
-		if ($name === 'image' && Info::factory(['source' => $entity->url])->get('isAnimated')) {
-			Logger::debug("Detected source `{$entity->url}` as animated.");
+		if (Settings::read('media.keepAnimatedImages')) {
+			// Reformat instructions so we do not loose animations. Must protect with
+			// image pre-condition as videos might also get here and there are no
+			// video media info adapters.
+			if ($name === 'image' && Info::factory(['source' => $entity->url])->get('isAnimated')) {
+				Logger::debug("Detected source `{$entity->url}` as animated.");
 
-			$instructions['convert'] = 'image/gif';
-			unset(
-				$instructions['background'],
-				$instructions['interlace'],
-				$instructions['compress']
-			);
+				$instructions['convert'] = 'image/gif';
+				unset(
+					$instructions['background'],
+					$instructions['interlace'],
+					$instructions['compress']
+				);
+			}
 		}
 
 		// Create target.
