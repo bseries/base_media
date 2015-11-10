@@ -217,12 +217,13 @@ class Media extends \base_core\models\Base {
 	}
 
 	public function versions($entity) {
-		$cacheKey = 'media_' . $entity->id . '_versions';
+		if (!PROJECT_DEBUG) {
+			$cacheKey = 'media_' . $entity->id . '_versions';
 
-		if ($cached = Cache::read('default', $cacheKey)) {
-			return $cached;
+			if ($cached = Cache::read('default', $cacheKey)) {
+				return $cached;
+			}
 		}
-
 		$data = MediaVersions::all([
 			'conditions' => [
 				'media_id' => $entity->id
@@ -235,7 +236,9 @@ class Media extends \base_core\models\Base {
 		}
 		$result = new Collection(['data' => $results]);
 
-		Cache::write('default', $cacheKey, $result, Cache::PERSIST);
+		if (!PROJECT_DEBUG) {
+			Cache::write('default', $cacheKey, $result, Cache::PERSIST);
+		}
 		return $result;
 	}
 
