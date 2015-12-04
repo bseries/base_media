@@ -25,10 +25,12 @@ use base_media\models\MediaVersions;
 extract(Message::aliases());
 
 Widgets::register('media', function() use ($t, $tn) {
-	$media = Media::find('count');
+	$data = Media::find('all', [
+		'fields' => ['url']
+	]);
 	$size = 0;
 
-	foreach (Media::find('all') as $item) {
+	foreach ($data as $item) {
 		$size += $item->size();
 	}
 	$formatNiceBytes = function($size) use ($t, $tn) {
@@ -70,7 +72,7 @@ Widgets::register('media', function() use ($t, $tn) {
 			'controller' => 'media', 'library' => 'base_media', 'admin' => true, 'action' => 'index'
 		],
 		'data' => [
-			$t('Total', ['scope' => 'base_media']) => $media,
+			$t('Total', ['scope' => 'base_media']) => $data->count(),
 			$t('Size', ['scope' => 'base_media']) => $formatNiceBytes($size)
 		]
 	];
