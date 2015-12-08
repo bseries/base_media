@@ -83,7 +83,6 @@ class RemoteMedia extends \base_core\models\Base {
 		]);
 		$results = $client->getUrlInfo($url);
 
-
 		if (!$results || $client->getErrors()) {
 			$message  = "Failed to extract oEmbed meta from external media `{$url}`.\n";
 			$message .= "Client results: " . var_export($results) . "\n";
