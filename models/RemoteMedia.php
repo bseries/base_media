@@ -17,6 +17,7 @@
 
 namespace base_media\models;
 
+use lithium\analysis\Logger;
 use Embera\Embera;
 use Exception;
 
@@ -33,7 +34,7 @@ class RemoteMedia extends \base_core\models\Base {
 				'name' => 'vimeo',
 				'matcher' => '#vimeo#',
 				'convertToInternalUrl' => function($url) {
-					preg_match('#vimeo\.com/(\d{8})#', $url, $matches);
+					preg_match('#vimeo\.com/(\d+)#', $url, $matches);
 					return 'vimeo://' . $matches[1];
 				},
 				'convertToExternalUrl' => function($url) {
@@ -82,6 +83,7 @@ class RemoteMedia extends \base_core\models\Base {
 		]);
 		$results = $client->getUrlInfo($url);
 
+
 		if (!$results || $client->getErrors()) {
 			$message  = "Failed to extract oEmbed meta from external media `{$url}`.\n";
 			$message .= "Client results: " . var_export($results) . "\n";
@@ -89,6 +91,10 @@ class RemoteMedia extends \base_core\models\Base {
 			throw new Exception($message);
 		}
 		$item = current($results);
+
+		$message  = "Extracted oEmbed meta from external media `{$url}`:\n";
+		$message .= var_export($item, true);
+		Logger::debug($message);
 
 		return static::create([
 			'title' => $item['title'],
