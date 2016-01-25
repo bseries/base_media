@@ -44,7 +44,9 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 		$cache = $behavior->config('cache');
 
 		// Synchronizes join table with added or updated set of items.
-		$model::applyFilter('save', function($self, $params, $chain) use ($behavior, $bindings, $cache) {
+		$model::applyFilter('save', function($self, $params, $chain) use ($model, $behavior, $bindings, $cache) {
+			$normalizedModel = static::_normalizedModel($model);
+
 			$joined = [];
 			$direct = [];
 
@@ -85,24 +87,24 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 				$to = $bindings[$alias]['to'];
 
 				if ($cache) {
-					Cache::delete($cache, 'media_coupler_' . md5($self . $id . $to));
+					Cache::delete($cache, 'media_coupler_' . md5($normalizedModel . $id . $to));
 				}
 			}
 			foreach ($joined as $alias => $data) {
 				$to = $bindings[$alias]['to'];
 
 				if ($cache) {
-					Cache::delete($cache, 'media_coupler_' . md5($self . $id . $to));
+					Cache::delete($cache, 'media_coupler_' . md5($normalizedModel . $id . $to));
 				}
 
 				// Rebuilt associations entirely.
 				$to::remove([
-					'model' => $self,
+					'model' => $normalizedModel,
 					'foreign_key' => $params['entity']->id
 				]);
 				foreach ($data as $item) {
 					$item = $to::create([
-						'model' => $self,
+						'model' => $normalizedModel,
 						'foreign_key' => $params['entity']->id,
 						'media_id' => $item['id']
 					]);
@@ -113,8 +115,9 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 		});
 
 		// Cleans up join table if an item is deleted.
-		$model::applyFilter('delete', function($self, $params, $chain) use ($bindings, $cache) {
+		$model::applyFilter('delete', function($self, $params, $chain) use ($model, $bindings, $cache) {
 			$entity = $params['entity'];
+			$normalizedModel = static::_normalizedModel($model);
 
 			if (!$result = $chain->next($self, $params, $chain)) {
 				return $result;
@@ -123,7 +126,7 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 				$to = $options['to'];
 
 				if ($cache) {
-					Cache::delete($cache, 'media_coupler_' . md5( $self . $entity->id . $to));
+					Cache::delete($cache, 'media_coupler_' . md5($normaluzedModel . $entity->id . $to));
 				}
 
 				if ($options['type'] == 'direct') {
@@ -131,7 +134,7 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 					continue;
 				}
 				$to::remove([
-					'model' => $self,
+					'model' => $normalizedModel,
 					'foreign_key' => $entity->id
 				]);
 			}
@@ -146,12 +149,14 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 		foreach ($behavior->config('bindings') as $alias => $options) {
 			if ($options['type'] == 'direct') {
 				$methods[$alias] = function($entity) use ($options, $model, $cache) {
+					$normalizedModel = static::_normalizedModel($model);
+
 					// $to in this case is the field name i.e. cover_media_id.
 					$to = $options['to'];
 
 					if ($cache) {
 						$cacheKey = 'media_coupler_' . md5(
-							$model . $entity->id . $to
+							$normalizedModel . $entity->id . $to
 						);
 						if (($cached = Cache::read($cache, $cacheKey)) !== null) {
 							return $cached;
@@ -166,12 +171,14 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 				};
 			} else {
 				$methods[$alias] = function($entity) use ($options, $model, $cache) {
+					$normalizedModel = static::_normalizedModel($model);
+
 					// $to in this case is the model name i.e. base_media\models\MediaAttachments.
 					$to = $options['to'];
 
 					if ($cache) {
 						$cacheKey = 'media_coupler_' . md5(
-							$model . $entity->id . $to
+							$normalizedModel . $entity->id . $to
 						);
 						if (($cached = Cache::read($cache, $cacheKey)) !== null) {
 							return $cached;
@@ -180,7 +187,7 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 
 					$results = $to::find('all', [
 						'conditions' => [
-							'model' => $model,
+							'model' => $normalizedModel,
 							'foreign_key' => $entity->id
 						],
 						'order' => ['id' => 'ASC'],
@@ -200,6 +207,15 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 			}
 		}
 		return $methods;
+	}
+
+	// Returns the CMS parent model class in case the model
+	// is a subclass in app-space.
+	protected static function _normalizedModel($model) {
+		if (strpos($model, 'app\\') === 0) {
+			return get_parent_class($model);
+		}
+		return $model;
 	}
 }
 
