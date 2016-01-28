@@ -17,6 +17,7 @@
 
 namespace base_media\models;
 
+use lithium\storage\Cache;
 use lithium\analysis\Logger;
 use Embera\Embera;
 use Exception;
@@ -78,22 +79,27 @@ class RemoteMedia extends \base_core\models\Base {
 		if (!static::provider($url)) {
 			throw new Exception("Remote media `{$url}` not supported.");
 		}
-		$client = new Embera([
-			'allow' => array_keys(static::providers())
-		]);
-		$results = $client->getUrlInfo($url);
+		$cacheKey = 'oembed_meta_' . md5($url);
 
-		if (!$results || $client->getErrors()) {
-			$message  = "Failed to extract oEmbed meta from external media `{$url}`.\n";
-			$message .= "Client results: " . var_export($results) . "\n";
-			$message .= "Client errors: " . var_export($client->getErrors());
-			throw new Exception($message);
+		if (!$results = Cache::read('default', $cacheKey)) {
+			$client = new Embera([
+				'allow' => array_keys(static::providers())
+			]);
+			$results = $client->getUrlInfo($url);
+
+			if (!$results || $client->getErrors()) {
+				$message  = "Failed to extract oEmbed meta from external media `{$url}`.\n";
+				$message .= "Client results: " . var_export($results) . "\n";
+				$message .= "Client errors: " . var_export($client->getErrors());
+				throw new Exception($message);
+			}
+			$message  = "Extracted oEmbed meta from external media `{$url}`:\n";
+			$message .= var_export(current($results), true);
+			Logger::debug($message);
+
+			Cache::write('default', $cacheKey, $results);
 		}
 		$item = current($results);
-
-		$message  = "Extracted oEmbed meta from external media `{$url}`:\n";
-		$message .= var_export($item, true);
-		Logger::debug($message);
 
 		return static::create([
 			'title' => $item['title'],
