@@ -17,8 +17,9 @@
 
 namespace base_media\models;
 
-use mm\Media\Info;
 use Exception;
+use lithium\storage\Cache;
+use mm\Media\Info;
 
 trait MediaInfoTrait {
 
@@ -48,9 +49,17 @@ trait MediaInfoTrait {
 	}
 
 	public function info($entity, $name = null) {
+		$cacheKey = 'media_info_'  . md5($entity->url) . '_' . ($name ?: 'all');
+
+		if ($cached = Cache::read('default', $cacheKey)) {
+			return $cached;
+		}
 		try {
 			$media = Info::factory(['source' => $entity->url('file')]);
-			return $name ? $media->get($name) : $media->all();
+			$result = $name ? $media->get($name) : $media->all();
+
+			Cache::write('default', $cacheKey, $result);
+			return $result;
 		} catch (Exception $e) {
 			return $name ? null : [];
 		}
