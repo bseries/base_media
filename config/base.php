@@ -17,18 +17,26 @@
 
 namespace base_media\config;
 
+use Cute\Handlers;
+use Exception;
 use base_core\extensions\cms\Settings;
 use base_media\models\Media;
 use base_media\models\MediaVersions;
 use base_media\models\RemoteMedia;
-use lithium\storage\Cache;
-use lithium\core\Libraries;
 use lithium\analysis\Logger;
-use mm\Media\Process;
+use lithium\core\Libraries;
+use lithium\storage\Cache;
 use mm\Media\Info;
+use mm\Media\Process;
 use mm\Mime\Type;
-use Cute\Handlers;
-use Exception;
+
+// If enabled will keep animated images as is and not potentially
+// convert them into a static image format.
+Settings::register('media.keepAnimatedImages', false);
+
+// Enable triggering of regeneration of media versions through
+// the admin.
+Settings::register('media.allowRegenerateVersions', false);
 
 // Registers Media and MediaVersions schemes. The `base` key of each
 // scheme is intentionally left unset. This must be added by the app
