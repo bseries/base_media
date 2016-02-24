@@ -1,7 +1,7 @@
 -- Create syntax for TABLE 'media'
 CREATE TABLE `media` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) unsigned NOT NULL,
+  `owner_id` int(11) unsigned NOT NULL,
   `title` varchar(250) DEFAULT NULL,
   `url` char(40) NOT NULL DEFAULT '',
   `type` varchar(100) NOT NULL,
@@ -10,7 +10,7 @@ CREATE TABLE `media` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `user` (`user_id`)
+  KEY `user` (`owner_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Unique index set on user_id+checksum instead of user_id+dirn';
 
 -- Create syntax for TABLE 'media_attachments'
