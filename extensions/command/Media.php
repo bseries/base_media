@@ -84,7 +84,7 @@ class Media extends \lithium\console\Command {
 		ini_set('memory_limit','500M');
 
 		$this->out('Clearing media versions...');
-		MediaVersions::find('all')->delete();
+		MediaVersions::remove();
 
 		$this->out('Creating dummy media from file...');
 		copy(
