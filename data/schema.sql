@@ -3,7 +3,7 @@ CREATE TABLE `media` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `owner_id` int(11) unsigned NOT NULL,
   `title` varchar(250) DEFAULT NULL,
-  `url` char(40) NOT NULL DEFAULT '',
+  `url` varchar(250) NOT NULL DEFAULT '',
   `type` varchar(100) NOT NULL,
   `mime_type` varchar(100) NOT NULL,
   `checksum` char(32) DEFAULT '',
@@ -28,7 +28,7 @@ CREATE TABLE `media_attachments` (
 CREATE TABLE `media_versions` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `media_id` int(11) unsigned NOT NULL,
-  `url` char(40) NOT NULL DEFAULT '',
+  `url` varchar(250) NOT NULL DEFAULT '',
   `version` varchar(10) DEFAULT NULL,
   `type` varchar(100) NOT NULL,
   `mime_type` varchar(100) NOT NULL,
