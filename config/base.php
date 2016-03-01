@@ -244,6 +244,8 @@ foreach (RemoteMedia::providers() as $provider) {
 		MediaVersions::registerScheme($provider['name'], ['make' => $makeRemoteVideo]);
 	} elseif ($provider['type'] === 'image') {
 		MediaVersions::registerScheme($provider['name'], ['make' => $makeRemoteImage]);
+	} elseif ($provider['type'] === 'audio') {
+		MediaVersions::registerScheme($provider['name'], ['make' => $makeRemoteImage]);
 	}
 }
 

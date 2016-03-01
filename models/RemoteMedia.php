@@ -76,11 +76,11 @@ class RemoteMedia extends \base_core\models\Base {
 				'name' => 'soundcloud',
 				'matcher' => '#soundcloud#',
 				'convertToInternalUrl' => function($url) {
-					preg_match('#soundcloud\.com/([^/]+)/?$#i', $url, $matches);
-					return 'soundcloud://' . $matches[2];
+					preg_match('#soundcloud\.com/([^/]+)/([^/]+)/?$#i', $url, $matches);
+					return 'soundcloud://' . $matches[1] . '/' . $matches[2];
 				},
 				'convertToExternalUrl' => function($url) {
-					return 'https://soundcloud.com/' . parse_url($url, PHP_URL_HOST) . '/' . parse_url($url, PHP_URL_PATH);
+					return 'https://soundcloud.com/' . parse_url($url, PHP_URL_HOST) . parse_url($url, PHP_URL_PATH);
 				},
 				'type' => 'audio',
 				'mime_type' => 'application/x-soundcloud'

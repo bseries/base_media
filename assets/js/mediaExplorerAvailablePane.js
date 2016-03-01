@@ -45,7 +45,7 @@ function(
     this.element = $(element);
 
     options = $.extend({
-      selectable: null,
+      selectable: true,
       selected: []
     }, options);
 

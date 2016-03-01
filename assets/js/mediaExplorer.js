@@ -40,13 +40,8 @@ function(
     this.element = $(element);
 
     options = $.extend(true, {
-      available: {
-        selectable: null,
-        selected: [],
-      },
-      transfer: {
-        urlUpload: false
-      }
+      available: {},
+      transfer: {}
     }, options);
 
     // This must come before initializing the panes as they
