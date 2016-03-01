@@ -71,6 +71,19 @@ class RemoteMedia extends \base_core\models\Base {
 				},
 				'type' => 'image',
 				'mime_type' => 'application/x-instagram'
+			],
+			'soundcloud' => [
+				'name' => 'soundcloud',
+				'matcher' => '#soundcloud#',
+				'convertToInternalUrl' => function($url) {
+					preg_match('#soundcloud\.com/([^/]+)/?$#i', $url, $matches);
+					return 'soundcloud://' . $matches[2];
+				},
+				'convertToExternalUrl' => function($url) {
+					return 'https://soundcloud.com/' . parse_url($url, PHP_URL_HOST) . '/' . parse_url($url, PHP_URL_PATH);
+				},
+				'type' => 'audio',
+				'mime_type' => 'application/x-soundcloud'
 			]
 		];
 	}
