@@ -26,7 +26,7 @@
     "suggests": {
       "beanstalkd": "Enables async processing when uploading media.",
       "ext-imagick": "Enables high-quality image resizing.",
-	  "atelierdisko/base_social": "Enables i.e. vimeo linking."
+	  "atelierdisko/base_social": "Enables i.e. Vimeo and SoundCloud linking."
     },
     "repositories": [
       { "type": "vcs", "url": "git@code.atelierdisko.de:base_core" }
