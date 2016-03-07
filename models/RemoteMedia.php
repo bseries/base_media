@@ -72,6 +72,8 @@ class RemoteMedia extends \base_core\models\Base {
 				'type' => 'image',
 				'mime_type' => 'application/x-instagram'
 			],
+			// This does not use the SC id, as we'd need API access for that.
+			// SC IDs must be resolved.
 			'soundcloud' => [
 				'name' => 'soundcloud',
 				'matcher' => '#soundcloud#',
