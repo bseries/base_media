@@ -25,6 +25,7 @@ use li3_behaviors\data\model\Behavior;
 class Coupler extends \li3_behaviors\data\model\Behavior {
 
 	protected static $_defaults = [
+		// each binding has a type which is one of "direct", "joined" or "inline".
 		'bindings' => [],
 		// The cache configuration to use or `false` to disable caching.
 		'cache' => 'default'
@@ -51,7 +52,7 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 			$direct = [];
 
 			foreach ($bindings as $alias => $options) {
-				if ($options['type'] == 'direct') {
+				if ($options['type'] === 'direct') {
 					$scoped = $alias . '_media_id';
 
 					if (!isset($params['data'][$scoped])) {
@@ -62,6 +63,8 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 						$params['entity']->$scoped = null;
 					}
 					$direct[$alias] = $params['data'][$scoped];
+				} elseif ($options['type'] === 'inline') {
+					// ...
 				} else {
 					if (!isset($params['data'][$alias])) {
 						continue;
@@ -148,21 +151,63 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 
 		foreach ($behavior->config('bindings') as $alias => $options) {
 			if ($options['type'] == 'direct') {
-				$methods[$alias] = function($entity) use ($options, $model, $cache) {
+				$methods[$alias] = function($entity, $type = null) use ($options, $model, $cache) {
 					$normalizedModel = static::_normalizedModel($model);
+					$type = $type === 'count' ? 'count' : 'first';
 
 					// $to in this case is the field name i.e. cover_media_id.
 					$to = $options['to'];
 
 					if ($cache) {
 						$cacheKey = 'media_coupler_' . md5(
-							$normalizedModel . $entity->id . $to
+							$normalizedModel . $entity->id . $to . $type
 						);
 						if (($cached = Cache::read($cache, $cacheKey)) !== null) {
 							return $cached;
 						}
 					}
-					$result = Media::find('first', ['conditions' => ['id' => $entity->{$to}]]);
+					$result = Media::find($type, [
+						'conditions' => ['id' => $entity->{$to}]
+					]);
+
+					if ($cache) {
+						Cache::write($cache, $cacheKey, $result, Cache::PERSIST);
+					}
+					return $result;
+				};
+			} elseif ($options['type'] == 'inline') {
+				$methods[$alias] = function($entity, $type = null) use ($options, $model, $cache) {
+					$normalizedModel = static::_normalizedModel($model);
+					$type = $type === 'count' ? 'count' : 'all';
+
+					// $to in this case is the field name i.e. body.
+					$to = $options['to'];
+
+					if ($cache) {
+						$cacheKey = 'media_coupler_' . md5(
+							$normalizedModel . $entity->id . $to . $type
+						);
+						if (($cached = Cache::read($cache, $cacheKey)) !== null) {
+							return $cached;
+						}
+					}
+
+					// Extract ids from text
+					$regex = '#(<img.*data-media-id="([0-9]+)".*>)#iU';
+					if (!preg_match_all($regex, $entity->{$field}, $matches, PREG_SET_ORDER)) {
+						return new Collection();
+					}
+					$ids = array_reduce($matches, function($carry, $item) {
+						$carry[] = $item[2];
+						return $carry;
+					}, []);
+
+					$result = Media::find($type, [
+						'conditions' => [
+							'id' => $ids
+						],
+						'order' => ['id' => 'ASC']
+					]);
 
 					if ($cache) {
 						Cache::write($cache, $cacheKey, $result, Cache::PERSIST);
@@ -170,22 +215,23 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 					return $result;
 				};
 			} else {
-				$methods[$alias] = function($entity) use ($options, $model, $cache) {
+				$methods[$alias] = function($entity, $type = null) use ($options, $model, $cache) {
 					$normalizedModel = static::_normalizedModel($model);
+					$type = $type === 'count' ? 'count' : 'all';
 
 					// $to in this case is the model name i.e. base_media\models\MediaAttachments.
 					$to = $options['to'];
 
 					if ($cache) {
 						$cacheKey = 'media_coupler_' . md5(
-							$normalizedModel . $entity->id . $to
+							$normalizedModel . $entity->id . $to . $type
 						);
 						if (($cached = Cache::read($cache, $cacheKey)) !== null) {
 							return $cached;
 						}
 					}
 
-					$results = $to::find('all', [
+					$results = $to::find($type, [
 						'conditions' => [
 							'model' => $normalizedModel,
 							'foreign_key' => $entity->id
@@ -193,11 +239,15 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 						'order' => ['id' => 'ASC'],
 						'with' => ['Media']
 					]);
-					$data = [];
-					foreach ($results as $result) {
-						$data[] = $result->media;
+					if ($type !== 'count') {
+						$data = [];
+						foreach ($results as $result) {
+							$data[] = $result->media;
+						}
+						$result = new Collection(compact('data'));
+					} else {
+						$result = $results;
 					}
-					$result = new Collection(compact('data'));
 
 					if ($cache) {
 						Cache::write($cache, $cacheKey, $result, Cache::PERSIST);

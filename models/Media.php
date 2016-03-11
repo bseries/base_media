@@ -17,19 +17,20 @@
 
 namespace base_media\models;
 
-use Exception;
-use OutOfBoundsException;
-use mm\Mime\Type;
-use base_media\models\MediaVersions;
-use base_media\models\MediaAttachments;
-use lithium\analysis\Logger;
-use lithium\storage\Cache;
-use lithium\core\Libraries;
-use Cute\Job;
 use Cute\Connection;
-use lithium\util\Collection;
-use Monolog\Logger as MonologLogger;
+use Cute\Job;
+use Exception;
+use InvalidArgumentException;
 use Monolog\Handler\StreamHandler;
+use Monolog\Logger as MonologLogger;
+use OutOfBoundsException;
+use base_media\models\MediaAttachments;
+use base_media\models\MediaVersions;
+use lithium\analysis\Logger;
+use lithium\core\Libraries;
+use lithium\storage\Cache;
+use lithium\util\Collection;
+use mm\Mime\Type;
 
 class Media extends \base_core\models\Base {
 
@@ -124,15 +125,33 @@ class Media extends \base_core\models\Base {
 	public function depend($entity, $type) {
 		$depend = $type === 'count' ? 0 : [];
 
+		if ($type !== 'count' && $type !== 'all') {
+			throw new InvalidArgumentException("Invalid depend type `{$type}` given.");
+		}
+
 		foreach (static::_dependent() as $model => $bindings) {
 			foreach ($bindings as $alias => $binding) {
-				if ($binding === 'direct') {
+				if ($binding['type'] === 'direct') {
 					$results = $model::find($type, [
 						'conditions' => [
 							$alias . '_media_id' => $entity->id
 						]
 					]);
-
+					if ($type === 'count') {
+						$depend += $results;
+					} else {
+						foreach ($results as $result) {
+							$depend[] = $result;
+						}
+					}
+				} elseif ($binding['type'] === 'inline') {
+					$results = $model::find($type, [
+						'conditions' => [
+							$binding['to'] => [
+								'LIKE' => '%data-media-id="' . $entity->id . '"%'
+							]
+						]
+					]);
 					if ($type === 'count') {
 						$depend += $results;
 					} else {
@@ -176,12 +195,7 @@ class Media extends \base_core\models\Base {
 			if (!$model::hasBehavior('Coupler')) {
 				continue;
 			}
-			$bindings = [];
-
-			foreach ($model::behavior('Coupler')->config('bindings') as $field => $config) {
-				$bindings[$field] = $config['type'];
-			}
-			$results[$model] = $bindings;
+			$results[$model] = $model::behavior('Coupler')->config('bindings');
 		}
 		return $results;
 	}
