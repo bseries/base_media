@@ -1,6 +1,6 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR Atelier Disko
-# This file is distributed under the same license as the PACKAGE package.
+# This file is distributed under the same license as the base_media package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: base_media 1.0\n"
 "Report-Msgid-Bugs-To: info@atelierdisko.de\n"
-"POT-Creation-Date: 2015-07-21 14:11+0200\n"
+"POT-Creation-Date: 2016-04-08 12:50+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,54 +18,62 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: config/panes.php:21 config/widgets.php:63 extensions/helper/Media.php:82
+#: config/panes.php:26 config/widgets.php:70 extensions/helper/Media.php:81
 msgid "Media"
 msgstr ""
 
-#: config/widgets.php:31
+#: config/widgets.php:38
 msgid "0 Bytes"
 msgstr ""
 
-#: config/widgets.php:35
+#: config/widgets.php:42
 msgid "{:count} Byte"
 msgid_plural "{:count} Bytes"
 msgstr[0] ""
 msgstr[1] ""
 
-#: config/widgets.php:40
+#: config/widgets.php:47
 msgid "{:count} KB"
 msgstr ""
 
-#: config/widgets.php:45
+#: config/widgets.php:52
 msgid "{:count} MB"
 msgstr ""
 
-#: config/widgets.php:50
+#: config/widgets.php:57
 msgid "{:count} GB"
 msgstr ""
 
-#: config/widgets.php:55
+#: config/widgets.php:62
 msgid "{:count} TB"
 msgstr ""
 
-#: config/widgets.php:68
+#: config/widgets.php:75
 msgid "Total"
 msgstr ""
 
-#: config/widgets.php:69 views/media/admin_form.html.php:47
-#: views/media/admin_index.html.php:36
+#: config/widgets.php:76 views/media/admin_form.html.php:71
+#: views/media/admin_form.html.php:92
 msgid "Size"
 msgstr ""
 
-#: controllers/MediaController.php:259
+#: controllers/MediaController.php:313
 msgid "Successfully deleted."
 msgstr ""
 
-#: extensions/helper/Media.php:76
+#: controllers/MediaController.php:340
+msgid "Successfully cleaned media."
+msgstr ""
+
+#: controllers/MediaController.php:345
+msgid "Failed to clean media."
+msgstr ""
+
+#: extensions/helper/Media.php:75
 msgid "Medium"
 msgstr ""
 
-#: extensions/helper/Media.php:96
+#: extensions/helper/Media.php:95
 msgid "select"
 msgstr ""
 
@@ -77,66 +85,87 @@ msgstr ""
 msgid "media"
 msgstr ""
 
-#: views/media/admin_form.html.php:37
-msgid "Versions"
+#: views/media/admin_form.html.php:27
+msgid "Access"
+msgstr ""
+
+#: views/media/admin_form.html.php:33 views/media/admin_index.html.php:42
+msgid "Owner"
 msgstr ""
 
 #: views/media/admin_form.html.php:43
-msgid "Version"
+msgid "Original"
 msgstr ""
 
-#: views/media/admin_form.html.php:44
-msgid "URL"
+#: views/media/admin_form.html.php:49
+msgid "No preview available."
 msgstr ""
 
-#: views/media/admin_form.html.php:45 views/media/admin_index.html.php:34
-msgid "Type"
-msgstr ""
-
-#: views/media/admin_form.html.php:46 views/media/admin_index.html.php:35
-msgid "MIME-Type"
-msgstr ""
-
-#: views/media/admin_form.html.php:48
-msgid "Status"
-msgstr ""
-
-#: views/media/admin_form.html.php:60 views/media/admin_index.html.php:75
-msgid "open"
-msgstr ""
-
-#: views/media/admin_form.html.php:68
-msgid "regenerate versions"
-msgstr ""
-
-#: views/media/admin_form.html.php:70
-msgid "save"
-msgstr ""
-
-#: views/media/admin_index.html.php:32
-msgid "Preview"
-msgstr ""
-
-#: views/media/admin_index.html.php:33
+#: views/media/admin_form.html.php:54 views/media/admin_index.html.php:37
 msgid "Title"
 msgstr ""
 
-#: views/media/admin_index.html.php:37
-msgid "# dependent"
-msgstr ""
-
+#: views/media/admin_form.html.php:59 views/media/admin_form.html.php:90
 #: views/media/admin_index.html.php:38
-msgid "Modified"
+msgid "Type"
 msgstr ""
 
-#: views/media/admin_index.html.php:43
-msgid "Filter"
+#: views/media/admin_form.html.php:65 views/media/admin_form.html.php:91
+msgid "MIME-Type"
 msgstr ""
 
-#: views/media/admin_index.html.php:73
+#: views/media/admin_form.html.php:82
+msgid "Versions"
+msgstr ""
+
+#: views/media/admin_form.html.php:88
+msgid "Version"
+msgstr ""
+
+#: views/media/admin_form.html.php:89
+msgid "URL"
+msgstr ""
+
+#: views/media/admin_form.html.php:93
+msgid "Status"
+msgstr ""
+
+#: views/media/admin_form.html.php:105 views/media/admin_index.html.php:82
+msgid "open"
+msgstr ""
+
+#: views/media/admin_form.html.php:114 views/media/admin_index.html.php:80
 msgid "delete"
 msgstr ""
 
-#: views/media/admin_index.html.php:80
+#: views/media/admin_form.html.php:121
+msgid "regenerate versions"
+msgstr ""
+
+#: views/media/admin_form.html.php:124
+msgid "save"
+msgstr ""
+
+#: views/media/admin_index.html.php:29
+msgid "delete all unused media files"
+msgstr ""
+
+#: views/media/admin_index.html.php:36
+msgid "Preview"
+msgstr ""
+
+#: views/media/admin_index.html.php:39
+msgid "# dependent"
+msgstr ""
+
+#: views/media/admin_index.html.php:40
+msgid "Modified"
+msgstr ""
+
+#: views/media/admin_index.html.php:48
+msgid "Filter"
+msgstr ""
+
+#: views/media/admin_index.html.php:87
 msgid "There are currently no items available, yet."
 msgstr ""
