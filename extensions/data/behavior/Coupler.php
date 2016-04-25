@@ -90,14 +90,20 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 				$to = $bindings[$alias]['to'];
 
 				if ($cache) {
-					Cache::delete($cache, 'media_coupler_' . md5($normalizedModel . $id . $to));
+					Cache::delete($cache, [
+						static::_cacheKey($normalizedModel, $id, $to, 'first'),
+						static::_cacheKey($normalizedModel, $id, $to, 'count')
+					]);
 				}
 			}
 			foreach ($joined as $alias => $data) {
 				$to = $bindings[$alias]['to'];
 
 				if ($cache) {
-					Cache::delete($cache, 'media_coupler_' . md5($normalizedModel . $id . $to));
+					Cache::delete($cache, [
+						static::_cacheKey($normalizedModel, $id, $to, 'all'),
+						static::_cacheKey($normalizedModel, $id, $to, 'count')
+					]);
 				}
 
 				// Rebuilt associations entirely.
@@ -114,6 +120,17 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 					$item->save();
 				}
 			}
+			foreach ($bindings as $alias => $options) {
+				if ($options['type'] !== 'inline') {
+					continue;
+				}
+				$to = $bindings[$alias]['to']; // i.e. body
+
+				Cache::delete($cache, [
+					static::_cacheKey($normalizedModel, $id, $to, 'all'),
+					static::_cacheKey($normalizedModel, $id, $to, 'count')
+				]);
+			}
 			return $result;
 		});
 
@@ -129,7 +146,11 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 				$to = $options['to'];
 
 				if ($cache) {
-					Cache::delete($cache, 'media_coupler_' . md5($normaluzedModel . $entity->id . $to));
+					Cache::delete($cache, [
+						static::_cacheKey($normalizedModel, $entity->id, $to, 'first'),
+						static::_cacheKey($normalizedModel, $entity->id, $to, 'all'),
+						static::_cacheKey($normalizedModel, $entity->id, $to, 'count')
+					]);
 				}
 
 				if ($options['type'] == 'direct') {
@@ -159,9 +180,8 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 					$to = $options['to'];
 
 					if ($cache) {
-						$cacheKey = 'media_coupler_' . md5(
-							$normalizedModel . $entity->id . $to . $type
-						);
+						$cacheKey = static::_cacheKey($normalizedModel, $entity->id, $to, $type);
+
 						if (($cached = Cache::read($cache, $cacheKey)) !== null) {
 							return $cached;
 						}
@@ -184,9 +204,8 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 					$to = $options['to'];
 
 					if ($cache) {
-						$cacheKey = 'media_coupler_' . md5(
-							$normalizedModel . $entity->id . $to . $type
-						);
+						$cacheKey = static::_cacheKey($normalizedModel, $entity->id, $to, $type);
+
 						if (($cached = Cache::read($cache, $cacheKey)) !== null) {
 							return $cached;
 						}
@@ -223,9 +242,8 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 					$to = $options['to'];
 
 					if ($cache) {
-						$cacheKey = 'media_coupler_' . md5(
-							$normalizedModel . $entity->id . $to . $type
-						);
+						$cacheKey = static::_cacheKey($normalizedModel, $entity->id, $to, $type);
+
 						if (($cached = Cache::read($cache, $cacheKey)) !== null) {
 							return $cached;
 						}
@@ -266,6 +284,10 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 			return get_parent_class($model);
 		}
 		return $model;
+	}
+
+	protected static function _cacheKey($model, $id, $to, $type) {
+		return 'media_coupler_' . hash('md5', $model . $id . $to . $type);
 	}
 }
 
