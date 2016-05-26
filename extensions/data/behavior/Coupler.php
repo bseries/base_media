@@ -153,7 +153,7 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 					]);
 				}
 
-				if ($options['type'] == 'direct') {
+				if ($options['type'] === 'direct' || $options['type'] === 'inline') {
 					// Direct bindings need no special treatment.
 					continue;
 				}
