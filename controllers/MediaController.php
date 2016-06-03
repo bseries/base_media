@@ -138,7 +138,8 @@ class MediaController extends \base_core\controllers\BaseController {
 	public function admin_api_capabilities() {
 		$response = new JSendResponse('success', [
 			'transfer' => [
-				'urlUpload' => true
+				'urlUpload' => true,
+				'animatedImages' => Settings::read('media.keepAnimatedImages')
 			]
 		]);
 		$this->render([
