@@ -35,7 +35,9 @@ function(
     this.element = $(element);
 
     options = $.extend({
-      urlUpload: false
+      urlUpload: false,
+      pdfs: false,
+      animatedImages: false
     }, options);
 
     // Holds a transfer queue object.
