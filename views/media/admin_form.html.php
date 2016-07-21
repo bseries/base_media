@@ -20,7 +20,9 @@ $edit = $this->request()->params['action'] == 'edit';
 ?>
 <article>
 	<?=$this->form->create($item) ?>
-		<?=$this->form->field('id', ['type' => 'hidden']) ?>
+		<?php if ($item->exists()): ?>
+			<?= $this->form->field('id', ['type' => 'hidden']) ?>
+		<?php endif ?>
 
 		<?php if ($useOwner): ?>
 			<div class="grid-row">
