@@ -181,7 +181,13 @@ class Media extends \base_core\models\Base {
 
 	protected static function _dependent() {
 		$models = array_filter(Libraries::locate('models'), function($v) {
-			return strpos($v, 'Trait') === false;
+			$skip = [
+				'app\models\Base',
+				'base_core\models\Base',
+				// @deprecated
+				'cms_content\models\Contents'
+			];
+			return !in_array($v, $skip) && strpos($v, 'Trait') === false;
 		});
 		$results = [];
 
