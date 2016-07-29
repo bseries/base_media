@@ -322,15 +322,29 @@ class MediaController extends \base_core\controllers\BaseController {
 	}
 
 	public function admin_regenerate_versions() {
+		extract(Message::aliases());
 		set_time_limit(60 * 5);
+
+		Media::pdo()->beginTransaction();
 
 		$item = Media::find('first', [
 			'conditions' => [
 				'id' => $this->request->id
 			]
 		]);
-		$item->deleteVersions();
-		$item->makeVersions();
+		if ($item->deleteVersions() && $item->makeVersions()) {
+			Media::touchTimestamp($item->id, 'modified');
+			Media::pdo()->commit();
+
+			FlashMessage::write($t('Successfully regenerated versions.', ['scope' => 'base_media']), [
+				'level' => 'success'
+			]);
+		} else {
+			Media::pdo()->rollback();
+			FlashMessage::write($t('Failed to regenerate versions.', ['scope' => 'base_media']), [
+				'level' => 'error'
+			]);
+		}
 
 		$this->redirect(['action' => 'index', 'library' => 'base_media']);
 	}
