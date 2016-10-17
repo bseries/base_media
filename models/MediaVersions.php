@@ -142,24 +142,22 @@ class MediaVersions extends \base_core\models\Base {
 			throw new Exception('Unhandled make for entity with scheme `' . $entity->scheme() . '`');
 		}
 
-		// When a versions fails to make do not fail the whole operation as this will
-		// cause a rollback (when called via Media::makeVersions()). Instead we simply
-		// skip over the failed version, and allow the user to _regenerate_ (retry) the
-		// operation later.
+		// When make of one version fails, fail the whole media. Otherwise must check
+		// before using a version which leads to more checks!
 		try {
 			$result = $handler($entity);
 		} catch (Exception $e) {
-			$message  = "Failed make of version `{$entity->version}` of `{$entity->url}` with:";
+			$message  = "Failed make of version `{$entity->version}` of `{$entity->url}` with: ";
 			$message .= $e->getMessage();
 			Logger::notice($message);
 
-			return null;
+			return false;
 		}
 		if ($result === false) {
 			$message = "Failed make of version `{$entity->version}` of `{$entity->url}`.";
 			Logger::notice($message);
 
-			return null;
+			return false;
 		}
 		if ($result === null) {
 			$message = "Skipping make of version `{$entity->version}` of `{$entity->url}`.";

@@ -259,15 +259,9 @@ Handlers::register('MediaVersions::make', function($data) {
 	}
 	MediaVersions::pdo()->beginTransaction();
 
-	$result = MediaVersions::make($data['mediaId'], $data['version']);
-	// may be either null, false or true
-
-	if ($result) {
+	if (MediaVersions::make($data['mediaId'], $data['version'])) {
 		MediaVersions::pdo()->commit();
 		return true;
-	} elseif ($result === null) {
-		MediaVersions::pdo()->rollback();
-		return true; // otherwise will be marked as failed
 	}
 	MediaVersions::pdo()->rollback();
 	return false;
