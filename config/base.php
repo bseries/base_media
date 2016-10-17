@@ -259,11 +259,16 @@ Handlers::register('MediaVersions::make', function($data) {
 	}
 	MediaVersions::pdo()->beginTransaction();
 
-	if (MediaVersions::make($data['mediaId'], $data['version'])) {
+	$result = MediaVersions::make($data['mediaId'], $data['version']);
+	// may be either null, false or true
+
+	if ($result) {
 		MediaVersions::pdo()->commit();
 		return true;
+	} elseif ($result === null) {
+		MediaVersions::pdo()->rollback();
+		return true; // otherwise will be marked as failed
 	}
-
 	MediaVersions::pdo()->rollback();
 	return false;
 });

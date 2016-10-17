@@ -144,25 +144,25 @@ class MediaVersions extends \base_core\models\Base {
 
 		// When a versions fails to make do not fail the whole operation as this will
 		// cause a rollback (when called via Media::makeVersions()). Instead we simply
-		// mark the version as failed, and allow the user to _regenerate_ (retry) the
+		// skip over the failed version, and allow the user to _regenerate_ (retry) the
 		// operation later.
 		try {
 			$result = $handler($entity);
 		} catch (Exception $e) {
-			$message  = "Failed making version `{$entity->version}` of `{$entity->url}` with:";
+			$message  = "Failed make of version `{$entity->version}` of `{$entity->url}` with:";
 			$message .= $e->getMessage();
 			Logger::notice($message);
 
-			return $entity->save(['status' => 'error']);
+			return null;
 		}
 		if ($result === false) {
-			$message = "Failed making version `{$entity->version}` of `{$entity->url}`.";
+			$message = "Failed make of version `{$entity->version}` of `{$entity->url}`.";
 			Logger::notice($message);
 
-			return $entity->save(['status' => 'error']);
+			return null;
 		}
 		if ($result === null) {
-			$message = "Skipping making version `{$entity->version}` of `{$entity->url}`.";
+			$message = "Skipping make of version `{$entity->version}` of `{$entity->url}`.";
 			Logger::debug($message);
 
 			return true;

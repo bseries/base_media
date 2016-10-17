@@ -295,18 +295,25 @@ class Media extends \base_core\models\Base {
 				if ($selfTransaction) {
 					MediaVersions::pdo()->beginTransaction();
 				}
+				$result = MediaVersions::make($entity->id, $version);
+				// may be either null, false or true
 
-				if (MediaVersions::make($entity->id, $version)) {
+				if ($result) {
 					if ($selfTransaction) {
 						MediaVersions::pdo()->commit();
 					}
+					continue;
+				} elseif ($result === null) {
+					if ($selfTransaction) {
+						MediaVersions::pdo()->rollback();
+					}
+					continue;
 				} else {
 					if ($selfTransaction) {
 						MediaVersions::pdo()->rollback();
 					}
 					return false;
 				}
-				continue;
 			}
 
 			$isFix = strpos($version, 'fix') !== false;
