@@ -197,6 +197,19 @@ class MediaController extends \base_core\controllers\BaseController {
 	}
 
 	public function admin_api_transfer() {
+		Media::pdo()->beginTransaction();
+
+		$failResponse = function() {
+			// Mask error for user.
+			$response = new JSendResponse('error', 'Error while saving transfer.');
+
+			return $this->render([
+				'status' => 500,
+				'type' => 'json',
+				'data' => $response->to('array')
+			]);
+		};
+
 		try {
 			list($source, $title) = $this->_handleTransferRequest();
 		} catch (Exception $e) {
@@ -205,14 +218,8 @@ class MediaController extends \base_core\controllers\BaseController {
 			$message .= "trace:\n" . $e->getTraceAsString();
 			Logger::write('notice', $message);
 
-			// Mask error for user.
-			$response = new JSendResponse('error', 'Error while handling transfer.');
-
-			return $this->render([
-				'status' => 500,
-				'type' => 'json',
-				'data' => $response->to('array')
-			]);
+			Media::pdo()->rollback();
+			return $failResponse();
 		}
 
 		$file = Media::create([
@@ -228,8 +235,24 @@ class MediaController extends \base_core\controllers\BaseController {
 		}
 
 		try {
-			$file->save();
-			$file->makeVersions();
+			if (!$file->save()) {
+				$message  = "Failed saving file entity for media transfer request:\n";
+				$message .= "entity: " . var_export($file->data(), true) . "\n";
+				Logger::write('notice', $message);
+
+				$file->deleteUrl();
+				Media::pdo()->rollback();
+				return $failResponse();
+			}
+			if (!$file->makeVersions()) {
+				$message  = "Failed making versions for media transfer request:\n";
+				$message .= "entity: " . var_export($file->data(), true) . "\n";
+				Logger::write('notice', $message);
+
+				$file->deleteUrl();
+				Media::pdo()->rollback();
+				return $failResponse();
+			}
 		} catch (Exception $e) {
 			$message  = "Exception while processing media transfer request:\n";
 			$message .= "entity: " . var_export($file->data(), true) . "\n";
@@ -237,18 +260,15 @@ class MediaController extends \base_core\controllers\BaseController {
 			$message .= "trace:\n" . $e->getTraceAsString();
 			Logger::write('notice', $message);
 
-			// Mask error for user.
-			$response = new JSendResponse('error', 'Error while saving transfer.');
-
-			return $this->render([
-				'status' => 500,
-				'type' => 'json',
-				'data' => $response->to('array')
-			]);
+			$file->deleteUrl();
+			Media::pdo()->rollback();
+			return $failResponse();
 		}
 
-		$file = $this->_export($file);
-		$response = new JSendResponse('success', compact('file'));
+		Media::pdo()->commit();
+		$response = new JSendResponse('success', [
+			'file' => $this->_export($file)
+		]);
 
 		$this->render([
 			'type' => 'json',
