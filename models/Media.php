@@ -184,8 +184,6 @@ class Media extends \base_core\models\Base {
 			$skip = [
 				'app\models\Base',
 				'base_core\models\Base',
-				// @deprecated
-				'cms_content\models\Contents'
 			];
 			return !in_array($v, $skip) && strpos($v, 'Trait') === false;
 		});
@@ -398,11 +396,6 @@ class Media extends \base_core\models\Base {
 		$extension = Type::guessExtension($source);
 
 		return static::_uniqueUrl($base, $extension, ['exists' => true]);
-	}
-
-	// @deprecated
-	public static function registerDependent($model, array $bindings) {
-		trigger_error("Media::registerDependent() is deprecated.", E_USER_DEPRECATED);
 	}
 }
 
