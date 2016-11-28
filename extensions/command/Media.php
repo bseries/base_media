@@ -58,9 +58,92 @@ class Media extends \lithium\console\Command {
 		$this->out('- chmod the media directories to make them accessible to the web user');
 	}
 
+	/**
+	 * Removes unused media items, that are not in use by any other entity.
+	 */
 	public function clean() {
 		$this->out('Cleaning media...');
 		$this->out(MediaModel::clean() ? 'OK' : 'FAILED');
+	}
+
+	/**
+	 * Deletes orphaned records and files automatically.
+	 *
+	 * Finds files that have no corresponding record and records that don't have
+	 * a corresponding file. This basically syncs the media directories with the
+	 * corresponding tables.
+	 */
+	public function sync() {
+		if ($this->in('Do media files and records?', ['choices' => ['y','n']]) == 'y') {
+			$this->out('Discovering orphaned media files...');
+			$base = parse_url(PROJECT_MEDIA_FILE_BASE, PHP_URL_PATH);
+
+			foreach (glob($base . '/*/*', GLOB_NOSORT) as $file) {
+				$url = 'file://' . str_replace($base . '/', '', $file);
+
+				$hasItem = MediaModel::find('count', [
+					'conditions' => compact('url')
+				]);
+				if ($hasItem) {
+					continue;
+				}
+				$this->out('deleting [orphaned media file] at path ' . $file);
+				unlink($file);
+			}
+
+			$this->out('Discovering orphaned media records...');
+			foreach (MediaModel::find('all') as $item) {
+				try {
+					$url = $item->url('file');
+				} catch (\Exception $e) {
+					$this->error('failed checking [media record] with id: ' . $item->id);
+					continue;
+				}
+				if (file_exists($url)) {
+					continue;
+				}
+				if (!$item->depend('count')) {
+					continue;
+				}
+				$this->out('deleting [orphaned media record] with id:' . $item->id . ' title:' . ($item->title  ?: '?') . '');
+				$item->delete();
+			}
+		}
+
+		if ($this->in('Do media version files and records?', ['choices' => ['y','n']]) == 'y') {
+			$this->out('Discovering orphaned media version files...');
+			$base = parse_url(PROJECT_MEDIA_VERSIONS_FILE_BASE, PHP_URL_PATH);
+
+			foreach (glob($base . '/*/*/*', GLOB_NOSORT) as $file) {
+				$url = 'file://' . str_replace($base . '/', '', $file);
+
+				$hasItem = MediaVersions::find('count', [
+					'conditions' => compact('url') + [
+						'version' => $version = basename(dirname(dirname($file)))
+					]
+				]);
+				if ($hasItem) {
+					continue;
+				}
+				$this->out('deleting [orphaned media versions file] with version '  . $version . ' at path ' . $file);
+				unlink($file);
+			}
+
+			$this->out('Discovering orphaned media versions records...');
+			foreach (MediaVersions::find('all') as $item) {
+				try {
+					$url = $item->url('file');
+				} catch (\Exception $e) {
+					$this->error('failed checking [media versions record] with id: ' . $item->id);
+					continue;
+				}
+				if (file_exists($url)) {
+					continue;
+				}
+				$this->out('deleting [orphaned media versions record] with id:' . $item->id);
+				$item->delete();
+			}
+		}
 	}
 
 	public function verify() {
