@@ -17,10 +17,12 @@
 
 namespace base_media\config;
 
-use lithium\g11n\Message;
+use NumberFormatter;
 use base_core\extensions\cms\Widgets;
 use base_media\models\Media;
 use base_media\models\MediaVersions;
+use lithium\core\Environment;
+use lithium\g11n\Message;
 
 extract(Message::aliases());
 
@@ -33,10 +35,14 @@ Widgets::register('media', function() use ($t, $tn) {
 	foreach ($data as $item) {
 		$size += $item->size();
 	}
-	$formatNiceBytes = function($size) use ($t, $tn) {
+	$locale = Environment::get('locale');
+
+	$formatNiceBytes = function($size) use ($t, $tn, $locale) {
 		if (!$size) {
 			return $t('0 Bytes', ['scope' => 'base_media']);
 		}
+		$formatter = new NumberFormatter($locale, NumberFormatter::DECIMAL);
+
 		switch (true) {
 			case $size < 1024:
 				return $tn('{:count} Byte', '{:count} Bytes', [
@@ -45,22 +51,22 @@ Widgets::register('media', function() use ($t, $tn) {
 				]);
 			case round($size / 1024) < 1024:
 				return $t('{:count} KB', [
-					'count' => round($size / 1024),
+					'count' => $formatter->format(round($size / 1024)),
 					'scope' => 'base_media'
 				]);
 			case round($size / 1024 / 1024, 2) < 1024:
 				return $t('{:count} MB', [
-					'count' => round($size / 1024 / 1024, 2),
+					'count' => $formatter->format(round($size / 1024 / 1024, 2)),
 					'scope' => 'base_media'
 				]);
 			case round($size / 1024 / 1024 / 1024, 2) < 1024:
 				return $t('{:count} GB', [
-					'count' => round($size / 1024 / 1024 / 1024, 2),
+					'count' => $formatter->format(round($size / 1024 / 1024 / 1024, 2)),
 					'scope' => 'base_media'
 				]);
 			default:
 				return $t('{:count} TB', [
-					'count' => round($size / 1024 / 1024 / 1024 / 1024, 2),
+					'count' => $formattter->format(round($size / 1024 / 1024 / 1024 / 1024, 2)),
 					'scope' => 'base_media'
 				]);
 		}
