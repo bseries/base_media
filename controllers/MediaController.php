@@ -85,6 +85,10 @@ class MediaController extends \base_core\controllers\BaseController {
 		if (Settings::read('security.checkOwner') && !Gate::checkRight('users')) {
 			$query['conditions']['owner_id'] = Gate::user(true, 'id');
 		}
+		// FC: source column
+		if (Media::hasField('source')) {
+			$query['conditions']['source'] = 'admin';
+		}
 		$media = Media::find('all', $query);
 
 		$files = [];
@@ -115,6 +119,10 @@ class MediaController extends \base_core\controllers\BaseController {
 		];
 		if (Settings::read('security.checkOwner') && !Gate::checkRight('users')) {
 			$query['conditions']['owner_id'] = Gate::user(true, 'id');
+		}
+		// FC: source column
+		if (Media::hasField('source')) {
+			$query['conditions']['source'] = 'admin';
 		}
 		list($media, $meta) = Media::search($q, $query);
 
