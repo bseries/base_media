@@ -168,7 +168,7 @@ msgstr "Filter"
 
 #: views/media/admin_index.html.php:87
 msgid "There are currently no items available, yet."
-msgstr "Es sind noch keine Elemente verfügbar."
+msgstr "Es sind noch keine Einträge verfügbar."
 
 #~ msgid "Items"
 #~ msgstr "Elemente"

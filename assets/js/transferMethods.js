@@ -34,7 +34,6 @@ function(
   // Reusable methods.
 
   var fileLocalTransfer = function(file) {
-    var reader = new FileReader();
     var xhr = new XMLHttpRequest();
 
     // Outer deferred. Will resolve with response from transfer.
@@ -142,6 +141,8 @@ function(
 
           _this.element.trigger('transfer-method:loaded', [transfer]);
         });
+
+        // Reset to initial/empty state, so that following actions do not see old files.
         $input.replaceWith($input.clone(true));
       });
     });

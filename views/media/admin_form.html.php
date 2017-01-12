@@ -75,6 +75,11 @@ $edit = $this->request()->params['action'] == 'edit';
 					'disabled' => true
 				]) ?>
 
+				<?= $this->form->field('source', [
+					'type' => 'text',
+					'label' => $t('Source'),
+					'disabled' => true
+				]) ?>
 			</div>
 		</div>
 
