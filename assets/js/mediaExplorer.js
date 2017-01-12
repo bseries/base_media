@@ -86,7 +86,7 @@ function(
       $search.hide();
     });
 
-    _this.availablePane.element.find('#good-night').on('change', function() {
+    _this.availablePane.element.find('.good-night-switch').on('change', function() {
       _this.element.toggleClass('good-night');
     });
   };
