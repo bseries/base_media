@@ -225,7 +225,8 @@ class MediaController extends \base_core\controllers\BaseController {
 		$file = Media::create([
 			'owner_id' => Gate::user(true, 'id'),
 			'url' => $source,
-			'title' => $title
+			'title' => $title,
+			'source' => 'admin'
 		]);
 		if ($file->can('download')) {
 			$file->url = $file->download();
