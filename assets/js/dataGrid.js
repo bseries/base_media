@@ -37,6 +37,7 @@ function(
     this.data = {};
 
     this.page = 1;
+    this.source = 'admin';
     this.total = undefined;
     this.mode = 'index'; // index or search
     this.query = undefined; // if mode is search then this holds the current query.
@@ -92,7 +93,7 @@ function(
       var full = new $.Deferred();
       pool.push(full);
 
-      options.index(_this.page)
+      options.index(_this.page, _this.source)
         .done(function(data, meta) {
           _this.total = meta.total;
 
@@ -127,9 +128,9 @@ function(
 
       var req;
       if (_this.mode == 'index') {
-        req = options.index(_this.page);
+        req = options.index(_this.page, _this.source);
       } else if (_this.mode == 'search') {
-        req = options.search(_this.query, _this.page);
+        req = options.search(_this.query, _this.page, _this.source);
       }
       req.done(function(data) {
         $.each(data, function() {
@@ -154,7 +155,7 @@ function(
       _this.mode = 'search';
       _this.query = q;
 
-      options.search(q, _this.page)
+      options.search(q, _this.page, _this.source)
         .done(function(data, meta) {
           _this.total = meta.total;
 

@@ -32,12 +32,12 @@ Router::scope('admin', function() {
 		compact('persist', 'defaults')
 	);
 	Router::connect(
-		'/api/base-media/media/page:{:page:(\d+|__PAGE__)}',
+		'/api/base-media/media/page:{:page:(\d+|__PAGE__)}/source:{:source:(all|admin|__SOURCE__)}',
 		$base + ['action' => 'index'],
 		compact('persist', 'defaults')
 	);
 	Router::connect(
-		'/api/base-media/media/search/{:q}/page:{:page:(\d+|__PAGE__)}',
+		'/api/base-media/media/search/{:q}/page:{:page:(\d+|__PAGE__)}/source:{:source:(all|admin|__SOURCE__)}',
 		$base + ['action' => 'search'],
 		compact('persist', 'defaults')
 	);
@@ -52,10 +52,10 @@ Router::scope('admin', function() {
 	);
 
 	ClientRouter::provide('media:index',
-		$base + ['action' => 'index', 'page' => '__PAGE__']
+		$base + ['action' => 'index', 'page' => '__PAGE__', 'source' => '__SOURCE__']
 	);
 	ClientRouter::provide('media:search',
-		$base + ['action' => 'search', 'q' => '__Q__', 'page' => '__PAGE__']
+		$base + ['action' => 'search', 'q' => '__Q__', 'page' => '__PAGE__', 'source' => '__SOURCE__']
 	);
 	ClientRouter::provide('media:view',
 		$base + ['action' => 'view', 'id' => '__ID__']

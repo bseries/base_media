@@ -94,10 +94,10 @@ function(
         return $item.get(0).outerHTML;
       },
 
-      index: function(page) {
+      index: function(page, source) {
         var dfr = new $.Deferred();
 
-        Router.match('media:index', {page: page})
+        Router.match('media:index', {page: page, source: source})
           .then(function(url) {
             $.getJSON(url).done(function(data) {
               dfr.resolve(data.data.files, data.data.meta);
@@ -120,10 +120,10 @@ function(
         return dfr.promise();
       },
 
-      search: function(q, page) {
+      search: function(q, page, source) {
         var dfr = new $.Deferred();
 
-        Router.match('media:search', {q: q, page: page})
+        Router.match('media:search', {q: q, page: page, source: source})
           .then(function(url) {
             if (currentSearchXhr) {
               currentSearchXhr.abort();
@@ -216,5 +216,14 @@ function(
 
     this.grid.init();
     this.handleSelection();
+
+    _this.element.find('.source-filter-switch').on('change', function() {
+      if ($(this).is(':checked')) {
+        _this.grid.source = 'all';
+      } else {
+        _this.grid.source = 'admin';
+      }
+    });
+
   };
 });
