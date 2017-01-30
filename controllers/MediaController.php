@@ -37,6 +37,7 @@ class MediaController extends \base_core\controllers\BaseController {
 
 	use \base_core\controllers\AdminIndexTrait;
 	use \base_core\controllers\AdminEditTrait;
+	use \base_core\controllers\UsersTrait;
 
 	public function admin_api_view() {
 		$query = [
