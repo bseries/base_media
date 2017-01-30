@@ -290,7 +290,7 @@ if ($cached = Cache::read('default', 'mime_type_glob')) {
 	Cache::write('default', 'mime_type_glob', Type::$glob->to('array'));
 }
 Info::config([
-	'image' => PROJECT_FEATURE_IMAGICK ? ['ImageBasic', 'Imagick'] : ['ImageBasic'],
+	'image' => PROJECT_FEATURE_IMAGICK ? ['ImageBasic', 'Imagick', 'Exif'] : ['ImageBasic', 'Exif'],
 	'document' => PROJECT_FEATURE_GHOSTSCRIPT ? 'Imagick' : null,
 	'video' => null,
 	'audio' => ['NewWave']
@@ -326,12 +326,14 @@ if (PROJECT_FEATURE_IMAGICK) {
 		'compress' => 5.5,
 		'colorProfile' => $sRGB,
 		'colorDepth' => 8,
+		'rotate' => true,
 		'strip' => ['xmp', '8bim', 'app1', 'app12', 'exif'],
 	];
 } else {
 	$fix = [
 		'convert' => 'image/png',
-		'compress' => 5.5
+		'compress' => 5.5,
+		'rotate' => true
 	];
 }
 
