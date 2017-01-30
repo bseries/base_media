@@ -140,6 +140,28 @@ MediaVersions::registerScheme('file', [
 			}
 		}
 
+		// Implements auto-rotation support. Pictures taken with a mobile device are often
+		// unrotated and need to be rotated using EXIF data.
+		//
+		// http://www.daveperrett.com/images/articles/2012-07-28-exif-orientation-handling-is-a-ghetto/EXIF_Orientations.jpg
+		if (isset($instructions['rotate']) && $instructions['rotate'] === true) {
+			$exifToDegrees = [
+				3 => 180,
+				6 => -90,
+				8 => 90
+			];
+			$orientation = Info::factory(['source' => $entity->url])->get('orientation');
+
+			if (!$orientation || !isset($exifToDegrees[$orientation])) {
+				// Do not raise notice, as probably many images have no exif data, but are
+				// already properly rotated.
+				Logger::debug('Cannot auto-rotate media, failed to get supported orientation.');
+				unset($instructions['rotate']);
+			} else {
+				$instructions['rotate'] = $exifToDegrees[$orientation];
+			}
+		}
+
 		// Create target.
 		$target = MediaVersions::generateTargetUrl($entity->url, $entity->version, $instructions);
 
