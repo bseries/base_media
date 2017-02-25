@@ -96,18 +96,16 @@ foreach (RemoteMedia::providers() as $provider) {
 // instructions via MediaVersions::assembly(). These instructions should
 // then be used to generate a version.
 //
-if (defined('PROJECT_MEDIA_VERSIONS_HTTP_BASE')) {
-	MediaVersions::registerScheme('http', [
-		'base' => PROJECT_MEDIA_VERSIONS_HTTP_BASE,
-		'download' => true
-	]);
-}
-if (defined('PROJECT_MEDIA_VERSIONS_HTTPS_BASE')) {
-	MediaVersions::registerScheme('https', [
-		'base' => PROJECT_MEDIA_VERSIONS_HTTPS_BASE,
-		'download' => true
-	]);
-}
+MediaVersions::registerScheme('http', [
+	'base' => PROJECT_MEDIA_VERSIONS_HTTP_BASE,
+	'download' => true
+]);
+
+MediaVersions::registerScheme('https', [
+	'base' => PROJECT_MEDIA_VERSIONS_HTTPS_BASE,
+	'download' => true
+]);
+
 MediaVersions::registerScheme('file', [
 	'base' => PROJECT_MEDIA_VERSIONS_FILE_BASE,
 	'relative' => true,
