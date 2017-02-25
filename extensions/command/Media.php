@@ -76,7 +76,7 @@ class Media extends \lithium\console\Command {
 	public function sync() {
 		if ($this->in('Do media files and records?', ['choices' => ['y','n']]) == 'y') {
 			$this->out('Discovering orphaned media files...');
-			$base = parse_url(PROJECT_MEDIA_FILE_BASE, PHP_URL_PATH);
+			$base = parse_url(MediaModel::base('file'), PHP_URL_PATH);
 
 			foreach (glob($base . '/*/*', GLOB_NOSORT) as $file) {
 				$url = 'file://' . str_replace($base . '/', '', $file);
@@ -112,7 +112,7 @@ class Media extends \lithium\console\Command {
 
 		if ($this->in('Do media version files and records?', ['choices' => ['y','n']]) == 'y') {
 			$this->out('Discovering orphaned media version files...');
-			$base = parse_url(PROJECT_MEDIA_VERSIONS_FILE_BASE, PHP_URL_PATH);
+			$base = parse_url(MediaVersions::base('file'), PHP_URL_PATH);
 
 			foreach (glob($base . '/*/*/*', GLOB_NOSORT) as $file) {
 				$url = 'file://' . str_replace($base . '/', '', $file);
@@ -172,7 +172,7 @@ class Media extends \lithium\console\Command {
 		$this->out('Creating dummy media from file...');
 		copy(
 			PROJECT_PATH . '/assets/app/img/dummy.jpg',
-			$file = PROJECT_MEDIA_FILE_BASE . '/' . uniqid('dummy_') . '.jpg'
+			$file = MediaModel::base('file') . '/' . uniqid('dummy_') . '.jpg'
 		);
 
 		$image = MediaModel::create([
