@@ -55,7 +55,7 @@ Media::registerScheme('https', [
 	'download' => true
 ]);
 Media::registerScheme('file', [
-	'base' => PROJECT_MEDIA_FILE_BASE,
+	'base' => PROJECT_PATH . '/media',
 	'relative' => true,
 	'checksum' => true,
 	'transfer' => true,
@@ -107,7 +107,7 @@ MediaVersions::registerScheme('https', [
 ]);
 
 MediaVersions::registerScheme('file', [
-	'base' => PROJECT_MEDIA_VERSIONS_FILE_BASE,
+	'base' => PROJECT_PATH . '/media_versions',
 	'relative' => true,
 	'checksum' => true,
 	'delete' => true,
