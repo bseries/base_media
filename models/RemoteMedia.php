@@ -116,6 +116,14 @@ class RemoteMedia extends \base_core\models\Base {
 		}
 		$item = current($results);
 
+
+		// Upgrade thumbnails to highest resolution possible. Vimeo uses a fixed
+		// scheme for naming the thumbnail files, which we exploit here. This
+		// frees us from going over the offical API.
+		if ($item['provider_name'] === 'Vimeo') {
+			$item['thumbnail_url'] = str_replace('_640.', '_1280.', $item['thumbnail_url']);
+		}
+
 		return static::create([
 			'title' => $item['title'],
 			'url' => key($results),
