@@ -91,7 +91,7 @@ msgstr "Zugriff"
 
 #: views/media/admin_form.html.php:33 views/media/admin_index.html.php:42
 msgid "Owner"
-msgstr "Besitzer"
+msgstr "Eigentümer"
 
 #: views/media/admin_form.html.php:43
 msgid "Original"

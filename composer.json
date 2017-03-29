@@ -16,10 +16,10 @@
         "atelierdisko/cute": "0.2.*@stable",
         "davidpersson/mm": "^2.2@alpha",
         "davidpersson/temporary": "1.*@stable",
-        "davidpersson/li3_behaviors": "2.0.*",
         "atelierdisko/li3_flash_message": "1.*",
         "atelierdisko/jsend": "1.0.*",
         "mpratt/embera": "1.8.*",
+        "unionofrad/li3_behaviors": "2.*",
         "unionofrad/lithium": "1.1.*@dev",
         "composer/installers": "1.*@stable"
     },
