@@ -310,16 +310,16 @@ if ($cached = Cache::read('default', 'mime_type_glob')) {
 	Cache::write('default', 'mime_type_glob', Type::$glob->to('array'));
 }
 Info::config([
-	'image' => PROJECT_FEATURE_IMAGICK ? ['ImageBasic', 'Imagick', 'Exif'] : ['ImageBasic', 'Exif'],
-	'document' => PROJECT_FEATURE_GHOSTSCRIPT ? 'Imagick' : null,
+	'image' => PROJECT_HAS_IMAGICK ? ['ImageBasic', 'Imagick', 'Exif'] : ['ImageBasic', 'Exif'],
+	'document' => PROJECT_HAS_GHOSTSCRIPT ? 'Imagick' : null,
 	'video' => null,
 	'audio' => ['NewWave']
 ]);
 Process::config([
-	'image' => PROJECT_FEATURE_IMAGICK ? 'Imagick' : 'Gd',
-	'document' => PROJECT_FEATURE_GHOSTSCRIPT ? 'Imagick' : null,
-	'video' => PROJECT_FEATURE_FFMPEG ? 'FfmpegShell' : null,
-	'audio' => PROJECT_FEATURE_SOX ? 'SoxShell' : null
+	'image' => PROJECT_HAS_IMAGICK ? 'Imagick' : 'Gd',
+	'document' => PROJECT_HAS_GHOSTSCRIPT ? 'Imagick' : null,
+	'video' => PROJECT_HAS_FFMPEG ? 'FfmpegShell' : null,
+	'audio' => PROJECT_HAS_SOX ? 'SoxShell' : null
 ]);
 
 //
@@ -340,7 +340,7 @@ Process::config([
 $sRGB  = Libraries::get('app', 'path');
 $sRGB .= '/libraries/davidpersson/mm/data/sRGB_IEC61966-2-1_black_scaled.icc';
 
-if (PROJECT_FEATURE_IMAGICK) {
+if (PROJECT_HAS_IMAGICK) {
 	$fix = [
 		'convert' => 'image/png',
 		'compress' => 5.5,
@@ -357,7 +357,7 @@ if (PROJECT_FEATURE_IMAGICK) {
 	];
 }
 
-if (PROJECT_FEATURE_GHOSTSCRIPT) {
+if (PROJECT_HAS_GHOSTSCRIPT) {
 	MediaVersions::registerAssembly('document', 'fix2admin', $fix + [
 		'fit' => [500, 500]
 	]);
@@ -376,7 +376,7 @@ MediaVersions::registerAssembly('image', 'fix3admin', $fix + [
 	'fit' => [100, 42]
 ] + $fix);
 
-if (PROJECT_FEATURE_SOX) {
+if (PROJECT_HAS_SOX) {
 	$fluxAudio = [
 		'sampleRate' => 48000,
 		'channels' => 2
@@ -396,7 +396,7 @@ MediaVersions::registerAssembly('video', 'fix3admin',
 	MediaVersions::assembly('image', 'fix3admin')
 );
 
-if (PROJECT_FEATURE_FFMPEG) {
+if (PROJECT_HAS_FFMPEG) {
 	$fluxVideo = [
 		'fit' => [680, 470], // 1280x720 hd, 640x480, 680x470
 		'threads' => 2, // 0 to auto-select number of threads
