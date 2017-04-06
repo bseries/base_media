@@ -55,7 +55,7 @@ Media::registerScheme('https', [
 	'download' => true
 ]);
 Media::registerScheme('file', [
-	'base' => PROJECT_PATH . (PROJECT_WEBROOT_NESTING_ENABLED ? '/app/webroot' : '') . '/media',
+	'base' => PROJECT_PATH . (PROJECT_WEBROOT_NESTING ? '/app/webroot' : '') . '/media',
 	'relative' => true,
 	'checksum' => true,
 	'transfer' => true,
@@ -107,7 +107,7 @@ MediaVersions::registerScheme('https', [
 ]);
 
 MediaVersions::registerScheme('file', [
-	'base' => PROJECT_PATH . (PROJECT_WEBROOT_NESTING_ENABLED ? '/app/webroot' : '') . '/media_versions',
+	'base' => PROJECT_PATH . (PROJECT_WEBROOT_NESTING ? '/app/webroot' : '') . '/media_versions',
 	'relative' => true,
 	'checksum' => true,
 	'delete' => true,
