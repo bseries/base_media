@@ -27,6 +27,7 @@ use OutOfBoundsException;
 use base_media\models\MediaAttachments;
 use base_media\models\MediaVersions;
 use lithium\analysis\Logger;
+use lithium\aop\Filters;
 use lithium\core\Libraries;
 use lithium\storage\Cache;
 use lithium\util\Collection;
@@ -401,11 +402,11 @@ class Media extends \base_core\models\Base {
 }
 
 // Filter running before saving.
-Media::applyFilter('save', function($self, $params, $chain) {
+Filters::apply(Media::class, 'save', function($params, $next) {
 	$entity = $params['entity'];
 
 	if (!$entity->modified('url') && $entity->exists()) {
-		return $chain->next($self, $params, $chain);
+		return $next($params);
 	}
 	if ($entity->can('checksum')) {
 		$entity->checksum = $entity->calculateChecksum();
@@ -415,10 +416,10 @@ Media::applyFilter('save', function($self, $params, $chain) {
 	$entity->mime_type = $entity->can('mime_type') ?: Type::guessType($entity->url);
 
 	Cache::delete('default', 'media_versions_' . md5($entity->id));
-	return $chain->next($self, $params, $chain);
+	return $next($params);
 });
 
-Media::applyFilter('delete', function($self, $params, $chain) {
+Filters::apply(Media::class, 'delete', function($params, $next) {
 	$entity = $params['entity'];
 
 	Cache::delete('default', 'media_versions_' . md5($entity->id));
@@ -427,19 +428,18 @@ Media::applyFilter('delete', function($self, $params, $chain) {
 		Logger::debug("Deleting corresponding URL `{$entity->url}` of media.");
 		$entity->deleteUrl();
 	}
-
-	return $chain->next($self, $params, $chain);
+	return $next($params);
 });
 
 // Filter running before saving; order matters.
 // Make URL relative before saving.
-Media::applyFilter('save', function($self, $params, $chain) {
+Filters::apply(Media::class, 'save', function($params, $next) {
 	$entity = $params['entity'];
 
 	if (($entity->modified('url') || !$entity->exists()) && $entity->can('relative')) {
 		$entity->url = Media::relativeUrl($entity->url);
 	}
-	return $chain->next($self, $params, $chain);
+	return $next($params);
 });
 
 ?>

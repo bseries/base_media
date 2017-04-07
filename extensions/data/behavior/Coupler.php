@@ -17,10 +17,11 @@
 
 namespace base_media\extensions\data\behavior;
 
-use lithium\storage\Cache;
-use lithium\util\Collection;
 use base_media\models\Media;
 use li3_behaviors\data\model\Behavior;
+use lithium\aop\Filters;
+use lithium\storage\Cache;
+use lithium\util\Collection;
 
 class Coupler extends \li3_behaviors\data\model\Behavior {
 
@@ -45,7 +46,7 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 		$cache = $behavior->config('cache');
 
 		// Synchronizes join table with added or updated set of items.
-		$model::applyFilter('save', function($self, $params, $chain) use ($model, $behavior, $bindings, $cache) {
+		Filters::apply($model, 'save', function($params, $next) use ($model, $behavior, $bindings, $cache) {
 			$normalizedModel = static::_normalizedModel($model);
 
 			$joined = [];
@@ -81,7 +82,7 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 					unset($params['data'][$alias]);
 				}
 			}
-			if (!$result = $chain->next($self, $params, $chain)) {
+			if (!$result = $next($params)) {
 				return $result;
 			}
 			$id = $params['entity']->id;
@@ -135,11 +136,11 @@ class Coupler extends \li3_behaviors\data\model\Behavior {
 		});
 
 		// Cleans up join table if an item is deleted.
-		$model::applyFilter('delete', function($self, $params, $chain) use ($model, $bindings, $cache) {
+		Filters::apply($model, 'delete', function($params, $next) use ($model, $bindings, $cache) {
 			$entity = $params['entity'];
 			$normalizedModel = static::_normalizedModel($model);
 
-			if (!$result = $chain->next($self, $params, $chain)) {
+			if (!$result = $next($params)) {
 				return $result;
 			}
 			foreach ($bindings as $alias => $options) {

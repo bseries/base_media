@@ -31,8 +31,8 @@ class Media extends \lithium\template\Helper {
 		$params = compact('path', 'options');
 		$method = __METHOD__;
 
-		return $this->_filter($method, $params, function($self, $params, $chain) use ($method) {
-			return $self->invokeMethod('_render', [$method, 'image', $params]);
+		return $this->_filter($method, $params, function($params, $next) use ($method) {
+			return $this->_render($method, 'image', $params);
 		});
 	}
 

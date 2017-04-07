@@ -20,6 +20,7 @@ namespace base_media\models;
 use Exception;
 use OutOfBoundsException;
 use lithium\analysis\Logger;
+use lithium\aop\Filters;
 use lithium\storage\Cache;
 use mm\Mime\Type;
 
@@ -181,15 +182,15 @@ class MediaVersions extends \base_core\models\Base {
 	}
 }
 
-MediaVersions::applyFilter('save', function($self, $params, $chain) {
+Filters::apply(MediaVersions::class, 'save', function($params, $next) {
 	$entity = $params['entity'];
 	$whitelist = $params['options']['whitelist'];
 
 	if ($whitelist && !in_array('url', (array) $whitelist)) {
-		return $chain->next($self, $params, $chain);
+		return $next($params);
 	}
 	if (!$entity->url || (!$entity->modified('url') && $entity->exists())) {
-		return $chain->next($self, $params, $chain);
+		return $next($params);
 	}
 	if ($entity->can('checksum')) {
 		$entity->checksum = $entity->calculateChecksum();
@@ -197,33 +198,32 @@ MediaVersions::applyFilter('save', function($self, $params, $chain) {
 	$entity->type      = Type::guessName($entity->url);
 	$entity->mime_type = Type::guessType($entity->url);
 
-	return $chain->next($self, $params, $chain);
+	return $next($params);
 });
 
 // Filter running before saving; order matters.
 // Make URL relative before saving.
-MediaVersions::applyFilter('save', function($self, $params, $chain) {
+Filters::apply(MediaVersions::class, 'save', function($params, $next) {
 	$entity = $params['entity'];
 	$whitelist = $params['options']['whitelist'];
 
 	if ($whitelist && !in_array('url', (array) $whitelist)) {
-		return $chain->next($self, $params, $chain);
+		return $next($params);
 	}
 	if ($entity->url && $entity->modified('url') && $entity->can('relative')) {
 		$entity->url = MediaVersions::relativeUrl($entity->url);
 	}
-	return $chain->next($self, $params, $chain);
+	return $next($params);
 });
 
-MediaVersions::applyFilter('delete', function($self, $params, $chain) {
+Filters::apply(MediaVersions::class, 'delete', function($params, $next) {
 	$entity = $params['entity'];
 
 	if ($entity->url && $entity->can('delete')) {
 		Logger::debug("Deleting corresponding URL `{$entity->url}` of media version.");
 		$entity->deleteUrl();
 	}
-	return $chain->next($self, $params, $chain);
+	return $next($params);
 });
-
 
 ?>
