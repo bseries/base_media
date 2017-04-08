@@ -18,9 +18,10 @@
 namespace base_media\extensions\helper;
 
 use Exception;
+use base_media\models\MediaVersions;
+use lithium\aop\Filters;
 use lithium\core\Environment;
 use lithium\g11n\Message;
-use base_media\models\MediaVersions;
 
 // This more of a MediaVersions helper than actually a Media helper.
 // The original media versions will never be embedded into markup.
@@ -46,7 +47,7 @@ class Media extends \lithium\template\Helper {
 		$params = compact('path', 'options');
 		$method = __METHOD__;
 
-		return $this->_filter($method, $params, function($params, $next) use ($method) {
+		return Filters::run($this, $method, $params, function($params) use ($method) {
 			return $this->_render($method, 'image', $params);
 		});
 	}
