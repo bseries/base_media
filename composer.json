@@ -20,7 +20,7 @@
         "atelierdisko/jsend": "1.0.*",
         "mpratt/embera": "1.8.*",
         "unionofrad/li3_behaviors": "2.*",
-        "unionofrad/lithium": "1.1.*@dev",
+        "unionofrad/lithium": "^1.1",
         "composer/installers": "1.*@stable"
     },
     "suggests": {
