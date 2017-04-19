@@ -148,7 +148,7 @@ class MediaController extends \base_core\controllers\BaseController {
 		$response = new JSendResponse('success', [
 			'transfer' => [
 				'urlUpload' => true,
-				'animatedImages' => Settings::read('media.keepAnimatedImages'),
+				'animatedImages' => true,
 				// FIXME Check via Process config, if there's a configuration
 				//       for document processing. Process currently does not
 				//       allow for config checking.

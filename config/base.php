@@ -30,10 +30,6 @@ use mm\Media\Info;
 use mm\Media\Process;
 use mm\Mime\Type;
 
-// If enabled will keep animated images as is and not potentially
-// convert them into a static image format.
-Settings::register('media.keepAnimatedImages', false);
-
 // Enable triggering of regeneration of media versions through
 // the admin.
 Settings::register('media.allowRegenerateVersions', false);
@@ -122,20 +118,18 @@ MediaVersions::registerScheme('file', [
 			return null; // Skip.
 		};
 
-		if (Settings::read('media.keepAnimatedImages')) {
-			// Reformat instructions so we do not loose animations. Must protect with
-			// image pre-condition as videos might also get here and there are no
-			// video media info adapters.
-			if ($name === 'image' && Info::factory(['source' => $entity->url])->get('isAnimated')) {
-				Logger::debug("Detected source `{$entity->url}` as animated.");
+		// Reformat instructions so we do not loose animations. Must protect with
+		// image pre-condition as videos might also get here and there are no
+		// video media info adapters.
+		if ($name === 'image' && Info::factory(['source' => $entity->url])->get('isAnimated')) {
+			Logger::debug("Detected source `{$entity->url}` as animated.");
 
-				$instructions['convert'] = 'image/gif';
-				unset(
-					$instructions['background'],
-					$instructions['interlace'],
-					$instructions['compress']
-				);
-			}
+			$instructions['convert'] = 'image/gif';
+			unset(
+				$instructions['background'],
+				$instructions['interlace'],
+				$instructions['compress']
+			);
 		}
 
 		// Implements auto-rotation support. Pictures taken with a mobile device are often
