@@ -14,7 +14,7 @@
         "php": ">=5.5.0",
         "atelierdisko/base_core": "1.4.*",
         "atelierdisko/cute": "0.2.*@stable",
-        "davidpersson/mm": "^2.2@alpha",
+        "davidpersson/mm": "2.2@dev || ^2.2",
         "davidpersson/temporary": "1.*@stable",
         "atelierdisko/li3_flash_message": "1.0.*",
         "atelierdisko/jsend": "1.0.*",
