@@ -65,23 +65,30 @@ function(
         return _this.selected;
       },
 
-      sorters: [
-        function(a, b) { // First sort newest to top.
-          return Moment(a.created).unix() - Moment(b.created).unix();
-        },
-        function(a, b) { // Then sort selected to top.
+      // First sort newest to top.
+      // Then sort selected to top.
+      sorter: function(a, b) {
           var aIsSelected = $.inArray(a.id, _this.selected) !== -1;
           var bIsSelected = $.inArray(b.id, _this.selected) !== -1;
 
-          if (aIsSelected && bIsSelected) {
+          if (aIsSelected && !bIsSelected) {
+            return -1;
+          }
+          if (bIsSelected && !aIsSelected) {
+            return 1;
+          }
+
+          var aTime = Moment(a.created).unix();
+          var bTime = Moment(b.created).unix();
+
+          if (aTime === bTime) {
             return 0;
           }
-          if (aIsSelected) {
+          if (aTime > bTime) {
             return -1;
           }
           return 1;
-        },
-      ],
+      },
 
       renderItem: function(item) {
         var $item = $(itemTemplate($.extend(_.clone(item), {
