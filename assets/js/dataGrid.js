@@ -28,7 +28,8 @@ function(
       renderItem: function() {},
       index: function(page) {},
       search: function(query, page) {},
-      sorters: [function(a, b) {}]
+      // https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
+      sorter: function(a, b) { return 0; }
     }, options || {});
 
     this.$element = $(element);
@@ -58,9 +59,8 @@ function(
         data.push(this);
       });
 
-      $.each(options.sorters, function() {
-        data.sort(this);
-      });
+      data.sort(options.sorter);
+
       $.each(data, function() {
         html = html + options.renderItem(this);
       });
