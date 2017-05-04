@@ -15,10 +15,12 @@
  */
 
 define([
-  'jquery'
+  'jquery',
+  'translator'
 ],
 function(
-  $
+  $,
+  Translator
 ) {
 
   return function DataGrid(element, options) {
@@ -33,6 +35,13 @@ function(
     }, options || {});
 
     this.$element = $(element);
+
+    var t = (new Translator({
+      "de": {
+        "loading…": "laden…",
+        "load more": "mehr laden"
+      }
+    })).translate;
 
     // Keeps unique set of items.
     this.data = {};
@@ -66,7 +75,7 @@ function(
       });
 
       if (data.length < _this.total && data.length > 0) {
-        html = html + '<div class="load-more"><a href="#more" class="button large">load more</a></div>';
+        html = html + '<div class="load-more"><a href="#more" class="button large">' + t('load more') + '</a></div>';
       }
       _this.$element.html(html);
 
@@ -79,7 +88,7 @@ function(
     });
 
     this.init = function() {
-      _this.$element.html('<p class="loading">loading…</p>');
+      _this.$element.html('<p class="loading">' + t('loading…') + '</p>');
 
       var main = new $.Deferred();
       var pool = [];
@@ -142,7 +151,7 @@ function(
     };
 
     this.search = function(q) {
-      _this.$element.html('<p class="loading">loading…</p>');
+      _this.$element.html('<p class="loading">' + t('loading…') + '</p>');
 
       if (!q) {
         return _this.init();
