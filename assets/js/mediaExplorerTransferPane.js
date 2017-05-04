@@ -16,11 +16,13 @@
 
 define([
   'jquery',
+  'translator',
   'transferQueue',
   'transferMethods'
 ],
 function(
   $,
+  Translator,
   TransferQueue,
   TransferMethods
 ) {
@@ -33,6 +35,13 @@ function(
     var _this = this;
 
     this.element = $(element);
+
+    var t = (new Translator({
+      "de": {
+        'Done': 'Fertig',
+        'Upload': 'Hochladen'
+      }
+    })).translate;
 
     options = $.extend({
       urlUpload: false,
@@ -91,7 +100,7 @@ function(
     });
     $queue.on('transfer-queue:allDone', function(ev) {
       $start.addClass('all-done');
-      $start.find('.button-text').text('Fertig');
+      $start.find('.button-text').text(t('Done'));
 
       // Overlay previous behavior.
       $start.one('click', function(ev) {
@@ -100,7 +109,7 @@ function(
         _this.queue.reset();
 
         $start.removeClass('all-done');
-        $start.find('.button-text').text('Hochladen');
+        $start.find('.button-text').text(t('Upload'));
         $start.find('.progress-bar').css('width', '0%');
         $start.one('click', function(ev) {
           ev.preventDefault();

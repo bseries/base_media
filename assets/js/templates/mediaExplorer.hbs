@@ -7,7 +7,7 @@
 		type="text" 
 		class="search" 
 		name="search" 
-		placeholder="Filter (z.B. ‘image’, ‘video’, …)"
+		placeholder="{{t "Filter (i.e ‘image’, ‘video’, …)"}}"
 	/>	
 </nav>
 
@@ -18,12 +18,12 @@
 		<div class="left">
 			<div class="input">
 				<input type="checkbox" value="1" checked id="good-night" class="good-night-switch"/>	
-				<label for="good-night">Hintergrundfarbe</label>
+				<label for="good-night">{{t "Backgroundcolor"}}</label>
 			</div>
 		</div>
 		<div class="right">
-			<button class="cancel button">Abbrechen</button>
-			<button class="confirm button hide">Bestätigen</button>
+			<button class="cancel button">{{t "Cancel"}}</button>
+			<button class="confirm button hide">{{t "Confirm"}}</button>
 		</div>
 	</div>
 </div>
@@ -31,11 +31,10 @@
 <div id="transfer" class="transfer pane">
 	<div class="queue">
 		<div class="drag-message">
-			Dateien hier ablegen oder <strong>Mausklick</strong>,
-			um den Datei–Browser zu öffnen.
+			{{t "Drop files here or <strong>click</string>, to open file browser."}}
 		</div>
 		<div class="dragging-message">
-			Dateien jetzt loslassen.
+			{{t "Now drop files."}}
 		</div>
 		<div class="items"></div>
 	</div>
@@ -52,14 +51,14 @@
 				name="url"
 				placeholder="http://www.youtube.com/watch?v=39e3KYAmXK4'"
 			>
-			<button class="confirm button" disabled>Entferntes Medium hochladen</button>
+			<button class="confirm button" disabled>{{t "Upload remote media"}}</button>
 		</div>
 	</form>
 	<div class="actions clearfix">
 		<div class="right">
-			<button class="cancel button">Abbrechen</button>
+			<button class="cancel button">{{t "Cancel"}}</button>
 			<button class="start ready progress button">
-				<div class="button-text">Hochladen</div>
+				<div class="button-text">{{t "Upload"}}</div>
 				<div class="progress-bar"></div>
 			</button>
 		</div>

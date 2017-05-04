@@ -16,6 +16,7 @@
 
 define([
   'jquery',
+  'translator',
   'mediaExplorerAvailablePane',
   'mediaExplorerTransferPane',
   'handlebars',
@@ -24,6 +25,7 @@ define([
 ],
 function(
   $,
+  Translator,
   AvailablePane,
   TransferPane,
   Handlebars,
@@ -44,9 +46,32 @@ function(
       transfer: {}
     }, options);
 
+    var t = (new Translator({
+      "de": {
+        "New medium available.": "Neues Medium verfügbar.",
+        "Filter (i.e ‘image’, ‘video’, …)": "Filter (z.B. ‘image’, ‘video’, …)",
+        "Backgroundcolor": "Hintergrundfarbe",
+        "Cancel": "Abbrechen",
+        "Confirm": "Bestätigen",
+        "Drop files here or <strong>click</string>, to open file browser.": "Dateien hier ablegen oder <strong>Mausklick</strong>, um den Datei–Browser zu öffnen.",
+        "Now drop files.": "Dateien jetzt loslassen.",
+        "Upload remote media": "Entferntes Medium hochladen",
+        "Upload": "Hochladen"
+      }
+    })).translate;
+
+    // Need to scope helpers per instance.
+    Handlebars = Handlebars.create();
+
+    Handlebars.registerHelper('t', function(key) {
+      return new Handlebars.SafeString(t(key));
+    });
+
     // This must come before initializing the panes as they
     // rely on the HTML to be in DOM already.
-    _this.element.html(Handlebars.compile(template));
+    _this.element.html(Handlebars.compile(template)({
+
+    }));
 
     this.availablePane = new AvailablePane(_this.element.find('.available'), options.available);
     this.transferPane = new TransferPane(_this.element.find('.transfer'), options.transfer);
@@ -58,7 +83,7 @@ function(
     // Bridges transfer queue via transfer pane and available pane.
     _this.element.on('transfer-queue:finished', function(ev, item) {
       _this.availablePane.insert(item);
-      $.notify('Neues Medium verfügbar.', 'success');
+      $.notify(t('New medium available.'), 'success');
     });
 
     // Handle Pane Switching/Tabbing.
