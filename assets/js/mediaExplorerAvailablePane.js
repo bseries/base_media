@@ -17,6 +17,7 @@
 define([
   'jquery',
   'router',
+  'translator',
   'handlebars',
   'moment',
   'dataGrid',
@@ -26,6 +27,7 @@ define([
 function(
   $,
   Router,
+  Translator,
   Handlebars,
   Moment,
   DataGrid,
@@ -34,6 +36,20 @@ function(
 ) {
 
   Moment.locale($('html').attr('lang'));
+
+  var t = (new Translator({
+    "de": {
+      'depending': 'abhängig',
+    }
+  })).translate;
+
+  // Need to scope helpers per instance.
+  Handlebars = Handlebars.create();
+
+  Handlebars.registerHelper('t', function(key) {
+    return new Handlebars.SafeString(t(key));
+  });
+
   itemTemplate = Handlebars.compile(itemTemplate);
 
   //
