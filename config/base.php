@@ -222,7 +222,7 @@ $makeRemoteImage = function($entity) {
 	}
 	$entity->url = $entity->download();
 
-	$handler = MediaVersions::registeredScheme('file', 'make');
+	$handler = MediaVersions::registeredScheme('file')['make'];
 	return $handler($entity);
 };
 

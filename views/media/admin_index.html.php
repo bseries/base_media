@@ -65,7 +65,7 @@ $this->set([
 				?>
 			<td class="emphasize">
 				<?= $item->title ?>
-			<td><?= $version ? $version->type : '–' ?>
+			<td><?= $item->type ?: '–' ?>
 			<td><?= ($depend = $item->depend('count')) ?: '–' ?>
 			<td class="date">
 				<time datetime="<?= $this->date->format($item->modified, 'w3c') ?>">
