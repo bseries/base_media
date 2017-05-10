@@ -112,7 +112,9 @@ class RemoteMedia extends \base_core\models\Base {
 			$message .= var_export(current($results), true);
 			Logger::debug($message);
 
-			Cache::write('default', $cacheKey, $results);
+			// Cache to safe us from repeated requests, when making versions. But
+			// keep minimal to allow i.e. a remove thumbnail update to propagte.
+			Cache::write('default', $cacheKey, $results, '+2 minutes');
 		}
 		$item = current($results);
 
