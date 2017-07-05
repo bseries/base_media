@@ -44,13 +44,13 @@ function(
   })).translate;
 
   // Need to scope helpers per instance.
-  Handlebars = Handlebars.create();
+  var ScopedHandlebars = Handlebars.create();
 
-  Handlebars.registerHelper('t', function(key) {
-    return new Handlebars.SafeString(t(key));
+  ScopedHandlebars.registerHelper('t', function(key) {
+    return new ScopedHandlebars.SafeString(t(key));
   });
 
-  itemTemplate = Handlebars.compile(itemTemplate);
+  itemTemplate = ScopedHandlebars.compile(itemTemplate);
 
   //
   // Available Items Pane
