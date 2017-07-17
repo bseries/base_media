@@ -61,17 +61,15 @@ function(
     })).translate;
 
     // Need to scope helpers per instance.
-    Handlebars = Handlebars.create();
+    var ScopedHandlebars = Handlebars.create();
 
-    Handlebars.registerHelper('t', function(key) {
-      return new Handlebars.SafeString(t(key));
+    ScopedHandlebars.registerHelper('t', function(key) {
+      return new ScopedHandlebars.SafeString(t(key));
     });
 
     // This must come before initializing the panes as they
     // rely on the HTML to be in DOM already.
-    _this.element.html(Handlebars.compile(template)({
-
-    }));
+    _this.element.html(ScopedHandlebars.compile(template)());
 
     this.availablePane = new AvailablePane(_this.element.find('.available'), options.available);
     this.transferPane = new TransferPane(_this.element.find('.transfer'), options.transfer);

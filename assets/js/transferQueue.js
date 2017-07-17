@@ -28,9 +28,12 @@ function(
   return function TransferQueue(element) {
     var _this = this;
 
+    // Need to scope helpers per instance.
+    var ScopedHandlebars = Handlebars.create();
+
     this.element = $(element);
 
-    this.template = Handlebars.compile(itemTemplate);
+    this.template = ScopedHandlebars.compile(itemTemplate);
 
     this.data = [];
 
