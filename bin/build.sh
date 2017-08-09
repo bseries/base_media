@@ -26,6 +26,11 @@ for f in $(ls resources/g11n/po/*/LC_MESSAGES/*.po); do
 	msgfmt -o ${f/.po/.mo} --verbose $f
 done
 
+# Babelify in-place for ES2015 compatiblity. Once we do not want to support IE11
+# and iOS Safari <= 9.3 anymore we can safely remove this line or use babel
+# to continously upgrade supported ECMAScript versions.
+babel assets/js --presets es2015 -d assets/js
+
 for f in $(find assets/js -type f -name *.js); do
 	yuicompressor --type js -o $f.min --nomunge --charset utf-8 $f && mv $f.min $f
 done
