@@ -20,8 +20,12 @@ define([
   'mediaExplorerModal',
   'jqueryUi',
   'domready!'
-],
-function($, Router, MediaExplorerModal) {
+], function(
+  $,
+  Router,
+  MediaExplorerModal
+) {
+  'use strict';
 
   // Uses input fields as a store for ids and thus references
   // to full media items. Media items themselves always have

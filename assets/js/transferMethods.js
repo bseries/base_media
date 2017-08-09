@@ -18,12 +18,13 @@ define([
   'jquery',
   'router',
   'transfer'
-],
-function(
+], function(
    $,
    Router,
    Transfer
 ) {
+  'use strict';
+
   //
   // Transfer Methods Namespace. All methods will trigger the "transfer-method:loaded" event
   // once a transferrable item has been loaded/selected. The event will receive a Transfer

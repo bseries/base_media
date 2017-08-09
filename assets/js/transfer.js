@@ -15,6 +15,7 @@
  */
 
 define(['jquery'], function($) {
+  'use strict';
 
   //
   // Represents a transfer.

@@ -22,8 +22,7 @@ define([
   'handlebars',
   'text!base-media/js/templates/mediaExplorer.hbs',
   'notify'
-],
-function(
+], function(
   $,
   Translator,
   AvailablePane,
@@ -31,6 +30,7 @@ function(
   Handlebars,
   template
 ) {
+  'use strict';
 
   //
   // Main Media Explorer Class, holds avaiable items

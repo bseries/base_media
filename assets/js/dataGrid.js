@@ -14,14 +14,8 @@
  * License. If not, see https://atelierdisko.de/licenses.
  */
 
-define([
-  'jquery',
-  'translator'
-],
-function(
-  $,
-  Translator
-) {
+define(['jquery', 'translator'], function($, Translator) {
+  'use strict';
 
   return function DataGrid(element, options) {
     var _this = this;

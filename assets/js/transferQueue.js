@@ -18,12 +18,12 @@ define([
   'jquery',
   'handlebars',
   'text!base-media/js/templates/transferQueueItem.hbs',
-],
-function(
+], function(
    $,
    Handlebars,
    itemTemplate
 ) {
+  'use strict';
 
   return function TransferQueue(element) {
     var _this = this;

@@ -23,8 +23,7 @@ define([
   'dataGrid',
   'underscore',
   'text!base-media/js/templates/mediaExplorerAvailableItem.hbs',
-],
-function(
+], function(
   $,
   Router,
   Translator,
@@ -34,6 +33,7 @@ function(
   _,
   itemTemplate
 ) {
+  'use strict';
 
   Moment.locale($('html').attr('lang'));
 

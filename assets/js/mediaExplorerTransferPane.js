@@ -19,13 +19,13 @@ define([
   'translator',
   'transferQueue',
   'transferMethods'
-],
-function(
+], function(
   $,
   Translator,
   TransferQueue,
   TransferMethods
 ) {
+  'use strict';
 
   //
   // Transfer Pane, has two main areas/objects: the queue and the methods.
