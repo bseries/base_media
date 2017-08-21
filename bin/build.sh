@@ -29,7 +29,9 @@ done
 # Babelify in-place for ES2015 compatiblity. Once we do not want to support IE11
 # and iOS Safari <= 9.3 anymore we can safely remove this line or use babel
 # to continously upgrade supported ECMAScript versions.
-babel assets/js --presets /usr/local/lib/node_modules/babel-preset-es2015 -d assets/js
+babel assets/js \
+	-d assets/js \
+	--presets babel-preset-es2015
 
 for f in $(find assets/js -type f -name *.js); do
 	yuicompressor --type js -o $f.min --nomunge --charset utf-8 $f && mv $f.min $f
