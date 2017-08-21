@@ -319,16 +319,14 @@ Process::config([
 //
 // ### Media Version Assemblies
 //
-// Defines the instructions for each version. The convention is
-// to use _flux_ as a prefix for all timebased media and _fix_
-// as a prefix for all static versions. For each flux and fixed
-// version there are multiple variants. Best quality versions
-// i.e. contain a 0 whereas `fix3` would denote a static version
-// with lower quality or size. `flux0` is always a closed format
-// and `flux1` of open format.
+// Defines the instructions for each version. The convention is to use _flux_ as a prefix
+// for all timebased media and _fix_ as a prefix for all static versions. For each flux
+// and fixed version there are multiple variants. Best quality versions i.e. contain a 0
+// whereas `fix3` would denote a static version with lower quality or size. `flux0` is
+// always a closed format and `flux1` of open format.
 //
-// Here we define only the admin versions as we don't want
-// the app versions to interfer with the admin.
+// Here we define only the admin versions as we don't want the app versions to interfer
+// with the admin.
 //
 
 $sRGB  = Libraries::get('app', 'path');
