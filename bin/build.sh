@@ -34,6 +34,6 @@ babel assets/js \
 	--presets babel-preset-es2015
 
 for f in $(find assets/js -type f -name *.js); do
-	yuicompressor --type js -o $f.min --nomunge --charset utf-8 $f && mv $f.min $f
+	uglifyjs --compress --mangle -o $f.min -- $f && mv $f.min $f
 done
 
