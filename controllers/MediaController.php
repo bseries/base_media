@@ -306,7 +306,7 @@ class MediaController extends \base_core\controllers\BaseController {
 	}
 
 	protected function _handleTransferRequest() {
-		Logger::write('debug', 'Handling transfer request.');
+		Logger::write('debug', 'Handling media transfer request.');
 		extract(Message::aliases());
 
 		if (!empty($this->request->data['url'])) {
