@@ -17,7 +17,6 @@
 
 namespace base_media\config;
 
-use Cute\Handlers;
 use Exception;
 use base_core\extensions\cms\Settings;
 use base_media\models\Media;
@@ -262,24 +261,6 @@ foreach (RemoteMedia::providers() as $provider) {
 		MediaVersions::registerScheme($provider['name'], ['make' => $makeRemoteImage]);
 	}
 }
-
-//
-// ### Handlers
-//
-// Wire cute handler to make function.
-Handlers::register('MediaVersions::make', function($data) {
-	if (MediaVersions::pdo()->inTransaction()) {
-		MediaVersions::pdo()->rollback();
-	}
-	MediaVersions::pdo()->beginTransaction();
-
-	if (MediaVersions::make($data['mediaId'], $data['version'])) {
-		MediaVersions::pdo()->commit();
-		return true;
-	}
-	MediaVersions::pdo()->rollback();
-	return false;
-});
 
 //
 // ### Setup MM
