@@ -21,9 +21,6 @@ use Cute\Handlers;
 use base_media\models\MediaVersions;
 
 Handlers::register('MediaVersions::make', function($data) {
-	if (MediaVersions::pdo()->inTransaction()) {
-		MediaVersions::pdo()->rollback();
-	}
 	MediaVersions::pdo()->beginTransaction();
 
 	if (MediaVersions::make($data['mediaId'], $data['version'])) {
@@ -32,6 +29,10 @@ Handlers::register('MediaVersions::make', function($data) {
 	}
 	MediaVersions::pdo()->rollback();
 	return false;
-});
+}, [
+	'retry' => function() {
+		MediaVersions::connection()->connect();
+	}
+]);
 
 ?>

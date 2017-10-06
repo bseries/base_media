@@ -13,7 +13,7 @@
     "require": {
         "php": "^5.5 || ^7.0",
         "atelierdisko/base_core": "1.5.*@dev",
-        "atelierdisko/cute": "0.2.*@stable",
+        "atelierdisko/cute": "0.3.*@dev",
         "davidpersson/mm": "2.2@dev || ^2.2",
         "davidpersson/temporary": "1.*@stable",
         "atelierdisko/li3_flash_message": "1.*",
