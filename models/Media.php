@@ -17,12 +17,9 @@
 
 namespace base_media\models;
 
-use Cute\Connection;
 use Cute\Job;
 use Exception;
 use InvalidArgumentException;
-use Monolog\Handler\StreamHandler;
-use Monolog\Logger as MonologLogger;
 use OutOfBoundsException;
 use base_media\models\MediaAttachments;
 use base_media\models\MediaVersions;
@@ -35,10 +32,11 @@ use mm\Mime\Type;
 
 class Media extends \base_core\models\Base {
 
+	use \base_core\models\CuteConnectionTrait;
 	use \base_core\models\SchemeTrait;
-	use \base_core\models\UrlTrait;
 	use \base_core\models\UrlChecksumTrait;
 	use \base_core\models\UrlDownloadTrait;
+	use \base_core\models\UrlTrait;
 	use \base_media\models\MediaInfoTrait;
 
 	public $hasMany = [
@@ -67,8 +65,6 @@ class Media extends \base_core\models\Base {
 		]
 	];
 
-	protected static $_cuteConnection;
-
 	protected static $_defaultScheme = [
 		'base' => false,
 		'relative' => false,
@@ -79,18 +75,6 @@ class Media extends \base_core\models\Base {
 		'mime_type' => null,
 		'type' => null
 	];
-
-	protected static function _cuteConnection() {
-		if (!static::$_cuteConnection) {
-			$log = new MonologLogger(PROJECT_NAME);
-			$log->pushHandler(new StreamHandler(PROJECT_PATH . '/log/app.log'));
-
-			return static::$_cuteConnection = new Connection(
-				$log, PROJECT_NAME . '_' . PROJECT_CONTEXT
-			);
-		}
-		return static::$_cuteConnection;
-	}
 
 	public static function search($q, array $query = []) {
 		$meta = [
