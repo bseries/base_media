@@ -3,11 +3,6 @@
     "description": "Media functionality for Bento.",
     "type": "lithium-library",
     "license": ["BSD-3-Clause"],
-    "authors": [
-        {"name": "David Persson"},
-        {"name": "Atelier Disko"},
-        {"name": "The Community"}
-    ],
     "require": {
         "php": "^5.5 || ^7.0",
         "bseries/base_core": "1.5.*@dev",
