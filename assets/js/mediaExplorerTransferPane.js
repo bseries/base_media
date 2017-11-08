@@ -47,10 +47,10 @@ define([
     // Holds several transfer method objects.
     this.methods = [];
 
-    $start = _this.element.find('.start');
-    $cancel = _this.element.find('.cancel');
-    $methods = _this.element.find('.methods');
-    $queue = _this.element.find('.queue');
+    var $start = _this.element.find('.start');
+    var $cancel = _this.element.find('.cancel');
+    var $methods = _this.element.find('.methods');
+    var $queue = _this.element.find('.queue');
 
     _this.queue = new TransferQueue($queue);
 
