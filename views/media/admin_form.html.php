@@ -1,6 +1,7 @@
 <?php
 
 use lithium\g11n\Message;
+use lithium\core\Libraries;
 
 $t = function($message, array $options = []) {
 	return Message::translate($message, $options + ['scope' => 'base_media', 'default' => $message]);
@@ -16,6 +17,8 @@ $this->set([
 ]);
 
 $edit = $this->request()->params['action'] == 'edit';
+
+$useReference = Libraries::get('base_reference');
 
 ?>
 <article>
@@ -75,6 +78,19 @@ $edit = $this->request()->params['action'] == 'edit';
 					'disabled' => true
 				]) ?>
 
+			</div>
+		</div>
+		<div class="grid-row">
+			<div class="grid-column-left">
+			</div>
+			<div class="grid-column-right">
+				<?php if ($useReference): ?>
+					<?= $this->form->field('reference_id', [
+						'type' => 'select',
+						'label' => $t('Reference'),
+						'list' => $references
+					]) ?>
+				<?php endif ?>
 				<?= $this->form->field('source', [
 					'type' => 'text',
 					'label' => $t('Source'),

@@ -39,6 +39,10 @@ class Media extends \base_core\models\Base {
 		'Owner' => [
 			'to' => 'base_core\models\Users',
 			'key' => 'owner_id'
+		],
+		'Reference' => [
+			'to' => 'base_reference\models\References',
+			'key' => 'reference_id'
 		]
 	];
 

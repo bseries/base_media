@@ -17,6 +17,7 @@ use base_core\extensions\net\http\NotFoundException;
 use base_core\security\Gate;
 use base_media\models\Media;
 use base_media\models\RemoteMedia;
+use base_reference\models\References;
 use li3_flash_message\extensions\storage\FlashMessage;
 use lithium\analysis\Logger;
 use lithium\core\Libraries;
@@ -403,6 +404,15 @@ class MediaController extends \base_core\controllers\BaseController {
 			]);
 		}
 		return $this->redirect($this->request->referer());
+	}
+
+	protected function _selects($item = null) {
+		if (Libraries::get('base_reference')) {
+			$references = References::find('list', [
+				'order' => ['name' => 'ASC']
+			]);
+		}
+		return compact('references');
 	}
 }
 
