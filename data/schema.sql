@@ -7,6 +7,8 @@ CREATE TABLE `media` (
   `type` varchar(100) NOT NULL,
   `mime_type` varchar(100) NOT NULL,
   `checksum` char(32) DEFAULT '',
+  `source` varchar(250) DEFAULT NULL,
+  `reference_id` int(11) unsigned DEFAULT NULL,
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`),
