@@ -1,5 +1,6 @@
 <?php
 
+use base_core\security\Gate;
 use lithium\g11n\Message;
 
 $t = function($message, array $options = []) {
@@ -26,7 +27,13 @@ $this->set([
 >
 
 	<div class="top-actions">
-		<?= $this->html->link($t('delete all unused media files'), ['action' => 'clean'], ['class' => 'button delete']) ?>
+		<?php if (Gate::checkRight('clean')): ?>
+			<?= $this->html->link(
+				$t('delete all unused media files'),
+				['action' => 'clean'],
+				['class' => 'button delete']
+			) ?>
+		<?php endif ?>
 	</div>
 
 	<?php if ($data->count()): ?>

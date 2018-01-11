@@ -389,6 +389,13 @@ class MediaController extends \base_core\controllers\BaseController {
 	public function admin_clean() {
 		extract(Message::aliases());
 
+		if (!Gate::checkRight('clean')) {
+			FlashMessage::write($t('Missing rights for this action.', ['scope' => 'base_media']), [
+				'level' => 'error'
+			]);
+			return $this->redirect($this->request->referer());
+		}
+
 		Media::pdo()->beginTransaction();
 
 		if (Media::clean()) {
