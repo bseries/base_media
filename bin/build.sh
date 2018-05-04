@@ -17,16 +17,15 @@ for f in $(ls resources/g11n/po/*/LC_MESSAGES/*.po); do
 	msgfmt -o ${f/.po/.mo} --verbose $f
 done
 
+cat << EOF > .browserslistrc
+last 2 Chrome versions
+last 2 Firefox versions
+last 2 Safari versions
+EOF
+
 # Babelify in-place for full current ESx compatiblity.
 cat << EOF > .babelrc
 {
-	"presets": [
-		["env", {"targets": {"browsers": [
-			"last 2 versions",
-			"> 5%",
-			"ie 11"
-		]}}]
-	]
 }
 EOF
 babel assets/js -d assets/js
