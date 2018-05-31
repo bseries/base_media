@@ -1,5 +1,5 @@
 {
-    "name": "atelierdisko/base_media",
+    "name": "bseries/base_media",
     "description": "Media functionality for Bento.",
     "homepage": "http://atelierdisko.de",
     "type": "lithium-library",
@@ -12,7 +12,7 @@
     ],
     "require": {
         "php": ">=5.5.0",
-        "atelierdisko/base_core": "1.4.*",
+        "bseries/base_core": "1.4.*",
         "atelierdisko/cute": "0.2.*@stable",
         "davidpersson/mm": "2.2@dev || ^2.2",
         "davidpersson/temporary": "1.*@stable",
@@ -26,7 +26,7 @@
     "suggests": {
       "beanstalkd": "Enables async processing when uploading media.",
       "ext-imagick": "Enables high-quality image resizing.",
-	  "atelierdisko/base_social": "Enables i.e. Vimeo and SoundCloud linking."
+	  "bseries/base_social": "Enables i.e. Vimeo and SoundCloud linking."
     },
     "repositories": [
       { "type": "vcs", "url": "git@code.atelierdisko.de:base_core" }
