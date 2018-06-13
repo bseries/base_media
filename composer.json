@@ -10,7 +10,7 @@
         "atelierdisko/cute": "0.2.*@stable",
         "davidpersson/mm": "2.0.*@beta",
         "davidpersson/temporary": "1.*@stable",
-        "unionofrad/li3_behaviors": "2.0.0-beta",
+        "unionofrad/li3_behaviors": "2.0.0-alpha2",
         "atelierdisko/li3_flash_message": "1.0.*@beta",
         "atelierdisko/jsend": "1.0.*@beta",
         "mpratt/embera": "1.8.*",
