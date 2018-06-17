@@ -6,4 +6,4 @@ CREATE TABLE `media_attachments` (
   PRIMARY KEY (`id`),
   KEY `poly` (`model`,`foreign_key`),
   KEY `media_file` (`media_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
