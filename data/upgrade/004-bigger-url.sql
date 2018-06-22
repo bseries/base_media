@@ -1,2 +1,0 @@
-ALTER TABLE `media` CHANGE `url` `url` VARCHAR(250)  NOT NULL  DEFAULT '';
-ALTER TABLE `media_versions` CHANGE `url` `url` VARCHAR(250)  NOT NULL  DEFAULT '';
