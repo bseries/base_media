@@ -207,7 +207,7 @@ $makeRemoteImage = function($entity) {
 	$entity->url = $ext->thumbnailUrl;
 
 	if (!$entity->can('download')) {
-		$message  = "Can't download image/poster URL `{$entity->url}`. ";
+		$message  = "Can’t download image/poster URL `{$entity->url}`. ";
 		$message .= "You need to register a http scheme with downloading enabled to do so.";
 		throw new Exception($message);
 	}
