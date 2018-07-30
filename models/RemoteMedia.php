@@ -147,8 +147,13 @@ class RemoteMedia extends \base_core\models\Base {
 					}
 					return $matches[1];
 				},
+				// The bundestag website makes several, default images for the Plenum
+				// available. These are named `default_plenum_x.jpg`, where x is a number
+				// from 0-7.
 				'thumbnailUrl' => function($url) {
-					return null;
+					mt_srand(crc32($url));
+					$number = mt_rand(0, 7);
+					return "https://www.bundestag.de/image/442376/16x9/750/422/12330751d3efc872295241c2469b2d78/mc/default_plenum_{$number}.jpg";
 				}
 			]
 		];
