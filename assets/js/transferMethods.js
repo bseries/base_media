@@ -262,7 +262,7 @@ function(
           $.ajax({
             type: 'POST',
             url: _url,
-            data: 'url=' + url
+            data: 'url=' + encodeURIComponent(url)
           }).done(function(data) {
             dfr.resolve(data.data.file);
           });
@@ -296,7 +296,7 @@ function(
           $.ajax({
             type: 'POST',
             url: _url,
-            data: 'url=' + url
+            data: 'url=' + encodeURIComponent(url)
           }).done(function(data) {
             dfr.resolve(data.data.file);
           }).fail(function(res) {
