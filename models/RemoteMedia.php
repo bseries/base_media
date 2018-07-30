@@ -135,6 +135,8 @@ class RemoteMedia extends \base_core\models\Base {
 				},
 				'type' => 'video',
 				'mimeType' => 'application/x-bundestag',
+				// Construct title from page title + the description. The page by itself
+				// does only include the speaker.
 				'title' => function($url) {
 					$ch = curl_init();
 					curl_setopt($ch, CURLOPT_URL, $url);
@@ -143,10 +145,15 @@ class RemoteMedia extends \base_core\models\Base {
 					$result = curl_exec($ch);
 					curl_close($ch);
 
-					if (!preg_match("/\<title.*\>(.*)\<\/title\>/isU", $result, $matches)) {
-						return null;
+					$titles = [];
+
+					if (preg_match("/\<title.*\>(.*)\<\/title\>/isU", $result, $matches)) {
+						$titles[] = $matches[1];
 					}
-					return $matches[1];
+					if (preg_match('/\<meta name="description" content="(.*)"/iU', $result, $matches)) {
+						$titles[] = $matches[1];
+					}
+					return implode(' / ', $titles);
 				},
 				'thumbnailUrl' => function($url) {
 					return null;
