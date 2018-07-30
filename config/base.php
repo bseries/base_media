@@ -200,9 +200,12 @@ MediaVersions::registerScheme('file', [
 //
 $makeRemoteImage = function($entity) {
 	// URL is in <PROVIDER>://<ID> form
-	$convert = RemoteMedia::provider($entity->url)['convertToExternalUrl'];
-	$ext = RemoteMedia::createFromUrl($convert($entity->url));
+	$provider = RemoteMedia::provider($entity->url);
+	$ext = RemoteMedia::createFromUrl($provider['convertToExternalUrl']($entity->url));
 
+	if (!$ext->thumbnailUrl) {
+		return null;
+	}
 	// This changes the scheme of the entity, thus it capabilities.
 	$entity->url = $ext->thumbnailUrl;
 
