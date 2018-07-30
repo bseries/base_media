@@ -34,7 +34,7 @@ class RemoteMedia extends \base_core\models\Base {
 					return 'https://vimeo.com/' . parse_url($url, PHP_URL_HOST);
 				},
 				'type' => 'video',
-				'mime_type' => 'application/x-vimeo'
+				'mimeType' => 'application/x-vimeo'
 			],
 			'youtube' => [
 				'name' => 'youtube',
@@ -47,7 +47,7 @@ class RemoteMedia extends \base_core\models\Base {
 					return 'https://www.youtube.com/watch?v=' . parse_url($url, PHP_URL_HOST);
 				},
 				'type' => 'video',
-				'mime_type' => 'application/x-youtube'
+				'mimeType' => 'application/x-youtube'
 			],
 			'instagram' => [
 				'name' => 'instagram',
@@ -62,7 +62,7 @@ class RemoteMedia extends \base_core\models\Base {
 					return 'https://instagram.com/p/' . parse_url($url, PHP_URL_HOST);
 				},
 				'type' => 'image',
-				'mime_type' => 'application/x-instagram'
+				'mimeType' => 'application/x-instagram'
 			],
 			// This does not use the SC id, as we'd need API access for that.
 			// SC IDs must be resolved.

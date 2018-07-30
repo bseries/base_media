@@ -53,7 +53,7 @@ Media::registerScheme('file', [
 // grouping the file by video type.
 foreach (RemoteMedia::providers() as $provider) {
 	Media::registerScheme($provider['name'], [
-		'mime_type' => $provider['mime_type'],
+		'mime_type' => $provider['mimeType'],
 		'type' => $provider['type']
 	]);
 }
