@@ -1,0 +1,413 @@
+@charset "UTF-8";
+/*!
+ * Copyright 2013 David Persson. All rights reserved.
+ * Copyright 2016 Atelier Disko. All rights reserved.
+ *
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ */
+
+/* Status Indicators
+-------------------------------------------------------------- */
+.media-explorer p.loading {
+  text-align: center;
+  margin: 200px 0 0 -30px;
+}
+
+/* Media Attachment
+---------------------------------------------------------------- */
+.media-attachment {
+  margin-bottom: 2em;
+}
+.media-attachment label {
+  margin-bottom: 8px;
+}
+.media-attachment .selected {
+  min-height: 11em;
+  margin-bottom: 1em;
+  opacity: 0;
+  transition: opacity .15s ease;
+}
+.media-attachment .selected.populated {
+  opacity: 1;
+}
+.media-attachment .selected.populated:empty {
+  background: url("../img/none_bg.png") no-repeat -350px 0;
+}
+.media-attachment img {
+  max-height: 100%;
+  vertical-align: top;
+}
+.media-attachment .sortable-placeholder,
+.media-attachment .media-item {
+  position: relative;
+  vertical-align: top;
+  height: 150px;
+  width: 150px;
+  background-position: center;
+  background-size: cover;
+  display: inline-block;
+  text-align: right;
+}
+.media-attachment .media-item.no-visual {
+  background-color: var(--color-blue);
+}
+
+.remove-item {
+  background: white;
+  padding: 1px 5px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 11;
+  line-height: 1;
+  font-size: 20px;
+}
+.remove-item:hover {
+  background: red;
+  color: white;
+}
+
+
+
+/* Media Explorer
+-------------------------------------------------------------- */
+#modal.media-explorer {
+  color: black;
+  background: white;
+}
+#modal.media-explorer .controls {
+  display: none !important;
+}
+#modal.media-explorer .content {
+  height: 100%;
+  overflow: hidden;
+}
+
+.media-explorer nav {
+  float: left;
+  width: 100%;
+  background: var(--color-gray-dark);
+  position: relative;
+  z-index: 30;
+}
+.media-explorer .blocktabs-h {
+  float: left;
+  width: 60%;
+}
+.media-explorer .search {
+  float: right;
+  width: 300px;
+  margin-top: 18px;
+  margin-right: 20px;
+}
+
+.media-explorer .actions {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  background: var(--color-gray-dark);
+  width: 100%;
+  z-index: 30;
+  height: 78px;
+  padding: 20px;
+}
+.media-explorer .actions .left {
+  float: left;
+}
+.media-explorer .actions .right {
+  float: right;
+}
+.media-explorer .actions .input {
+  float: left;
+}
+.media-explorer .actions .input + .input {
+  margin-left: 20px;
+}
+.media-explorer .actions .button:not([disabled]) {
+  background-color: white;
+}
+.media-explorer .actions input[type="checkbox"] ~ label {
+  margin-top: 4px;
+  clear: none;
+  width: auto;
+}
+
+/* The default gray unchecked color is the same as the actions background,
+   thus would not be visible. */
+.media-explorer input[type="checkbox"] ~ label:before {
+  background-color: var(--color-gray-darker);
+}
+/* Green would be too much distracting. */
+.media-explorer input[type="checkbox"]:checked ~ label:before {
+  background-color: var(--color-gray-bright);
+}
+
+/* Panes */
+
+.media-explorer .pane {
+  display: none;
+}
+.media-explorer .pane.active {
+  display: block;
+}
+.media-explorer .transfer,
+.media-explorer .available {
+  width: 100%;
+  height: 85%;
+  float: left;
+  clear: both;
+}
+
+/* Available Pane */
+
+.media-explorer .available {
+  transition: background 1s;
+  overflow: auto;
+}
+.media-explorer .available .items {
+  padding: 50px 0 0 40px;
+}
+
+.media-explorer .available .items .load-more {
+  margin: 50px 0 100px -30px;
+}
+.media-explorer .available .items .load-more a {
+  width: 50%;
+  display: block;
+  margin: 0 auto;
+}
+.media-explorer .available .items .load-more a:not(:hover) {
+  color: white;
+  background: blue;
+}
+
+.media-explorer .good-night .available {
+  background-color: var(--color-gray-darkest);
+}
+
+.media-explorer .available .item {
+  width: 300px;
+  height: 300px;
+  overflow: hidden;
+  display: inline-block;
+  margin-right: 40px;
+  margin-bottom: 50px;
+  text-align: center;
+  cursor: pointer;
+  line-height: 280px;
+}
+.media-explorer .available .item.hide {
+  display: none;
+}
+.media-explorer .available .item.selected .preview {
+  border-color: var(--color-blue);
+}
+.media-explorer .available .item .preview {
+  text-align: center;
+  max-height: 225px;
+  max-width: 300px;
+  border: 8px solid transparent;
+  vertical-align: middle;
+}
+.media-explorer .available .item.no-visual .preview {
+  display: inline-block;
+  height: 225px;
+  width: 200px;
+  background: var(--color-gray-dark);
+}
+
+.media-explorer .available .item .meta {
+  display: none;
+  margin-top: -25px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  line-height: 1.5;
+  font-family: var(--font-family-mono);
+}
+.media-explorer .available .item:hover .meta {
+  display: block;
+}
+.media-explorer .available .item .title {
+  display: inline-block; /* Cannot use block, as this prevents ellipsis overflow. */
+}
+.media-explorer .available .item .created {
+  display: inline-block;
+}
+
+/* Transfer Pane: Queue */
+
+.media-explorer .queue .items {
+  text-align: center;
+  padding-top: 80px;
+  height: 100%;
+}
+.media-explorer .queue .item {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+}
+.media-explorer .queue .item + .item {
+  margin-left: 20px;
+}
+
+.media-explorer .queue .item.status-error .card,
+.media-explorer .queue .item.status-error .preview {
+  border-color: var(--color-red);
+}
+.media-explorer .queue .item.status-error .message {
+  display: block;
+  color: var(--color-red);
+}
+
+.media-explorer .queue .item .preview {
+  max-height: 185px;
+  max-width: 250px;
+  position: relative;
+  border: 8px solid transparent;
+  filter: grayscale(100%);
+}
+.media-explorer .queue .card {
+  position: relative;
+  height: 185px;
+  width: 250px;
+  background: var(--color-gray-dark);
+  font-size: var(--font-size-alpha);
+  font-weight: bold;
+  word-wrap: break-word;
+  color: white;
+  padding: 10px;
+  text-align: left;
+  border: 8px solid var(--color-gray-dark);
+}
+
+.media-explorer .transfer .item:not(.has-visual) .preview,
+.media-explorer .transfer .has-visual .card {
+  display: none;
+}
+.media-explorer .queue .remove-item {
+  top: 8px; /* cater for border */
+  right: 8px;
+  display: none;
+}
+.media-explorer .queue .item:hover .remove-item {
+  display: block;
+}
+
+/* Folded corner effect */
+.media-explorer .queue .item .card:before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  bottom: -8px;
+  right: -8px;
+  border-width: 40px 40px 0 0;
+  border-style: solid;
+  border-color: white var(--color-gray-darker);
+}
+
+.media-explorer .queue .item .message,
+.media-explorer .queue .item .meta {
+  position: absolute; /* must not expand image box */
+  font-family: var(--font-family-mono);
+  display: none;
+  margin-top: 10px;
+}
+
+.media-explorer .transfer .methods {
+  height: 40%;
+  text-align: center;
+  padding-top: 80px;
+  background-color: var(--color-gray-neutral);
+}
+.media-explorer .transfer .methods .button,
+.media-explorer .transfer .methods input {
+  display: inline-block;
+  margin: 0;
+}
+.media-explorer .transfer .methods input[name="url"] {
+  width: 50%;
+}
+.media-explorer .transfer .methods input[name="vimeo_id"] {
+  width: 30%;
+}
+
+.media-explorer .button.progress {
+  position: relative;
+  min-width: 100px; /* prevent jumping of size when text changes. */
+}
+.media-explorer .button .button-text {
+  position: relative;
+  z-index: 3;
+}
+.media-explorer .button.all-done {
+  color: white;
+}
+.media-explorer .button .progress-bar {
+  transition: width .5s;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: var(--color-blue);
+  height: 100%;
+  width: 0%;
+  z-index: 2;
+}
+
+/* Transfer Pane: Dragging */
+
+.media-explorer .queue {
+  height: 60%;
+  border: 8px solid transparent;
+  position: relative;
+  overflow: auto;
+}
+.media-explorer.dragged-over .queue {
+  border-color: blue;
+}
+.media-explorer .drag-message,
+.media-explorer .dragging-message {
+  color: var(--color-gray-darker);
+  font-size: var(--font-size-alpha);
+  width: 440px;
+  margin: 0 auto;
+  padding-top: 212px;
+  position: absolute;
+  left: calc(50% - 220px);
+  text-align: center;
+}
+.media-explorer .drag-message {
+  background: url(../ico/mex_drag.png) no-repeat center 45px;
+}
+
+@keyframes bg-up-down {
+  0% { background-position: center 55%; }
+  50% { background-position: center 30%; }
+  100% { background-position: center 55%; }
+}
+.media-explorer .dragging-message {
+  background: url(../ico/mex_dragging.png) no-repeat center 50px;
+  color: var(--color-blue);
+  font-weight: bold;
+}
+.media-explorer .drag-message,
+.media-explorer.dragged-over .dragging-message {
+  display: block;
+}
+.media-explorer.dragged-over .dragging-message {
+  animation: bg-up-down 1s linear 3;
+}
+.media-explorer .dragging-message,
+.media-explorer.dragged-over .drag-message,
+.media-explorer .queue.with-items .drag-message {
+  display: none;
+}
+.media-explorer.dragged-over .items {
+  opacity: .5;
+}
+
+/* Hide bottom triangle so that it does not overlap the border effect. */
+.media-explorer.dragged-over .blocktab-h.active:after {
+  display: none;
+}
