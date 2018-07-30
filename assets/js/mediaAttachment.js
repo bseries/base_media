@@ -203,7 +203,7 @@ define([
     this._buildSelectedItemHtml = function(item) {
       var wrap = $('<article class="media-item">');
 
-      if (item.versions.fix2admin) {
+      if (item.versions && item.versions.fix2admin) {
         wrap.css('background-image', 'url(' + item.versions.fix2admin.url + ')');
       } else {
         wrap.addClass('no-visual');
