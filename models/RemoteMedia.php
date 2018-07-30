@@ -109,6 +109,48 @@ class RemoteMedia extends \base_core\models\Base {
 					return static::_oembed($url)['thumbnail_url'];
 				}
 			],
+			// Parses:
+			// https://www.bundestag.de/mediathek?videoid=7251617
+			// https://dbtg.tv/fvid/7251617
+			'bundestag' => [
+				'name' => 'bundestag',
+				'matcher' => '#(bundestag|bundestag\.de|dbtg\.tv)#',
+				'convertToInternalUrl' => function($url) {
+					if (strpos(parse_url($url, PHP_URL_HOST), 'bundestag.de') !== false) {
+						$query = [];
+						parse_str(parse_url($url, PHP_URL_QUERY), $query);
+						if (!isset($query['videoid'])) {
+							throw new Exception("Failed to parse bundestag media URL `{$url}`.");
+						}
+						$id = $query['videoid'];
+					} elseif (strpos(parse_url($url, PHP_URL_HOST), 'dbtg.tv') !== false) {
+						$id = basename(parse_url($url, PHP_URL_PATH));
+					} else {
+						throw new Exception("Failed to parse bundestag media URL `{$url}`.");
+					}
+					return "bundestag://{$id}";
+				},
+				'convertToExternalUrl' => function($url) {
+					return 'https://dbtg.tv/fvid/' . parse_url($url, PHP_URL_PATH);
+				},
+				'type' => 'video',
+				'mimeType' => 'application/x-bundestag',
+				'title' => function($url) {
+					$ch = curl_init();
+					curl_setopt($ch, CURLOPT_URL, $url);
+					curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+					$result = curl_exec($ch);
+					curl_close($ch);
+
+					if (!preg_match("/\<title.*\>(.*)\<\/title\>/isU", $result, $matches)) {
+						return null;
+					}
+					return $matches[1];
+				},
+				'thumbnailUrl' => function($url) {
+					return null;
+				}
+			]
 		];
 	}
 
