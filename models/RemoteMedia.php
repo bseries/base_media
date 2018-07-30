@@ -34,7 +34,19 @@ class RemoteMedia extends \base_core\models\Base {
 					return 'https://vimeo.com/' . parse_url($url, PHP_URL_HOST);
 				},
 				'type' => 'video',
-				'mimeType' => 'application/x-vimeo'
+				'mimeType' => 'application/x-vimeo',
+				'title' => function($url) {
+					return static::_oembed($url)['title'];
+				},
+				// Upgrade thumbnails to highest resolution possible. Vimeo uses a fixed
+				// scheme for naming the thumbnail files, which we exploit here. This
+				// frees us from going over the offical API.
+				'thumbnailUrl' => function($url) {
+					if (!$item = static::_oembed($url)) {
+						return $item;
+					}
+					return str_replace('_640.', '_1280.', $item['thumbnail_url']);
+				}
 			],
 			'youtube' => [
 				'name' => 'youtube',
@@ -47,7 +59,13 @@ class RemoteMedia extends \base_core\models\Base {
 					return 'https://www.youtube.com/watch?v=' . parse_url($url, PHP_URL_HOST);
 				},
 				'type' => 'video',
-				'mimeType' => 'application/x-youtube'
+				'mimeType' => 'application/x-youtube',
+				'title' => function($url) {
+					return static::_oembed($url)['title'];
+				},
+				'thumbnailUrl' => function($url) {
+					return static::_oembed($url)['thumbnail_url'];
+				}
 			],
 			'instagram' => [
 				'name' => 'instagram',
@@ -62,7 +80,13 @@ class RemoteMedia extends \base_core\models\Base {
 					return 'https://instagram.com/p/' . parse_url($url, PHP_URL_HOST);
 				},
 				'type' => 'image',
-				'mimeType' => 'application/x-instagram'
+				'mimeType' => 'application/x-instagram',
+				'title' => function($url) {
+					return static::_oembed($url)['title'];
+				},
+				'thumbnailUrl' => function($url) {
+					return static::_oembed($url)['thumbnail_url'];
+				}
 			],
 			// This does not use the SC id, as we'd need API access for that.
 			// SC IDs must be resolved.
@@ -77,52 +101,55 @@ class RemoteMedia extends \base_core\models\Base {
 					return 'https://soundcloud.com/' . parse_url($url, PHP_URL_HOST) . parse_url($url, PHP_URL_PATH);
 				},
 				'type' => 'audio',
-				'mime_type' => 'application/x-soundcloud'
-			]
+				'mimeType' => 'application/x-soundcloud',
+				'title' => function($url) {
+					return static::_oembed($url)['title'];
+				},
+				'thumbnailUrl' => function($url) {
+					return static::_oembed($url)['thumbnail_url'];
+				}
+			],
 		];
 	}
 
-	public static function createFromUrl($url) {
-		if (!static::provider($url)) {
-			throw new Exception("Remote media `{$url}` not supported.");
-		}
+	protected static function _oembed($url) {
 		$cacheKey = 'oembed_meta_' . md5($url);
 
-		if (!$results = Cache::read('default', $cacheKey)) {
-			$client = new Embera([
-				'allow' => array_keys(static::providers())
-			]);
-			$results = $client->getUrlInfo($url);
-
-			if (!$results || $client->getErrors()) {
-				$message  = "Failed to extract oEmbed meta from external media `{$url}`.\n";
-				$message .= "Client results: " . var_export($results) . "\n";
-				$message .= "Client errors: " . var_export($client->getErrors());
-				throw new Exception($message);
-			}
-			$message  = "Extracted oEmbed meta from external media `{$url}`:\n";
-			$message .= var_export(current($results), true);
-			Logger::debug($message);
-
-			// Cache to safe us from repeated requests, when making versions. But
-			// keep minimal to allow i.e. a remove thumbnail update to propagte.
-			Cache::write('default', $cacheKey, $results, '+2 minutes');
-		}
-		$item = current($results);
-
-
-		// Upgrade thumbnails to highest resolution possible. Vimeo uses a fixed
-		// scheme for naming the thumbnail files, which we exploit here. This
-		// frees us from going over the offical API.
-		if ($item['provider_name'] === 'Vimeo') {
-			$item['thumbnail_url'] = str_replace('_640.', '_1280.', $item['thumbnail_url']);
+		if ($results = Cache::read('default', $cacheKey)) {
+			return current($results);
 		}
 
+		$client = new Embera([
+			'allow' => array_keys(static::providers())
+		]);
+		$results = $client->getUrlInfo($url);
+
+		if (!$results || $client->getErrors()) {
+			$message  = "Failed to extract oEmbed meta from external media `{$url}`.\n";
+			$message .= "Client results: " . var_export($results) . "\n";
+			$message .= "Client errors: " . var_export($client->getErrors());
+			throw new Exception($message);
+		}
+		$message  = "Extracted oEmbed meta from external media `{$url}`:\n";
+		$message .= var_export(current($results), true);
+		Logger::debug($message);
+
+		// Cache to safe us from repeated requests, when making versions. But
+		// keep minimal to allow i.e. a remove thumbnail update to propagte.
+		Cache::write('default', $cacheKey, $results, '+2 minutes');
+
+		return current($results);
+	}
+
+	public static function createFromUrl($url) {
+		if (!$provider = static::provider($url)) {
+			throw new Exception("Remote media `{$url}` not supported by any provider.");
+		}
 		return static::create([
-			'title' => $item['title'],
-			'url' => key($results),
-			'provider' => strtolower($item['provider_name']),
-			'thumbnailUrl' => $item['thumbnail_url']
+			'title' => $provider['title']($url),
+			'url' => $url,
+			'provider' => $provider['name'],
+			'thumbnailUrl' => $provider['thumbnailUrl']($url)
 		]);
 	}
 
