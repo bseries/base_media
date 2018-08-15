@@ -34,3 +34,7 @@ for f in $(find assets/js -type f -name *.js); do
 	uglifyjs --compress --mangle -o $f.min -- $f && mv $f.min $f
 done
 
+for f in $(ls assets/*.css); do
+	cssnextgen $f > $f.tmp && mv $f.tmp $f
+	cleancss --skip-rebase $f -o $f.min && mv $f.min $f
+done
