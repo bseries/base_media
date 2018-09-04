@@ -141,7 +141,8 @@ class MediaVersions extends \base_core\models\Base {
 			$result = $handler($entity);
 		} catch (Exception $e) {
 			$message  = "Failed make of version `{$entity->version}` of `{$entity->url}` with: ";
-			$message .= $e->getMessage();
+			$message .= $e->getMessage() . "\n";
+			$message .= $e->getTraceAsString();
 			Logger::notice($message);
 
 			return false;
