@@ -281,7 +281,7 @@ if ($cached = Cache::read('default', 'mime_type_glob')) {
 }
 Info::config([
 	'image' => PROJECT_HAS_IMAGICK ? ['ImageBasic', 'Imagick', 'Exif'] : ['ImageBasic', 'Exif'],
-	'document' => PROJECT_HAS_GHOSTSCRIPT ? 'Imagick' : null,
+	'document' => PROJECT_HAS_GHOSTSCRIPT ? ['Imagick'] : null,
 	'video' => null,
 	'audio' => ['NewWave']
 ]);
