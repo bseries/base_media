@@ -132,7 +132,7 @@ class RemoteMedia extends \base_core\models\Base {
 					return "bundestag://{$id}";
 				},
 				'convertToExternalUrl' => function($url) {
-					return 'https://dbtg.tv/fvid/' . parse_url($url, PHP_URL_PATH);
+					return 'https://dbtg.tv/fvid/' . parse_url($url, PHP_URL_HOST);
 				},
 				'type' => 'video',
 				'mimeType' => 'application/x-bundestag',
