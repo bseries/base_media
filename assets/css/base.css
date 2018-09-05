@@ -218,16 +218,16 @@
 }
 
 .media-explorer .available .item .meta {
-  display: none;
   margin-top: -25px;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+  font-size: var(--font-size-epsilon);
   line-height: 1.5;
-  font-family: var(--font-family-mono);
+  opacity: .5;
 }
 .media-explorer .available .item:hover .meta {
-  display: block;
+  opacity: 1;
 }
 .media-explorer .available .item .title {
   display: inline-block; /* Cannot use block, as this prevents ellipsis overflow. */
