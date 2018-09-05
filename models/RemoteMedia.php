@@ -148,12 +148,19 @@ class RemoteMedia extends \base_core\models\Base {
 
 					$titles = [];
 
-					if (preg_match("/\<title.*\>(.*)\<\/title\>/isU", $result, $matches)) {
+					// This gives us "Deutscher Bundestag - Mediathek - 46. Sitzung
+					// vom 05.07.2018", from which we extract just the last part. The
+					// "Deutscher Bundestag" string is added back later.
+					if (preg_match("/\<title.*\>Deutscher Bundestag - Mediathek - (.*)\<\/title\>/isU", $result, $matches)) {
 						$titles[] = $matches[1];
 					}
 					if (preg_match('/\<meta name="description" content="(.*)"/iU', $result, $matches)) {
+						// This adds i.e. "Gesamtaufnahme der Plenarsitzung", the
+						// descriptive title is in the meta information.
 						$titles[] = $matches[1];
 					}
+					$titles[] = 'Deutscher Bundestag';
+
 					return implode(' / ', $titles);
 				},
 				'thumbnailUrl' => function($url, $request) {
