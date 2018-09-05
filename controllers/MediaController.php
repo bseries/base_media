@@ -304,7 +304,7 @@ class MediaController extends \base_core\controllers\BaseController {
 
 		if (!empty($this->request->data['url'])) {
 			// Will throw an exception itself if URL is no supported.
-			$item = RemoteMedia::createFromUrl($this->request->data['url']);
+			$item = RemoteMedia::createFromUrl($this->request->data['url'], $this->request);
 
 			// Need internal URL format so that registered schemes match.
 			$source = $item->url(['internal' => true]);

@@ -29,4 +29,5 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Material Design Icons under assets/ico/material are (c) Google, Inc. and
 licensed under the Apache License V 2.0.
 
-
+The video placeholder image under assets/img/bundestagstv_placeholder.jpg is 
+(c) Deutscher Bundestag and included and the Fair Use rules.

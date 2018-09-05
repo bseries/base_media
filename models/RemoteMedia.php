@@ -9,10 +9,11 @@
 
 namespace base_media\models;
 
-use lithium\storage\Cache;
-use lithium\analysis\Logger;
 use Embera\Embera;
 use Exception;
+use base_core\models\Assets;
+use lithium\analysis\Logger;
+use lithium\storage\Cache;
 
 class RemoteMedia extends \base_core\models\Base {
 
@@ -155,8 +156,8 @@ class RemoteMedia extends \base_core\models\Base {
 					}
 					return implode(' / ', $titles);
 				},
-				'thumbnailUrl' => function($url) {
-					return null;
+				'thumbnailUrl' => function($url, $request) {
+					return Assets::base($request ?: 'file') . '/base-media/img/bundestagstv_placeholder.jpg';
 				}
 			]
 		];
@@ -191,7 +192,7 @@ class RemoteMedia extends \base_core\models\Base {
 		return current($results);
 	}
 
-	public static function createFromUrl($url) {
+	public static function createFromUrl($url, $request = null) {
 		if (!$provider = static::provider($url)) {
 			throw new Exception("Remote media `{$url}` not supported by any provider.");
 		}
@@ -199,7 +200,7 @@ class RemoteMedia extends \base_core\models\Base {
 			'title' => $provider['title']($url),
 			'url' => $url,
 			'provider' => $provider['name'],
-			'thumbnailUrl' => $provider['thumbnailUrl']($url)
+			'thumbnailUrl' => $provider['thumbnailUrl']($url, $request)
 		]);
 	}
 

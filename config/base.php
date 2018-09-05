@@ -43,6 +43,7 @@ Media::registerScheme('https', [
 ]);
 Media::registerScheme('file', [
 	'base' => PROJECT_PATH . (PROJECT_WEBROOT_NESTING ? '/app/webroot' : '') . '/media',
+	'download' => true, // Can be "downloaded" by copying the file.
 	'relative' => true,
 	'checksum' => true,
 	'transfer' => true,
@@ -95,6 +96,7 @@ MediaVersions::registerScheme('https', [
 
 MediaVersions::registerScheme('file', [
 	'base' => PROJECT_PATH . (PROJECT_WEBROOT_NESTING ? '/app/webroot' : '') . '/media_versions',
+	'download' => true, // Can be "downloaded" by copying the file.
 	'relative' => true,
 	'checksum' => true,
 	'delete' => true,
@@ -211,7 +213,7 @@ $makeRemoteImage = function($entity) {
 
 	if (!$entity->can('download')) {
 		$message  = "Can’t download image/poster URL `{$entity->url}`. ";
-		$message .= "You need to register a http scheme with downloading enabled to do so.";
+		$message .= "You'd need to enable downloading on the `" . $entity->scheme() . "` scheme.";
 		throw new Exception($message);
 	}
 	$entity->url = $entity->download();
