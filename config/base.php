@@ -114,7 +114,13 @@ MediaVersions::registerScheme('file', [
 		// Reformat instructions so we do not loose animations. Must protect with
 		// image pre-condition as videos might also get here and there are no
 		// video media info adapters.
-		if ($name === 'image' && Info::factory(['source' => $entity->url])->get('isAnimated')) {
+		try {
+			$isAnimated = Info::factory(['source' => $entity->url])->get('isAnimated');
+		} catch (Exception $e) {
+			Logger::debug("Failed to detect animated state in `{$entity->url}`, exception: " . $e->getMessage());
+			$isAnimated = false;
+		}
+		if ($name === 'image' && $isAnimated) {
 			Logger::debug("Detected source `{$entity->url}` as animated.");
 
 			$instructions['convert'] = 'image/gif';
@@ -135,8 +141,12 @@ MediaVersions::registerScheme('file', [
 				6 => -90,
 				8 => 90
 			];
-			$orientation = Info::factory(['source' => $entity->url])->get('orientation');
-
+			try {
+				$orientation = Info::factory(['source' => $entity->url])->get('orientation');
+			} catch (Exception $e) {
+				Logger::debug("Failed to detect orientation in `{$entity->url}`, exception: " . $e->getMessage());
+				$orientation  = false;
+			}
 			if (!$orientation || !isset($exifToDegrees[$orientation])) {
 				// Do not raise notice, as probably many images have no exif data, but are
 				// already properly rotated.
