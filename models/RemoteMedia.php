@@ -139,6 +139,9 @@ class RemoteMedia extends \base_core\models\Base {
 				// Construct title from page title + the description. The page by itself
 				// does only include the speaker.
 				'title' => function($url) {
+					$id = basename(parse_url($url, PHP_URL_PATH));
+					$url = "https://www.bundestag.de/mediathekoverlay?view=main&videoid={$id}";
+
 					$ch = curl_init();
 					curl_setopt($ch, CURLOPT_URL, $url);
 					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -148,16 +151,13 @@ class RemoteMedia extends \base_core\models\Base {
 
 					$titles = [];
 
-					// This gives us "Deutscher Bundestag - Mediathek - 46. Sitzung
-					// vom 05.07.2018", from which we extract just the last part. The
-					// "Deutscher Bundestag" string is added back later.
-					if (preg_match("/\<title.*\>Deutscher Bundestag - Mediathek - (.*)\<\/title\>/isU", $result, $matches)) {
-						$titles[] = $matches[1];
+					if (preg_match("/\<h3.*\>(.*)\<\/h3\>/isU", $result, $matches)) {
+						$titles[] = trim(strip_tags($matches[1]));
 					}
-					if (preg_match('/\<meta name="description" content="(.*)"/iU', $result, $matches)) {
+					if (preg_match("/\<div class=\"bt-video-titel\"\>(.*)\<\/div\>/isU", $result, $matches)) {
 						// This adds i.e. "Gesamtaufnahme der Plenarsitzung", the
 						// descriptive title is in the meta information.
-						$titles[] = $matches[1];
+						$titles[] = trim(strip_tags($matches[1]));
 					}
 					$titles[] = 'Deutscher Bundestag';
 
