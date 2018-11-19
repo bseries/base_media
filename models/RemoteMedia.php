@@ -64,8 +64,12 @@ class RemoteMedia extends \base_core\models\Base {
 				'title' => function($url) {
 					return static::_oembed($url)['title'];
 				},
+				// Upgrade to higher resolution and de-letterbox in one go.
 				'thumbnailUrl' => function($url) {
-					return static::_oembed($url)['thumbnail_url'];
+					if (!$item = static::_oembed($url)) {
+						return $item;
+					}
+					return str_replace('hqdefault.', 'maxresdefault.', $item['thumbnail_url']);
 				}
 			],
 			'instagram' => [
