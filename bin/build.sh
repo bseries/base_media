@@ -23,16 +23,6 @@ last 2 Firefox versions
 last 2 Safari versions
 EOF
 
-# Babel cli can be installed locally, but presets are always search locally.
-cat << EOF > package.json
-{
-	"devDependencies": {
-		"@babel/preset-env": "^7.0.0"
-	}
-}
-EOF
-npm install --save-dev
-
 # Babelify in-place for full current ESx compatiblity.
 cat << EOF > .babelrc
 {
@@ -51,4 +41,4 @@ for f in $(find assets/js -type f -name *.js); do
 	uglifyjs --compress --mangle -o $f.min -- $f && mv $f.min $f
 done
 
-rm -r node_modules package.json package-lock.json .browserslistrc .babelrc
+rm -r .browserslistrc .babelrc
