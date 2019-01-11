@@ -11,6 +11,7 @@
         "composer/installers": "^1",
         "davidpersson/mm": "^2.2",
         "davidpersson/temporary": "^1",
+        "ksubileau/color-thief-php": "^1.4",
         "mpratt/embera": "1.8.*",
         "php": "^7",
         "unionofrad/li3_behaviors": "^2.1",

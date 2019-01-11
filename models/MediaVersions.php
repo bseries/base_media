@@ -23,6 +23,7 @@ class MediaVersions extends \base_core\models\Base {
 	use \base_core\models\UrlChecksumTrait;
 	use \base_core\models\UrlDownloadTrait;
 	use \base_media\models\MediaInfoTrait;
+	use \base_media\models\ColorTrait;
 
 	public $belongsTo = ['Media'];
 
