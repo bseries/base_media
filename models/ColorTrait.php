@@ -11,6 +11,8 @@ namespace base_media\models;
 use ColorThief\ColorThief;
 use Exception;
 use Imagick;
+use ImagickException;
+use RuntimeException;
 use lithium\storage\Cache;
 
 // Expects $entity to implement url() method, so we can retrieve the underlying physical
@@ -23,7 +25,11 @@ trait ColorTrait {
 		if ($cached = Cache::read('default', $cacheKey)) {
 			return $cached;
 		}
-		$result = ColorThief::getColor($entity->url('file'), 10);
+		try {
+			$result = ColorThief::getColor($entity->url('file'), 10);
+		} catch (RuntimeException $e) {
+			return false;
+		}
 
 		Cache::write('default', $cacheKey, $result, Cache::PERSIST);
 		return $result;
@@ -44,12 +50,17 @@ trait ColorTrait {
 		if ($cached = Cache::read('default', $cacheKey)) {
 			return $cached;
 		}
-		$image = new Imagick($entity->url('file'));
+		try {
+			$image = new Imagick($entity->url('file'));
 
-		$image->scaleImage(1, 1);
-		$pixels = $image->getImageHistogram();
-		$color = $pixels[0]->getColor();
-		$color = [$color['r'], $color['g'], $color['b']];
+			$image->scaleImage(1, 1);
+			$pixels = $image->getImageHistogram();
+
+			$color = $pixels[0]->getColor();
+			$color = [$color['r'], $color['g'], $color['b']];
+		} catch (ImagickException $e) {
+			return false;
+		}
 
 		$perceivedBrightness = sqrt(
 			pow($color[0], 2) * 0.241 +
