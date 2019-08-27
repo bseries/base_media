@@ -4,7 +4,7 @@
     "type": "lithium-library",
     "license": ["BSD-3-Clause"],
     "require": {
-        "atelierdisko/cute": "^0.3 || 0.4.x-dev",
+        "atelierdisko/cute": "^0.3 || ^0.4",
         "atelierdisko/jsend": "^1",
         "atelierdisko/li3_flash_message": "^1",
         "bseries/base_core": "^1.6 || 1.6.x-dev",
