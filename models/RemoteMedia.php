@@ -39,14 +39,14 @@ class RemoteMedia extends \base_core\models\Base {
 				'title' => function($url) {
 					return static::_oembed($url)['title'];
 				},
-				// Upgrade thumbnails to highest resolution possible. Vimeo uses a fixed
-				// scheme for naming the thumbnail files, which we exploit here. This
-				// frees us from going over the offical API.
+				// Upgrade thumbnails to highest resolution possible without going
+				// over the API. The height parameter is accepted by Vimeo, currently
+				// the maximum returned size is 1280x720.
 				'thumbnailUrl' => function($url) {
-					if (!$item = static::_oembed($url)) {
+					if (!$item = static::_oembed($url, ['height' => 5000])) {
 						return $item;
 					}
-					return str_replace('_640.', '_1280.', $item['thumbnail_url']);
+					return $item['thumbnail_url'];
 				}
 			],
 			'youtube' => [
@@ -174,15 +174,16 @@ class RemoteMedia extends \base_core\models\Base {
 		];
 	}
 
-	protected static function _oembed($url) {
-		$cacheKey = 'oembed_meta_' . md5($url);
+	protected static function _oembed($url, $options = []) {
+		$cacheKey = 'oembed_meta_' . md5($url . serialize($options));
 
 		if ($results = Cache::read('default', $cacheKey)) {
 			return current($results);
 		}
 
 		$client = new Embera([
-			'allow' => array_keys(static::providers())
+			'allow' => array_keys(static::providers()),
+			'params' => $options
 		]);
 		$results = $client->getUrlInfo($url);
 
