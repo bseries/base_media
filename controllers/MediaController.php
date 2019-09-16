@@ -418,6 +418,8 @@ class MediaController extends \base_core\controllers\BaseController {
 			$references = References::find('list', [
 				'order' => ['name' => 'ASC']
 			]);
+		} else {
+			$references = [];
 		}
 		return compact('references');
 	}
